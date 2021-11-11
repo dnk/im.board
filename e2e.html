@@ -5,7 +5,7 @@ var rows = [
 	{ name: "UAM bulk-accounts-import", job: "uam/master/tests/master/bulk-accounts-import", isStableOnly: false},
 	{ name: "UAM customers-onboarding", job: "uam/master/tests/master/customers-onboarding", isStableOnly: false},
 	{ name: "UAM reseller-management", job: "uam/master/tests/master/reseller-management", isStableOnly: false},
-	{ name: "UAM performance", job: "trunk/tests/perftests-ng/perftest-uam", isStableOnly: true},
+	{ name: "UAM performance", job: "trunk/tests/perftests-ng/perftest-uam", isStableOnly: true, buildParam: "BUILD"},
 	{ name: "GDPR gdpr-management", job: "gdpr/master/tests/master/gdpr-management", isStableOnly: false},
 	{ name: "GDPR gdpr-management-ui", job: "gdpr/master/tests/master/gdpr-management-ui", isStableOnly: false},
 	{ name: "GDPR management srv", job: "gdpr/master/tests/master/gdpr-management-with-services", isStableOnly: false},
@@ -32,15 +32,15 @@ function jobUrl(job) {
 	return jenkinsRoot + "/view/components/" + job.split("/").map(part => { return "job/" + part; }).join("/");
 }
 
-function imageUrl(job, isStable) {
-	return jenkinsRoot + "/buildStatus/icon?job=" + encodeURIComponent(job) + (isStable ? "&build=last:${params.BUILD_NAME=}" : "&subject=%20%20%20%20%20%20%20%20%20%20%20%20%20 ${params.BUILD_NAME}");
+function imageUrl(job, isStable, buildParam) {
+	return jenkinsRoot + "/buildStatus/icon?job=" + encodeURIComponent(job) + (isStable ? `&build=last:\${params.${buildParam}=}` : `&subject=%20%20%20%20%20%20%20%20%20%20%20%20%20 \${params.${buildParam}}`);
 }
 
-function buildA(job, isStable) {
+function buildA(job, isStable, buildParam) {
 	var a = document.createElement('a');
 	a.setAttribute("href", jobUrl(job));
 	var img = document.createElement("img");
-	img.setAttribute("src", imageUrl(job, isStable));
+	img.setAttribute("src", imageUrl(job, isStable, buildParam));
 	a.appendChild(img);
 	return a;
 }
@@ -51,9 +51,10 @@ function onload() {
 	rows.forEach(function (data) {
 		var row = root.insertRow();
 		row.insertCell().appendChild(document.createTextNode(data.name));
-		row.insertCell().appendChild(buildA(data.job, true));
+		var buildParam = data.buildParam || "BUILD_NAME";
+		row.insertCell().appendChild(buildA(data.job, true, buildParam));
 		if (!data.isStableOnly) {
-			row.insertCell().appendChild(buildA(data.job, false));
+			row.insertCell().appendChild(buildA(data.job, false, buildParam));
 		}
 	});
 }
