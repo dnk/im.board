@@ -45,20 +45,24 @@ function buildA(job, isStable) {
 	return a;
 }
 
-var root = document.getElementById("root");
+function onload() {
+	var root = document.getElementById("root");
 
-rows.forEach(function (data) {
-	var row = root.insertRow();
-	row.insertCell().appendChild(document.createTextNode(data.name));
-	row.insertCell().appendChild(buildA(data.job, false));
-	row.insertCell().appendChild(buildA(data.job, true));
-});
+	rows.forEach(function (data) {
+		var row = root.insertRow();
+		row.insertCell().appendChild(document.createTextNode(data.name));
+		row.insertCell().appendChild(buildA(data.job, false));
+		row.insertCell().appendChild(buildA(data.job, true));
+	});
+}
 </script>
 
-<table id="root">
-    <tr>
-        <th>Name</th>
-        <th>latest</th>
-        <th>stable</th>
-    </tr>
-</table>
+<body>
+	<table id="root" onload="onload()">
+	    <tr>
+		<th>Name</th>
+		<th>latest</th>
+		<th>stable</th>
+	    </tr>
+	</table>
+</body>
