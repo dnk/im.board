@@ -33,7 +33,7 @@ function jobUrl(job) {
 }
 
 function imageUrl(job, isStable) {
-	return jenkinsRoot + "/buildStatus/icon?job=" + encodeURIComponent(job) + (isStable ? "&build=last:${params.BUILD_NAME=}" : "");
+	return jenkinsRoot + "/buildStatus/icon?job=" + encodeURIComponent(job) + (isStable ? "&build=last:${params.BUILD_NAME=}" : "&subject=%20%20%20%20%20%20%20%20%20%20%20%20%20 ${params.BUILD_NAME}");
 }
 
 function buildA(job, isStable) {
