@@ -2,30 +2,30 @@
 var jenkinsRoot = "https://ci.int.zone/jenkins";
 
 var rows = [
-	{ name: "UAM bulk-accounts-import", job: "uam/master/tests/master/bulk-accounts-import"},
-	{ name: "UAM customers-onboarding", job: "uam/master/tests/master/customers-onboarding"},
-	{ name: "UAM reseller-management", job: "uam/master/tests/master/reseller-management"},
-	{ name: "UAM performance", job: "trunk/tests/perftests-ng/perftest-uam", skipStable: true},
-	{ name: "GDPR gdpr-management", job: "gdpr/master/tests/master/gdpr-management" },
-	{ name: "GDPR gdpr-management-ui", job: "gdpr/master/tests/master/gdpr-management-ui"},
-	{ name: "GDPR management srv", job: "gdpr/master/tests/master/gdpr-management-with-services"},
-	{ name: "BSS password-policy", job: "bss/master/tests/master/password-policy"},
-	{ name: "BSS UX1", job: "bss/master/tests/master/ux1"},
-	{ name: "Web analytics", job: "bss/master/tests/master/web-analytics" },
-	{ name: "Subscription maintenance", job: "bss/master/tests/master/subscription-maintenance" },
-	{ name: "RE Transfer Account", job: "bss/master/tests/master/transfer-account-subscription-with-re" },
-	{ name: "OSS gdpr", job: "oss/master/tests/master/gdpr" },
-	{ name: "OSS gdpr-privacy-notice", job: "oss/master/tests/master/gdpr-privacy-notice" },
-	{ name: "OSS license-management", job: "oss/master/tests/master/license-management" },
-	{ name: "OSS user-management-basic", job: "oss/master/tests/master/user-management-basic" },
-	{ name: "OSS user-management-advanced", job: "oss/master/tests/master/user-management-advanced" },
-	{ name: "OSS user-events-and-services", job: "oss/master/tests/master/user-events-and-services" },
-	{ name: "OSS account-notes", job: "oss/master/tests/master/account-notes" },
-	{ name: "CEP", job: "bss/master/tests/master/cep" },
-	{ name: "IDP", job: "idp-backend/master/tests/master/idp" },
-	{ name: "RDE", job: "rateddataexport/unstable/tests/master/rateddataexport" },
-	{ name: "RE migrator", job: "ratingengine-backend/master/tests/master/ratingengine-migration" },
-	{ name: "RE migrator 1.6", job: "ratingengine-backend/release-16/tests/21.0/ratingengine-migration"}
+	{ name: "UAM bulk-accounts-import", job: "uam/master/tests/master/bulk-accounts-import", isStableOnly: false},
+	{ name: "UAM customers-onboarding", job: "uam/master/tests/master/customers-onboarding", isStableOnly: false},
+	{ name: "UAM reseller-management", job: "uam/master/tests/master/reseller-management", isStableOnly: false},
+	{ name: "UAM performance", job: "trunk/tests/perftests-ng/perftest-uam", isStableOnly: true},
+	{ name: "GDPR gdpr-management", job: "gdpr/master/tests/master/gdpr-management", isStableOnly: false},
+	{ name: "GDPR gdpr-management-ui", job: "gdpr/master/tests/master/gdpr-management-ui", isStableOnly: false},
+	{ name: "GDPR management srv", job: "gdpr/master/tests/master/gdpr-management-with-services", isStableOnly: false},
+	{ name: "BSS password-policy", job: "bss/master/tests/master/password-policy", isStableOnly: true},
+	{ name: "BSS UX1", job: "bss/master/tests/master/ux1", isStableOnly: true},
+	{ name: "Web analytics", job: "bss/master/tests/master/web-analytics", isStableOnly: true},
+	{ name: "Subscription maintenance", job: "bss/master/tests/master/subscription-maintenance", isStableOnly: true },
+	{ name: "RE Transfer Account", job: "bss/master/tests/master/transfer-account-subscription-with-re", isStableOnly: true },
+	{ name: "OSS gdpr", job: "oss/master/tests/master/gdpr", isStableOnly: true },
+	{ name: "OSS gdpr-privacy-notice", job: "oss/master/tests/master/gdpr-privacy-notice", isStableOnly: true },
+	{ name: "OSS license-management", job: "oss/master/tests/master/license-management", isStableOnly: true },
+	{ name: "OSS user-management-basic", job: "oss/master/tests/master/user-management-basic", isStableOnly: true },
+	{ name: "OSS user-management-advanced", job: "oss/master/tests/master/user-management-advanced", isStableOnly: true },
+	{ name: "OSS user-events-and-services", job: "oss/master/tests/master/user-events-and-services", isStableOnly: true },
+	{ name: "OSS account-notes", job: "oss/master/tests/master/account-notes", isStableOnly: true },
+	{ name: "CEP", job: "bss/master/tests/master/cep", isStableOnly: true },
+	{ name: "IDP", job: "idp-backend/master/tests/master/idp", isStableOnly: false },
+	{ name: "RDE", job: "rateddataexport/unstable/tests/master/rateddataexport", isStableOnly: false },
+	{ name: "RE migrator", job: "ratingengine-backend/master/tests/master/ratingengine-migration", isStableOnly: false },
+	{ name: "RE migrator 1.6", job: "ratingengine-backend/release-16/tests/21.0/ratingengine-migration", isStableOnly: false}
 ];
 
 function jobUrl(job) {
@@ -51,9 +51,9 @@ function onload() {
 	rows.forEach(function (data) {
 		var row = root.insertRow();
 		row.insertCell().appendChild(document.createTextNode(data.name));
-		row.insertCell().appendChild(buildA(data.job, false));
-		if (!data.skipStable) {
-			row.insertCell().appendChild(buildA(data.job, true));
+		row.insertCell().appendChild(buildA(data.job, true));
+		if (!data.isStableOnly) {
+			row.insertCell().appendChild(buildA(data.job, false));
 		}
 	});
 }
@@ -63,8 +63,8 @@ function onload() {
 	<table id="root">
 		<tr>
 			<th>Name</th>
-			<th>latest</th>
 			<th>stable</th>
+			<th>latest</th>
 		</tr>
 	</table>
 </body>
