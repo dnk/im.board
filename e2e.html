@@ -5,7 +5,7 @@ var rows = [
 	{ name: "UAM bulk-accounts-import", job: "uam/master/tests/master/bulk-accounts-import"},
 	{ name: "UAM customers-onboarding", job: "uam/master/tests/master/customers-onboarding"},
 	{ name: "UAM reseller-management", job: "uam/master/tests/master/reseller-management"},
-	{ name: "UAM performance", job: "trunk/tests/perftests-ng/perftest-uam"},
+	{ name: "UAM performance", job: "trunk/tests/perftests-ng/perftest-uam", skipStable: true},
 	{ name: "GDPR gdpr-management", job: "gdpr/master/tests/master/gdpr-management" },
 	{ name: "GDPR gdpr-management-ui", job: "gdpr/master/tests/master/gdpr-management-ui"},
 	{ name: "GDPR management srv", job: "gdpr/master/tests/master/gdpr-management-with-services"},
@@ -52,7 +52,9 @@ function onload() {
 		var row = root.insertRow();
 		row.insertCell().appendChild(document.createTextNode(data.name));
 		row.insertCell().appendChild(buildA(data.job, false));
-		row.insertCell().appendChild(buildA(data.job, true));
+		if (!data.skipStable) {
+			row.insertCell().appendChild(buildA(data.job, true));
+		}
 	});
 }
 </script>
