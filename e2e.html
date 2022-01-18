@@ -39,6 +39,7 @@ function imageUrl(job, isStable, buildParam) {
 function buildA(job, isStable, buildParam) {
 	var a = document.createElement('a');
 	a.setAttribute("href", jobUrl(job));
+	a.setAttribute("target","_blank");
 	var img = document.createElement("img");
 	img.setAttribute("src", imageUrl(job, isStable, buildParam));
 	a.appendChild(img);
