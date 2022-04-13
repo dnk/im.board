@@ -1,3 +1,12 @@
+<style>
+.e2e tr:nth-of-type(odd) {
+	background-color: #fefae0;
+}
+.e2e tr:nth-of-type(even) {
+	background-color: #faedcd;
+}
+</style>
+
 <script>
 var jenkinsRoot = "https://ci.int.zone/jenkins";
 
@@ -145,7 +154,7 @@ function sortTable(n, tableId) {
 		-->
 		</tr>
 	</table>
-	<table id="e2e">
+	<table id="e2e" class="e2e">
 		<tr>
 			<th onclick="sortTable(0, 'e2e')">Name</th>
 			<th onclick="sortTable(1, 'e2e')">Owner</th>
