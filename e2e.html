@@ -1,9 +1,8 @@
 <style>
 .e2e tr:nth-of-type(odd) {
-	background-color: #fefae0;
 }
 .e2e tr:nth-of-type(even) {
-	background-color: #faedcd;
+	  filter: brightness(97%);
 }
 </style>
 
@@ -64,6 +63,14 @@ function buildA(job, isStable, buildParam) {
 	return a;
 }
 
+const palette = ["#FBF8CC", "#FDE4CF", "#FFCFD2", "#F1C0E8", "#CFBAF0", "#A3C4F3", "#90DBF4", "#8EECF5", "#98F5E1", "#B9FBC0"];
+
+function* getColor() {
+	for(color in palette) {
+		yield palette[color];
+	}
+}
+
 function onload() {
 	var buildsRoot = document.getElementById("build");
 	builds.forEach(function (data) {
@@ -76,15 +83,24 @@ function onload() {
 
 	var e2eRoot = document.getElementById("e2e");
 
+	var colors = {};
+
+	const colorGenerator = getColor()
+
 	e2e.forEach(function (data) {
-		var row = e2eRoot.insertRow();
-		row.insertCell().appendChild(document.createTextNode(data.name));
 		var owner = data.owner || "";
+		var color = colors[owner] || colorGenerator.next().value;
+		colors[owner] = color;
+		var row = e2eRoot.insertRow();
+		row.style.cssText = `background-color: ${color}`;
+		row.insertCell().appendChild(document.createTextNode(data.name));
 		row.insertCell().appendChild(document.createTextNode(owner));
 		var buildParam = data.buildParam || "BUILD_NAME";
 		var detectVersion = data.detectVersion || false;
 		row.insertCell().appendChild(buildA(data.job, detectVersion, buildParam));
 	});
+
+	console.log(colors);
 }
 </script>
 
