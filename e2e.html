@@ -2,7 +2,7 @@
 .e2e tr:nth-of-type(odd) {
 }
 .e2e tr:nth-of-type(even) {
-	  filter: brightness(97%);
+	  /*filter: brightness(97%);*/
 }
 </style>
 
@@ -63,7 +63,7 @@ function buildA(job, isStable, buildParam) {
 	return a;
 }
 
-const palette = ["#FBF8CC", "#FDE4CF", "#FFCFD2", "#F1C0E8", "#CFBAF0", "#A3C4F3", "#90DBF4", "#8EECF5", "#98F5E1", "#B9FBC0"];
+const palette = ["LightCoral", "LightSalmon", "Gold", "YellowGreen", "PaleTurquoise", "Lavender", "LightSteelBlue"];
 
 function* getColor() {
 	for(color in palette) {
