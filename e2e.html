@@ -7,10 +7,10 @@
 </style>
 
 <script>
-var jenkinsRoot = "https://ci.int.zone/jenkins";
+var jenkinsRoot = "https://jenkins.com.int.zone/";
 
 var builds = [
-	{ name: "GDPR", owner: "", job: "gdpr/master/validate-and-promote", detectVersion: true},
+	{ name: "GDPR", owner: "", job: "gdpr-backend/master/validate-and-promote", detectVersion: true},
 	{ name: "IDP", owner: "", job: "idp-backend/master/validate-and-promote", detectVersion: true},
 	{ name: "Rating Engine", owner: "", job: "ratingengine-backend/master/validate-and-promote", detectVersion: true},
 	{ name: "UAM", owner: "", job: "uam/master/validate-and-promote", detectVersion: true},
@@ -164,9 +164,9 @@ function sortTable(n, tableId) {
 <body onload="onload()" height="640">
 	<table id="build">
 		<tr>
-		<!-- 
+		<!--
 			<th onclick="sortTable(0, 'build')">Name</th>
-			<th>Status</th> 
+			<th>Status</th>
 		-->
 		</tr>
 	</table>
