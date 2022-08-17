@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <style>
 .e2e tr:nth-of-type(odd) {
 }
@@ -46,11 +47,11 @@ var e2e = [
 
 function jobUrl(job) {
 	var dontMap = false;
-	return jenkinsRoot + "/view/components/" + job.split("/").map(part => {return "job/" + part;}).join("/");
+	return jenkinsRoot + job.split("/").map(part => {return "job/" + part;}).join("/");
 }
 
 function imageUrl(job, detectVersion, buildParam) {
-	return jenkinsRoot + "/buildStatus/icon?job=" + encodeURIComponent(job) + (detectVersion ? `&subject=%20%20%20%20%20%20%20%20%20%20%20%20%20 \${params.${buildParam}}`: `&build=last`);
+	return jenkinsRoot + "buildStatus/icon?job=" + encodeURIComponent(job) + (detectVersion ? "&subject=" + encodeURIComponent(`            \${params.${buildParam}}`): `&build=last`);
 }
 
 function buildA(job, isStable, buildParam) {
@@ -175,7 +176,6 @@ function sortTable(n, tableId) {
 			<th onclick="sortTable(0, 'e2e')">Name</th>
 			<th onclick="sortTable(1, 'e2e')">Owner</th>
 			<th>Status</th>
-			<!-- <th>latest</th> -->
 		</tr>
 	</table>
 </body>
