@@ -28,7 +28,7 @@ var e2e = [
 	{ name: "UAM bulk-accounts-import", owner: "Denis", job: "uam/master/tests/master/bulk-accounts-import"},
 	{ name: "UAM customers-onboarding", owner: "Denis", job: "uam/master/tests/master/customers-onboarding"},
 	{ name: "UAM reseller-management", owner: "Denis", job: "uam/master/tests/master/reseller-management"},
-	{ name: "UAM performance", owner: "Dima", job: "trunk/tests/perftests-ng/perftest-uam-cnc"},
+	{ name: "UAM performance", owner: "Dima", job: "trunk/tests/perftests-ng/perftest-uam-cnc", jenkinsRoot: "https://ci.na.int.zone/jenkins/"},
 	{ name: "GDPR gdpr-management", owner: "Vlad", job: "gdpr-backend/master/tests/master/gdpr-management"},
 	{ name: "GDPR gdpr-management-ui", owner: "Vlad", job: "gdpr-backend/master/tests/master/gdpr-management-ui"},
 	{ name: "GDPR management srv", owner: "Vlad", job: "gdpr-backend/master/tests/master/gdpr-management-with-services"},
@@ -45,21 +45,21 @@ var e2e = [
 	{ name: "IDP", owner:"Temur", job: "idp-backend/master/tests/master/idp" },
 ];
 
-function jobUrl(job) {
+function jobUrl(jenkinsRoot, job) {
 	var dontMap = false;
 	return jenkinsRoot + job.split("/").map(part => {return "job/" + part;}).join("/");
 }
 
-function imageUrl(job, detectVersion, buildParam) {
+function imageUrl(jenkinsRoot, job, detectVersion, buildParam) {
 	return jenkinsRoot + "buildStatus/icon?job=" + encodeURIComponent(job) + (detectVersion ? "&subject=" + encodeURIComponent(`            \${params.${buildParam}}`): `&build=last`);
 }
 
-function buildA(job, isStable, buildParam) {
+function buildA(jenkinsRoot, job, isStable, buildParam) {
 	var a = document.createElement('a');
-	a.setAttribute("href", jobUrl(job));
+	a.setAttribute("href", jobUrl(jenkinsRoot, job));
 	a.setAttribute("target","_blank");
 	var img = document.createElement("img");
-	img.setAttribute("src", imageUrl(job, isStable, buildParam));
+	img.setAttribute("src", imageUrl(jenkinsRoot, job, isStable, buildParam));
 	a.appendChild(img);
 	return a;
 }
@@ -79,7 +79,8 @@ function onload() {
 		row.insertCell().appendChild(document.createTextNode(data.name));
 		var buildParam = data.buildParam || "BUILD_NAME";
 		var detectVersion = data.detectVersion || false;
-		row.insertCell().appendChild(buildA(data.job, detectVersion, buildParam));
+		var baseUrl = data.jenkinsRoot || jenkinsRoot;
+		row.insertCell().appendChild(buildA(baseUrl, data.job, detectVersion, buildParam));
 	});
 
 	var e2eRoot = document.getElementById("e2e");
@@ -89,6 +90,7 @@ function onload() {
 	const colorGenerator = getColor()
 
 	e2e.forEach(function (data) {
+		var baseUrl = data.jenkinsRoot || jenkinsRoot;
 		var owner = data.owner || "";
 		var color = colors[owner] || colorGenerator.next().value;
 		colors[owner] = color;
@@ -98,7 +100,7 @@ function onload() {
 		row.insertCell().appendChild(document.createTextNode(owner));
 		var buildParam = data.buildParam || "BUILD_NAME";
 		var detectVersion = data.detectVersion || false;
-		row.insertCell().appendChild(buildA(data.job, detectVersion, buildParam));
+		row.insertCell().appendChild(buildA(baseUrl, data.job, detectVersion, buildParam));
 	});
 
 	console.log(colors);
