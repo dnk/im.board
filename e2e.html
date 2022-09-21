@@ -58,6 +58,7 @@ function buildA(jenkinsRoot, job, isStable, buildParam) {
 	var a = document.createElement('a');
 	a.setAttribute("href", jobUrl(jenkinsRoot, job));
 	a.setAttribute("target","_blank");
+	a.setAttribute("rel", "nofollow noopener noreferrer");
 	var img = document.createElement("img");
 	img.setAttribute("src", imageUrl(jenkinsRoot, job, isStable, buildParam));
 	a.appendChild(img);
