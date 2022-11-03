@@ -11,6 +11,8 @@
 var jenkinsRoot = "https://jenkins.com.int.zone/";
 
 var builds = [
+	{ name: "OSS", owner: "", job: "oss/unstable/validate-and-promote", detectVersion: true},
+	{ name: "BSS", owner: "", job: "bss/unstable/validate-and-promote", detectVersion: true},
 	{ name: "GDPR", owner: "", job: "gdpr-backend/master/validate-and-promote", detectVersion: true},
 	{ name: "IDP", owner: "", job: "idp-backend/master/validate-and-promote", detectVersion: true},
 	{ name: "Rating Engine", owner: "", job: "ratingengine-backend/master/validate-and-promote", detectVersion: true},
@@ -50,17 +52,24 @@ function jobUrl(jenkinsRoot, job) {
 	return jenkinsRoot + job.split("/").map(part => {return "job/" + part;}).join("/");
 }
 
-function imageUrl(jenkinsRoot, job, detectVersion, buildParam) {
-	return jenkinsRoot + "buildStatus/icon?job=" + encodeURIComponent(job) + (detectVersion ? "&subject=" + encodeURIComponent(`            \${params.${buildParam}}`): `&build=last`);
+function imageUrl(jenkinsRoot, job, detectVersion, buildParam, build) {
+	var url = jenkinsRoot + "buildStatus/icon?job=" + encodeURIComponent(job);
+	if (detectVersion) {
+		url += "&subject=" + encodeURIComponent(`            \${params.${buildParam}}`);
+	}
+	var realBuild = build ? build: 'last';
+	url += `&build=${realBuild}`;
+
+	return url;
 }
 
-function buildA(jenkinsRoot, job, isStable, buildParam) {
+function buildA(jenkinsRoot, job, isStable, buildParam, build) {
 	var a = document.createElement('a');
 	a.setAttribute("href", jobUrl(jenkinsRoot, job));
 	a.setAttribute("target","_blank");
 	a.setAttribute("rel", "nofollow noopener noreferrer");
 	var img = document.createElement("img");
-	img.setAttribute("src", imageUrl(jenkinsRoot, job, isStable, buildParam));
+	img.setAttribute("src", imageUrl(jenkinsRoot, job, isStable, buildParam, build));
 	a.appendChild(img);
 	return a;
 }
@@ -82,6 +91,7 @@ function onload() {
 		var detectVersion = data.detectVersion || false;
 		var baseUrl = data.jenkinsRoot || jenkinsRoot;
 		row.insertCell().appendChild(buildA(baseUrl, data.job, detectVersion, buildParam));
+		row.insertCell().appendChild(buildA(baseUrl, data.job, detectVersion, buildParam, 'lastStable'));
 	});
 
 	var e2eRoot = document.getElementById("e2e");
