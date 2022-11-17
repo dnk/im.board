@@ -13,8 +13,8 @@ var jenkinsRoot = "https://jenkins.com.int.zone/";
 var builds = [
 	{ name: "OSS", owner: "", job: "oss/unstable/validate-and-promote", detectVersion: true},
 	{ name: "BSS", owner: "", job: "bss/unstable/validate-and-promote", detectVersion: true},
-	{ name: "GDPR", owner: "", job: "gdpr-backend/master/validate-and-promote", detectVersion: true},
-	{ name: "IDP", owner: "", job: "idp-backend/master/validate-and-promote", detectVersion: true},
+	// { name: "GDPR", owner: "", job: "gdpr-backend/master/validate-and-promote", detectVersion: true},
+	// { name: "IDP", owner: "", job: "idp-backend/master/validate-and-promote", detectVersion: true},
 	{ name: "Rating Engine", owner: "", job: "ratingengine-backend/master/validate-and-promote", detectVersion: true},
 	{ name: "UAM", owner: "", job: "uam/master/validate-and-promote", detectVersion: true},
 ];
@@ -31,9 +31,9 @@ var e2e = [
 	{ name: "UAM customers-onboarding", owner: "Denis", job: "uam/master/tests/master/customers-onboarding"},
 	{ name: "UAM reseller-management", owner: "Denis", job: "uam/master/tests/master/reseller-management"},
 	{ name: "UAM performance", owner: "Dima", job: "trunk/tests/perftests-ng/perftest-uam-cnc", jenkinsRoot: "https://ci.na.int.zone/jenkins/"},
-	{ name: "GDPR gdpr-management", owner: "Vlad", job: "gdpr-backend/master/tests/master/gdpr-management"},
-	{ name: "GDPR gdpr-management-ui", owner: "Vlad", job: "gdpr-backend/master/tests/master/gdpr-management-ui"},
-	{ name: "GDPR management srv", owner: "Vlad", job: "gdpr-backend/master/tests/master/gdpr-management-with-services"},
+	// { name: "GDPR gdpr-management", owner: "Vlad", job: "gdpr-backend/master/tests/master/gdpr-management"},
+	// { name: "GDPR gdpr-management-ui", owner: "Vlad", job: "gdpr-backend/master/tests/master/gdpr-management-ui"},
+	// { name: "GDPR management srv", owner: "Vlad", job: "gdpr-backend/master/tests/master/gdpr-management-with-services"},
 	{ name: "BSS password-policy", owner: "Dima", job: "bss/unstable/tests/master/password-policy"},
 	{ name: "BSS UX1", owner: "Denis", job: "bss/unstable/tests/master/ux1"},
 	{ name: "BSS Subscr maintenance", owner: "Denis", job: "bss/unstable/tests/master/subscription-maintenance" },
@@ -44,7 +44,7 @@ var e2e = [
 	{ name: "OSS user-management-advanced", owner: "Vlad", job: "oss/unstable/tests/master/user-management-advanced" },
 	{ name: "OSS user-events-and-services", owner: "Dima", job: "oss/unstable/tests/master/user-events-and-services" },
 	{ name: "OSS account-notes", owner: "Artem", job: "oss/unstable/tests/master/account-notes" },
-	{ name: "IDP", owner:"Temur", job: "idp-backend/master/tests/master/idp" },
+	// { name: "IDP", owner:"Temur", job: "idp-backend/master/tests/master/idp" },
 ];
 
 function jobUrl(jenkinsRoot, job) {
