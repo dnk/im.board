@@ -55,36 +55,53 @@ var builds = [
 	},
 	{ name: "E2E SDK", owner: "", job: "e2e-tests-v2/unstable/validate-and-promote", detectVersion: true},
 ];
+
+let dashboards = {
+	"unstable": [
+		{
+			name: "all",
+			url: "https://jenkins.com.int.zone/view/Tests/view/master/view/abondarenko/"
+		}
+	],
+	"21": [
+		{
+			name: "all",
+			url: "https://jenkins.com.int.zone/view/Tests/view/21/view/abondarenko/"
+		}
+	]
+};
+
+
 var e2e = [
 	{ name: "RE Refund CL", owner: "Ramil", job: "ratingengine-backend/master/tests/master/refund-policies-cancellation"},
 	{ name: "RE Refund RN+CL", owner: "Ramil", job: "ratingengine-backend/master/tests/master/refund-policies-cancellation-with-renew"},
 	{ name: "RE Refund CH", owner:"Ramil", job: "ratingengine-backend/master/tests/master/refund-policies-downsizing"},
 	{ name: "RE Refund RN+CH", owner: "Ramil", job: "ratingengine-backend/master/tests/master/refund-policies-downsizing-with-renew"},
 	{ name: "RE anonym", owner: "Ramil", job: "ratingengine-backend/master/tests/master/marketplace-anonymous-context"},
-	{ name: "RE Transfer account", owner: "Temur", job: "bss/unstable/tests/master/transfer-account-with-re"},
-	{ name: "RE Transfer subscription", owner: "Temur", job: "bss/unstable/tests/master/transfer-subscription-with-re"},
+	//{ name: "RE Transfer account", owner: "Temur", job: "bss/unstable/tests/master/transfer-account-with-re"},
+	//{ name: "RE Transfer subscription", owner: "Temur", job: "bss/unstable/tests/master/transfer-subscription-with-re"},
 	{ name: "RE migrator", owner: "Artem", job: "ratingengine-backend/master/tests/master/ratingengine-migration"},
 
-	{ name: "UAM bulk-accounts-import", owner: "Denis", job: "uam/master/tests/master/bulk-accounts-import"},
-	{ name: "UAM customers-onboarding", owner: "Denis", job: "uam/master/tests/master/customers-onboarding"},
-	{ name: "UAM reseller-management", owner: "Denis", job: "uam/master/tests/master/reseller-management"},
+	//{ name: "UAM bulk-accounts-import", owner: "Denis", job: "uam/master/tests/master/bulk-accounts-import"},
+	//{ name: "UAM customers-onboarding", owner: "Denis", job: "uam/master/tests/master/customers-onboarding"},
+	//{ name: "UAM reseller-management", owner: "Denis", job: "uam/master/tests/master/reseller-management"},
 	{ name: "UAM performance", owner: "Dima", job: "trunk/tests/perftests-ng/perftest-uam-cnc", jenkinsRoot: "https://ci.na.int.zone/jenkins/"},
 
-	{ name: "BSS password-policy", owner: "Dima", job: "bss/unstable/tests/master/password-policy"},
-	{ name: "BSS UX1", owner: "Denis", job: "bss/unstable/tests/master/ux1"},
-	{ name: "BSS Subscr maintenance", owner: "Denis", job: "bss/unstable/tests/master/subscription-maintenance" },
+	//{ name: "BSS password-policy", owner: "Dima", job: "bss/unstable/tests/master/password-policy"},
+	//{ name: "BSS UX1", owner: "Denis", job: "bss/unstable/tests/master/ux1"},
+	//{ name: "BSS Subscr maintenance", owner: "Denis", job: "bss/unstable/tests/master/subscription-maintenance" },
 
-	{ name: "OSS license-management", owner: "Vlad", job: "oss/unstable/tests/master/license-management" },
-	{ name: "OSS user-management-basic", owner: "Vlad", job: "oss/unstable/tests/master/user-management-basic" },
-	{ name: "OSS user-management-advanced", owner: "Vlad", job: "oss/unstable/tests/master/user-management-advanced" },
-	{ name: "OSS user-events-and-services", owner: "Dima", job: "oss/unstable/tests/master/user-events-and-services" },
-	{ name: "OSS account-notes", owner: "Artem", job: "oss/unstable/tests/master/account-notes" },
+	//{ name: "OSS license-management", owner: "Vlad", job: "oss/unstable/tests/master/license-management" },
+	//{ name: "OSS user-management-basic", owner: "Vlad", job: "oss/unstable/tests/master/user-management-basic" },
+	//{ name: "OSS user-management-advanced", owner: "Vlad", job: "oss/unstable/tests/master/user-management-advanced" },
+	//{ name: "OSS user-events-and-services", owner: "Dima", job: "oss/unstable/tests/master/user-events-and-services" },
+	//{ name: "OSS account-notes", owner: "Artem", job: "oss/unstable/tests/master/account-notes" },
 
 	{ name: "IDP", owner:"Temur", job: "idp-backend/master/tests/master/idp" },
 
-	{ name: "DM", owner: "Vlad", job: "discountmanager/master/tests/test-runner"},
-	{ name: "DM-promotions", owner: "Vlad", job: "discountmanager/master/tests/master/discountmanager-promotions"},
-	{ name: "Vendor Driven Promotions", owner: "Vlad", job: "bss/unstable/tests/master/vendor-driven-promotions"},
+	//{ name: "DM", owner: "Vlad", job: "discountmanager/master/tests/test-runner"},
+	//{ name: "DM-promotions", owner: "Vlad", job: "discountmanager/master/tests/master/discountmanager-promotions"},
+	//{ name: "Vendor Driven Promotions", owner: "Vlad", job: "bss/unstable/tests/master/vendor-driven-promotions"},
 ];
 
 function jobUrl(jenkinsRoot, job) {
@@ -163,7 +180,39 @@ function onload() {
 		row.insertCell().appendChild(buildA(baseUrl, data.job, detectVersion, buildParam));
 	});
 
-	console.log(colors);
+	function createCORSRequest(method, url) {
+	  var xhr = new XMLHttpRequest();
+	  if ("withCredentials" in xhr) {
+	    // XHR for Chrome/Firefox/Opera/Safari and IE >= 10
+	    xhr.open(method, url, true);
+	  } else if (typeof XDomainRequest != "undefined") {
+	    // XDomainRequest for IE <= 9
+	    xhr = new XDomainRequest();
+	    xhr.open(method, url);
+	  } else {
+	    // CORS not supported
+	    xhr = null;
+	  }
+	  return xhr;
+	}
+
+	for (const id in dashboards) {
+		let dashboard = dashboards[id];
+		dashboard.forEach((test, i) => {
+			let url = test.url + "/api/json";
+			console.log(url);
+			let xhr = createCORSRequest('GET', url)
+			xhr.onload = function () {
+				if (xhr.status != 200) {
+					console.log(`Error ${xhr.status}: ${xhr.statusText}`);
+				} else {
+					console.log(`Success, got ${xhr.responseText} bytes`);
+				}
+			};
+
+			xhr.send();
+		});
+	}
 }
 </script>
 
