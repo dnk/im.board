@@ -1,4 +1,8 @@
 <!DOCTYPE html>
+<head>
+<meta http-equiv="refresh" content="1800">
+
+
 <style>
 .e2e tr:nth-of-type(odd) {
 }
@@ -56,18 +60,16 @@ var builds = [
 	{ name: "E2E SDK", owner: "", job: "e2e-tests-v2/unstable/validate-and-promote", detectVersion: true},
 ];
 
-let dashboards = {
-	"unstable": [
-		{
-			name: "all",
-			url: "https://jenkins.com.int.zone/view/Tests/view/master/view/abondarenko/"
-		}
+const dashboards = {
+	"master": [
+			"https://jenkins.com.int.zone/view/Tests/view/master/view/abondarenko/",
+			"https://jenkins.com.int.zone/view/components/job/bss/job/unstable/job/tests/job/master/view/abondarenko/",
+			"https://jenkins.com.int.zone/view/components/job/oss/job/unstable/job/tests/job/master/view/abondarenko/",
+			"https://jenkins.com.int.zone/view/components/job/uam/job/master/job/tests/job/master/",
+			"https://jenkins.com.int.zone/job/discountmanager/job/master/job/tests/job/master/",
 	],
 	"21": [
-		{
-			name: "all",
-			url: "https://jenkins.com.int.zone/view/Tests/view/21/view/abondarenko/"
-		}
+			"https://jenkins.com.int.zone/view/Tests/view/21/view/abondarenko/",
 	]
 };
 
@@ -126,14 +128,18 @@ function buildImage(url) {
 	return img
 }
 
-function buildA(jenkinsRoot, job, isStable, buildParam, build) {
+function buildAX(jobUrl, imageUrl) {
 	var a = document.createElement('a');
-	a.setAttribute("href", jobUrl(jenkinsRoot, job));
+	a.setAttribute("href", jobUrl);
 	a.setAttribute("target","_blank");
 	a.setAttribute("rel", "nofollow noopener noreferrer");
-	var img = buildImage(imageUrl(jenkinsRoot, job, isStable, buildParam, build));
+	var img = buildImage(imageUrl);
 	a.appendChild(img);
 	return a;
+}
+
+function buildA(jenkinsRoot, job, isStable, buildParam, build) {
+	return buildAX(jobUrl(jenkinsRoot, job), imageUrl(jenkinsRoot, job, isStable, buildParam, build));
 }
 
 const palette = ["LightCoral", "LightSalmon", "Gold", "YellowGreen", "PaleTurquoise", "Lavender", "LightSteelBlue"];
@@ -142,6 +148,84 @@ function* getColor() {
 	for(color in palette) {
 		yield palette[color];
 	}
+}
+
+function xhr(url) {
+	url = url.replace("https://jenkins.com.int.zone", "/jenkins");
+	return fetch(url)
+					.then(response => response.json());
+}
+
+async function load_dashboards (data) {
+	const dashboardsPromises = Object.entries(data).map(async (e) => {
+		const [dashboardId, views] = e;
+		const viewPromises = views.map(async (viewUrl) => {
+			const response = await xhr(viewUrl + "/api/json?tree=jobs[name,url]");
+			return response["jobs"].map(job => [job.name, job.url]);
+		});
+
+		const viewValues = await Promise.all(viewPromises);
+		allValues = viewValues.reduce((acc, tests) => {
+			acc = acc || {};
+			tests.forEach((item, i) => {
+				const [name, url] = item;
+				acc[name] = url;
+			});
+
+			return acc;
+		}, {});
+
+		return [dashboardId, allValues];
+	});
+
+	const dashboardsValues = await Promise.all(dashboardsPromises);
+
+	const dashboards = dashboardsValues.reduce((acc, value) => {
+		const [dashboardId, tests] = value;
+		acc[dashboardId] = tests; //Object.assign(acc[dashboardId] || {}, tests);
+		return acc;
+	}, {});
+
+	test2dashboard = Object.entries(dashboards).reduce((acc, e) => {
+		const [dashboardId, tests] = e;
+		Object.entries(tests).forEach((e, i) => {
+			const [name, data] = e;
+			const ids = acc[name] || [];
+			ids.push(dashboardId);
+			acc[name] = ids;
+		});
+
+		return acc;
+	}, {});
+
+	const root = document.getElementById("e2e-x");
+	const row = root.insertRow();
+	const th = document.createElement('TH');
+	th.setAttribute("onclick", `sortTable(0, '${root.id}')`);
+	row.appendChild(th);
+	th.appendChild(document.createTextNode("name"));
+	const dashboardIds = Object.keys(dashboards);
+	dashboardIds.forEach((dashboardId, i) => {
+		const th = document.createElement('TH');
+		//th.setAttribute("onclick", `sortTable(${i+1}, 'e2e-x')`);
+		row.appendChild(th);
+		th.appendChild(document.createTextNode(dashboardId));
+	});
+
+	Object.entries(test2dashboard).forEach((e, i) => {
+		const [testName, boards] = e;
+		const row = root.insertRow();
+		row.insertCell().appendChild(document.createTextNode(testName));
+		dashboardIds.forEach((dashboardId, i) => {
+			const cell = row.insertCell();
+			if (boards.includes(dashboardId)) {
+				const buildUrl = dashboards[dashboardId][testName];
+				const imageUrl = buildUrl + "/badge/icon";
+				cell.appendChild(buildAX(buildUrl, imageUrl));
+			}
+		});
+
+	});
 }
 
 function onload() {
@@ -180,39 +264,7 @@ function onload() {
 		row.insertCell().appendChild(buildA(baseUrl, data.job, detectVersion, buildParam));
 	});
 
-	function createCORSRequest(method, url) {
-	  var xhr = new XMLHttpRequest();
-	  if ("withCredentials" in xhr) {
-	    // XHR for Chrome/Firefox/Opera/Safari and IE >= 10
-	    xhr.open(method, url, true);
-	  } else if (typeof XDomainRequest != "undefined") {
-	    // XDomainRequest for IE <= 9
-	    xhr = new XDomainRequest();
-	    xhr.open(method, url);
-	  } else {
-	    // CORS not supported
-	    xhr = null;
-	  }
-	  return xhr;
-	}
-
-	for (const id in dashboards) {
-		let dashboard = dashboards[id];
-		dashboard.forEach((test, i) => {
-			let url = test.url + "/api/json";
-			console.log(url);
-			let xhr = createCORSRequest('GET', url)
-			xhr.onload = function () {
-				if (xhr.status != 200) {
-					console.log(`Error ${xhr.status}: ${xhr.statusText}`);
-				} else {
-					console.log(`Success, got ${xhr.responseText} bytes`);
-				}
-			};
-
-			xhr.send();
-		});
-	}
+	load_dashboards(dashboards);
 }
 </script>
 
@@ -272,7 +324,7 @@ function sortTable(n, tableId) {
   }
 }
 </script>
-
+</head>
 <body onload="onload()" height="640">
 	<table id="build">
 		<tr>
@@ -288,5 +340,8 @@ function sortTable(n, tableId) {
 			<th onclick="sortTable(1, 'e2e')">Owner</th>
 			<th>Status</th>
 		</tr>
+	</table>
+
+	<table id="e2e-x" class="e2e">
 	</table>
 </body>
