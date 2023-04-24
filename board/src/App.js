@@ -1,21 +1,31 @@
-import { Grid } from '@mui/material';
-import './App.css';
+import { Box, Card, CardContent, CssBaseline, createTheme, useMediaQuery } from '@mui/material';
 import Releases from './Releases';
 import Tests from './Tests';
-
+import { ThemeProvider } from '@emotion/react';
 
 function App() {
+
+  const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
+  const darkTheme = createTheme({
+    palette: {
+      mode: prefersDarkMode ? 'dark' : 'light',
+    },
+  });
+
   return (
-    <div className="App">
-      <Grid container spacing={2}>
-        <Grid item xs={3}>
-          <Releases />
-        </Grid>
-        <Grid item xs={4}>
-          <Tests />
-        </Grid>
-      </Grid>
-    </div>
+      <ThemeProvider theme={darkTheme}>
+        <CssBaseline />
+        <Card sx={{ display: 'flex' }} variant='outlined'>
+          <Box sx={{ display: 'flex' }}>
+            <CardContent >
+              <Releases />
+            </CardContent>
+            <CardContent >
+              <Tests />
+            </CardContent>
+          </Box>
+        </Card>
+      </ThemeProvider>
   );
 }
 

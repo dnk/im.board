@@ -7,7 +7,6 @@ import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
@@ -32,57 +31,52 @@ function xhr(url) {
 	url = url.replace("https://jenkins.com.int.zone", "https://jira.wicro.ru/jenkins"); //"/jenkins");
 	return fetch(url).then(response => response.json());
 }
-
-// example https://codesandbox.io/s/s8y5gx?file=/demo.tsx:461-511
 function CollapsibleRow({tests, isStable, isOpen}) {
     const [open, setOpen] = React.useState(isOpen);
-    const label = isStable? "stable": "unstable";
 
     return (
       <React.Fragment>
-        <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
-          <TableCell>
+        <TableRow>
+          <TableCell sx={{border: 0}}>
             <IconButton
-              aria-label="expand row"
               size="small"
               onClick={() => setOpen(!open)}
-            >
-              {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+            >{
+              open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />
+            }
             </IconButton>
-            </TableCell>
-            <TableCell component="th" scope="row">
-              {label}
-            </TableCell>
+          </TableCell>
+          <TableCell sx={{border: 0}}>
+              { 
+                isStable ? "stable": "unstable"
+              }
+          </TableCell>
         </TableRow>
         <TableRow>
           <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
             <Collapse in={open} timeout="auto" unmountOnExit>
-              <Box sx={{ margin: 1 }}>
-                <Table size="small" aria-label="purchases">
-                  <TableHead>
-                    <TableCell></TableCell>
-                  {Object.keys(DASHBOARDS).map((key) => {
-                    return <TableCell key={key}>{key}</TableCell>
-                  })}
-                  </TableHead>
-                  <TableBody>
-                    {tests.map((test) => (
-                      <TableRow key={test.name}>
-                        <TableCell>
-                          {test.name}
-                        </TableCell>
-                        {
-                          test.boards.map((board) => {
-                            return (
-                              <TableCell key={board.buildUrl}>
-                                <Status board={board}/>
-                              </TableCell>
-                            )
-                          })
-                        }
-                    </TableRow>
-                    ))}
-                  </TableBody>
+              <Box>
+                <Table size="small">
+                  <TableCell sx={{border: 0}}></TableCell>
+                    {Object.keys(DASHBOARDS).map((key) => {
+                      return <TableCell key={key} sx={{border: 0}}>{key}</TableCell>
+                    })}
+                  {tests.map((test) => (
+                    <TableRow key={test.name}>
+                      <TableCell sx={{border: 0}}>
+                        {test.name}
+                      </TableCell>
+                      {
+                        test.boards.map((board) => {
+                          return (
+                            <TableCell key={board.buildUrl} sx={{border: 0}}>
+                              <Status board={board}/>
+                            </TableCell>
+                          )
+                        })
+                      }
+                  </TableRow>
+                  ))}
                 </Table>
               </Box>
             </Collapse>
@@ -142,7 +136,7 @@ function Tests() {
           const [testname, dashboardIds] = e;
           const unstableTests = dashboardIds.filter((dashboardId) => {
             const testColor = dashboards[dashboardId][testname].color;
-            return testColor !== 'blue';
+            return !testColor.startsWith('blue');
           });
 
           const isStable = unstableTests.length === 0;
@@ -187,16 +181,18 @@ function Tests() {
         <TableContainer component={Paper}>
             <Table size={'small'}>
                 <TableBody>
-                {Object.entries(tests).map((e) => {
-                  const [isStableValue, data] = e;
+                {
+                  Object.entries(tests).map((e) => {
+                    const [isStableValue, data] = e;
 
-                  const isStable = isStableValue !== "false";
-                  const isOpen = !isStable || tests.length === 1;
+                    const isStable = isStableValue !== "false";
+                    const isOpen = !isStable || tests.length === 1;
 
-                  return (
-                    <CollapsibleRow tests={data} isStable={isStable} isOpen={isOpen} />
-                  )
-                })}
+                    return (
+                      <CollapsibleRow tests={data} isStable={isStable} isOpen={isOpen} />
+                    )
+                  })
+                }
                 </TableBody>
             </Table>
         </TableContainer>

@@ -1,5 +1,4 @@
 import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableRow from '@mui/material/TableRow';
@@ -75,22 +74,22 @@ const RELEASES = [
 
 function Releases() {
     return (
-        <TableContainer component={Paper}>
-            <Table size={'small'}>
-                <TableBody>
-                {RELEASES.map((row) => {
-                    return (
-                        <TableRow key={row.name} >
-                            <TableCell scope="row">
-                                {row.name}
-                            </TableCell>
-                            <TableCell>
-                                <Status board={row.board}/>
-                            </TableCell>
-                        </TableRow>
-                    )
-                })}
-                </TableBody>
+        <TableContainer component={Paper} >
+            <Table>
+                {
+                    RELEASES.map((row) => {
+                        return (
+                            <TableRow key={row.name}>
+                                <TableCell sx={{border: 0}}>
+                                    {row.name}
+                                </TableCell>
+                                <TableCell sx={{border: 0}}>
+                                    <Status board={row.board}/>
+                                </TableCell>
+                            </TableRow>
+                        )
+                    })
+                }
             </Table>
         </TableContainer>
     );
