@@ -27,10 +27,24 @@ const DASHBOARDS = {
 	]
 };
 
+const STADALONE_TESTS = {
+  "master": [
+    "https://jenkins.com.int.zone/job/ratingengine-backend/job/master/job/tests/job/master/job/refund-policies-cancellation/",
+    "https://jenkins.com.int.zone/job/ratingengine-backend/job/master/job/tests/job/master/job/refund-policies-cancellation-with-renew/",
+    "https://jenkins.com.int.zone/job/ratingengine-backend/job/master/job/tests/job/master/job/refund-policies-downsizing/",
+    "https://jenkins.com.int.zone/job/idp-backend/job/master/job/tests/job/master/job/idp/",
+    //"https://ci.na.int.zone/jenkins/job/trunk/job/tests/job/perftests-ng/job/perftest-uam-cnc/",
+    "https://jenkins.com.int.zone/job/ratingengine-backend/job/master/job/tests/job/master/job/ratingengine-migration/",
+    "https://jenkins.com.int.zone/job/ratingengine-backend/job/master/job/tests/job/master/job/marketplace-anonymous-context/",
+    "https://jenkins.com.int.zone/job/ratingengine-backend/job/master/job/tests/job/master/job/refund-policies-downsizing-with-renew/",
+  ]
+};
+
 function xhr(url) {
 	url = url.replace("https://jenkins.com.int.zone", "https://jira.wicro.ru/jenkins"); //"/jenkins");
 	return fetch(url).then(response => response.json());
 }
+
 function CollapsibleRow({tests, isStable, isOpen}) {
     const [open, setOpen] = React.useState(isOpen);
 
@@ -68,11 +82,17 @@ function CollapsibleRow({tests, isStable, isOpen}) {
                       </TableCell>
                       {
                         test.boards.map((board) => {
-                          return (
-                            <TableCell key={board.buildUrl} sx={{border: 0}}>
-                              <Status board={board}/>
-                            </TableCell>
-                          )
+                          if (board) {
+                            return (
+                              <TableCell key={board.buildUrl} sx={{border: 0}}>
+                                <Status board={board}/>
+                              </TableCell>
+                            )
+                          } else {
+                            return (
+                              <TableCell sx={{border: 0}} />
+                            )
+                          }
                         })
                       }
                   </TableRow>
@@ -92,24 +112,32 @@ function Tests() {
 
     const fetchTests = async () => {
         const dashboardsPromises = Object.entries(DASHBOARDS).map(async (e) => {
-            const [dashboardId, views] = e;
-            const viewPromises = views.map(async (viewUrl) => {
-                const response = await xhr(viewUrl + "/api/json?tree=jobs[name,url,color]");
-                return response["jobs"].map(job => [job.name, job.url, job.color]);
-            });
+          const [dashboardId, views] = e;
+          const viewPromises = views.map(async (viewUrl) => {
+              const response = await xhr(viewUrl + "/api/json?tree=jobs[name,url,color]");
+              return response["jobs"].map(job => [job.name, job.url, job.color]);
+          });
 
-            const viewValues = await Promise.all(viewPromises);
-            const boardTests = viewValues.reduce((acc, value) => {
-                acc = acc || {};
-                value.forEach((item, i) => {
-                    const [name, url, color] = item;
-                    acc[name] = {"url": url, "color": color};
-                });
+          const standaloneTests = STADALONE_TESTS[dashboardId] || [];
+          const standaloneTestsPromises = standaloneTests.map(async (standaloneTestUrl) => {
+            const response = await xhr(standaloneTestUrl + "/api/json?tree=name,url,color");
+            return [[response.name, response.url, response.color]];
+          })
 
-                return acc;
-            }, {});
+          const viewTests = await Promise.all([...viewPromises, ...standaloneTestsPromises]);
 
-            return [dashboardId, boardTests];
+
+          const boardTests = viewTests.reduce((acc, value) => {
+              acc = acc || {};
+              value.forEach((item, i) => {
+                  const [name, url, color] = item;
+                  acc[name] = {"url": url, "color": color};
+              });
+
+              return acc;
+          }, {});
+
+          return [dashboardId, boardTests];
         });
 
         const dashboardsValues = await Promise.all(dashboardsPromises);
