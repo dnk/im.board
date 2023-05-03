@@ -164,7 +164,7 @@ function Tests() {
           const [testname, dashboardIds] = e;
           const unstableTests = dashboardIds.filter((dashboardId) => {
             const testColor = dashboards[dashboardId][testname].color;
-            return !testColor.startsWith('blue');
+            return !testColor.startsWith('blue') && testColor !== 'notbuilt';
           });
 
           const isStable = unstableTests.length === 0;
