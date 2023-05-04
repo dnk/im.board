@@ -45,6 +45,10 @@ function xhr(url) {
 	return fetch(url).then(response => response.json());
 }
 
+function  sortKeys(obj) {
+  return Object.keys(obj).sort().reduce((acc, c) => { acc[c] = obj[c]; return acc }, {})
+}
+
 function CollapsibleRow({tests, isStable, isOpen}) {
     const [open, setOpen] = React.useState(isOpen);
 
@@ -197,7 +201,8 @@ function Tests() {
           acc[isStable] = testsData;
           return acc;
         }, {});
-        return getTests(data);
+
+        return getTests(sortKeys(data));
     };
 
     useEffect(() => {
