@@ -1,18 +1,12 @@
 import React, { useState, useEffect } from 'react'
 
-import Box from '@mui/material/Box';
-import Collapse from '@mui/material/Collapse';
-import IconButton from '@mui/material/IconButton';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
-import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 
-import Status from "./Status";
+import CollapsibleRow from './CollapsibleRow';
+import { tableCellClasses } from '@mui/material';
 
 const DASHBOARDS = {
 	"master": [
@@ -48,67 +42,6 @@ function xhr(url) {
 function  sortKeys(obj) {
   return Object.keys(obj).sort().reduce((acc, c) => { acc[c] = obj[c]; return acc }, {})
 }
-
-function CollapsibleRow({tests, isStable, isOpen}) {
-    const [open, setOpen] = React.useState(isOpen);
-
-    return (
-      <React.Fragment>
-        <TableRow>
-          <TableCell sx={{border: 0}}>
-            <IconButton
-              size="small"
-              onClick={() => setOpen(!open)}
-            >{
-              open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />
-            }
-            </IconButton>
-          </TableCell>
-          <TableCell sx={{border: 0}}>
-              { 
-                isStable ? "stable": "unstable"
-              }
-          </TableCell>
-        </TableRow>
-        <TableRow>
-          <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
-            <Collapse in={open} timeout="auto" unmountOnExit>
-              <Box>
-                <Table size="small">
-                  <TableCell sx={{border: 0}}></TableCell>
-                    {Object.keys(DASHBOARDS).map((key) => {
-                      return <TableCell key={key} sx={{border: 0}}>{key}</TableCell>
-                    })}
-                  {tests.map((test) => (
-                    <TableRow key={test.name}>
-                      <TableCell sx={{border: 0}}>
-                        {test.name}
-                      </TableCell>
-                      {
-                        test.boards.map((board) => {
-                          if (board) {
-                            return (
-                              <TableCell key={board.buildUrl} sx={{border: 0}}>
-                                <Status board={board}/>
-                              </TableCell>
-                            )
-                          } else {
-                            return (
-                              <TableCell sx={{border: 0}} />
-                            )
-                          }
-                        })
-                      }
-                  </TableRow>
-                  ))}
-                </Table>
-              </Box>
-            </Collapse>
-          </TableCell>
-        </TableRow>
-      </React.Fragment>
-    );
-  }
 
 
 function Tests() {
@@ -212,7 +145,12 @@ function Tests() {
 
     return (
         <TableContainer component={Paper}>
-            <Table size={'small'}>
+            <Table size={'small'} sx={{
+                    [`& .${tableCellClasses.root}`]: {
+                        border: "none"
+                    }
+                }}
+            >
                 <TableBody>
                 {
                   Object.entries(tests).map((e) => {
@@ -222,7 +160,7 @@ function Tests() {
                     const isOpen = !isStable || tests.length === 1;
 
                     return (
-                      <CollapsibleRow tests={data} isStable={isStable} isOpen={isOpen} />
+                      <CollapsibleRow dashboards={Object.keys(DASHBOARDS)} tests={data} isStable={isStable} isOpen={isOpen} />
                     )
                   })
                 }
