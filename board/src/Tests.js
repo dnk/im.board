@@ -86,8 +86,8 @@ function Tests() {
         }, {});
 
         const test2dashboard = Object.entries(dashboards).reduce((acc, e) => {
-            const [dashboardId, testsX] = e;
-            Object.entries(testsX).forEach((e, i) => {
+            const [dashboardId, tests] = e;
+            Object.entries(tests).forEach((e, i) => {
                 const [name] = e;
                 const ids = acc[name] || [];
                 ids.push(dashboardId);
@@ -157,7 +157,8 @@ function Tests() {
                     const [isStableValue, data] = e;
 
                     const isStable = isStableValue !== "false";
-                    const isOpen = !isStable || tests.length === 1;
+                    // tests is an object
+                    const isOpen = (isStable && Object.keys(tests).length === 1) || !isStable;
 
                     return (
                       <CollapsibleRow dashboards={Object.keys(DASHBOARDS)} tests={data} isStable={isStable} isOpen={isOpen} />
