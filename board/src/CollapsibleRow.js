@@ -23,7 +23,7 @@ function CollapsibleRow({dashboards, tests, isStable, isOpen}) {
           </TableCell>
           <TableCell>
               {
-                isStable ? "stable": "unstable"
+                isStable ? "Passed Tests": "Failed Tests"
               }
           </TableCell>
         </TableRow>
