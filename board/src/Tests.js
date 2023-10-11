@@ -9,20 +9,24 @@ import CollapsibleRow from './CollapsibleRow';
 import { tableCellClasses } from '@mui/material';
 
 const DASHBOARDS = {
-	"master": [
-			"https://jenkins.com.int.zone/view/Tests/view/master/view/abondarenko/",
-			"https://jenkins.com.int.zone/view/components/job/bss/job/unstable/job/tests/job/master/view/abondarenko/",
-			"https://jenkins.com.int.zone/view/components/job/oss/job/unstable/job/tests/job/master/view/abondarenko/",
-			"https://jenkins.com.int.zone/view/components/job/uam/job/master/job/tests/job/master/",
-			"https://jenkins.com.int.zone/job/discountmanager/job/master/job/tests/job/master/",
+	"unstable": [
+			//"https://jenkins.com.int.zone/view/Tests/view/master/view/abondarenko/",
+			"https://jenkins.com.int.zone/view/components/job/bss/job/${dashboardId}/job/tests/job/master/view/abondarenko/",
+			"https://jenkins.com.int.zone/view/components/job/oss/job/${dashboardId}/job/tests/job/master/view/abondarenko/",
+			"https://jenkins.com.int.zone/job/uam/job/master/job/tests/job/master/view/abondarenko/", // was "https://jenkins.com.int.zone/view/components/job/uam/job/master/job/tests/job/master/"
+			"https://jenkins.com.int.zone/job/discountmanager/job/master/job/tests/job/master/view/abondarenko/",
 	],
-	"21": [
-			"https://jenkins.com.int.zone/view/Tests/view/21/view/abondarenko/",
+	"21.14": [
+			//"https://jenkins.com.int.zone/view/Tests/view/21/view/abondarenko/",
+			"https://jenkins.com.int.zone/view/components/job/bss/job/${dashboardId}/job/tests/job/21/view/abondarenko/",
+			"https://jenkins.com.int.zone/view/components/job/oss/job/${dashboardId}/job/tests/job/21/view/abondarenko/",
+			"https://jenkins.com.int.zone/job/uam/job/master/job/tests/job/21/view/abondarenko/", //was "https://jenkins.com.int.zone/view/components/job/uam/job/21/job/tests/job/21/",
+			"https://jenkins.com.int.zone/job/discountmanager/job/master/job/tests/job/21/view/abondarenko/"
 	]
 };
 
 const STADALONE_TESTS = {
-  "master": [
+  "unstable": [
     "https://jenkins.com.int.zone/job/ratingengine-backend/job/master/job/tests/job/master/job/refund-policies-cancellation/",
     "https://jenkins.com.int.zone/job/ratingengine-backend/job/master/job/tests/job/master/job/refund-policies-cancellation-with-renew/",
     "https://jenkins.com.int.zone/job/ratingengine-backend/job/master/job/tests/job/master/job/refund-policies-downsizing/",
@@ -34,8 +38,17 @@ const STADALONE_TESTS = {
   ]
 };
 
+function fix_url(url) {
+  url = url.replace("https://jenkins.com.int.zone", "https://dashboard.cloud-blue.website/jenkins"); //"/jenkins");
+  return url;
+}
+
+function redirect_url(url) {
+  return "https://dashboard.cloud-blue.website/redirect?url=" + encodeURIComponent(url);
+}
+
 function xhr(url) {
-	url = url.replace("https://jenkins.com.int.zone", "https://jira.wicro.ru/jenkins"); //"/jenkins");
+	url = fix_url(url);
 	return fetch(url).then(response => response.json());
 }
 
@@ -51,7 +64,8 @@ function Tests() {
         const dashboardsPromises = Object.entries(DASHBOARDS).map(async (e) => {
           const [dashboardId, views] = e;
           const viewPromises = views.map(async (viewUrl) => {
-              const response = await xhr(viewUrl + "/api/json?tree=jobs[name,url,color]");
+              let url = (viewUrl + "/api/json?tree=jobs[name,url,color]").replaceAll('${dashboardId}', dashboardId)
+              const response = await xhr(url);
               return response["jobs"].map(job => [job.name, job.url, job.color]);
           });
 
@@ -123,7 +137,7 @@ function Tests() {
                     const buildUrl = dashboards[dashboardId][testName].url;
                     const imageUrl = buildUrl + "badge/icon";
                     const color = dashboards[dashboardId][testName].color;
-                    return {"buildUrl": buildUrl, "imageUrl": imageUrl, "color": color};
+                    return {"buildUrl": redirect_url(buildUrl), "imageUrl": imageUrl, "color": color};
                 }
                 return null;
             });
