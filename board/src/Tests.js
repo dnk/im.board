@@ -16,13 +16,13 @@ const DASHBOARDS = {
 			"https://jenkins.com.int.zone/job/uam/job/master/job/tests/job/master/view/abondarenko/", // was "https://jenkins.com.int.zone/view/components/job/uam/job/master/job/tests/job/master/"
 			"https://jenkins.com.int.zone/job/discountmanager/job/master/job/tests/job/master/view/abondarenko/",
 	],
-	"21.14": [
+	"21.15": [
 			//"https://jenkins.com.int.zone/view/Tests/view/21/view/abondarenko/",
 			"https://jenkins.com.int.zone/view/components/job/bss/job/${dashboardId}/job/tests/job/21/view/abondarenko/",
 			"https://jenkins.com.int.zone/view/components/job/oss/job/${dashboardId}/job/tests/job/21/view/abondarenko/",
 			"https://jenkins.com.int.zone/job/uam/job/master/job/tests/job/21/view/abondarenko/", //was "https://jenkins.com.int.zone/view/components/job/uam/job/21/job/tests/job/21/",
-			"https://jenkins.com.int.zone/job/discountmanager/job/master/job/tests/job/21/view/abondarenko/"
-	]
+			"https://jenkins.com.int.zone/job/discountmanager/job/master/job/tests/job/21/view/abondarenko/",
+	],
 };
 
 const STADALONE_TESTS = {
@@ -49,7 +49,12 @@ function redirect_url(url) {
 
 function xhr(url) {
 	url = fix_url(url);
-	return fetch(url).then(response => response.json());
+	return fetch(url)
+          .then(response => response.json())
+          .catch(error => {
+            console.log(error);
+            return {};
+          });
 }
 
 function  sortKeys(obj) {
@@ -66,7 +71,8 @@ function Tests() {
           const viewPromises = views.map(async (viewUrl) => {
               let url = (viewUrl + "/api/json?tree=jobs[name,url,color]").replaceAll('${dashboardId}', dashboardId)
               const response = await xhr(url);
-              return response["jobs"].map(job => [job.name, job.url, job.color]);
+              const jobs = response["jobs"] || [];
+              return jobs.map(job => [job.name, job.url, job.color]);
           });
 
           const standaloneTests = STADALONE_TESTS[dashboardId] || [];
