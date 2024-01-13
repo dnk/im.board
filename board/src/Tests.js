@@ -10,18 +10,22 @@ import { tableCellClasses } from '@mui/material';
 
 const DASHBOARDS = {
 	"unstable": [
-			//"https://jenkins.com.int.zone/view/Tests/view/master/view/abondarenko/",
+			"https://jenkins.com.int.zone/view/Tests/view/master/view/abondarenko/",
+      /*
 			"https://jenkins.com.int.zone/view/components/job/bss/job/${dashboardId}/job/tests/job/master/view/abondarenko/",
 			"https://jenkins.com.int.zone/view/components/job/oss/job/${dashboardId}/job/tests/job/master/view/abondarenko/",
 			"https://jenkins.com.int.zone/job/uam/job/master/job/tests/job/master/view/abondarenko/", // was "https://jenkins.com.int.zone/view/components/job/uam/job/master/job/tests/job/master/"
 			"https://jenkins.com.int.zone/job/discountmanager/job/master/job/tests/job/master/view/abondarenko/",
+      */
 	],
 	"21.15": [
-			//"https://jenkins.com.int.zone/view/Tests/view/21/view/abondarenko/",
+			"https://jenkins.com.int.zone/view/Tests/view/21/view/abondarenko/",
+      /*
 			"https://jenkins.com.int.zone/view/components/job/bss/job/${dashboardId}/job/tests/job/21/view/abondarenko/",
 			"https://jenkins.com.int.zone/view/components/job/oss/job/${dashboardId}/job/tests/job/21/view/abondarenko/",
 			"https://jenkins.com.int.zone/job/uam/job/master/job/tests/job/21/view/abondarenko/", //was "https://jenkins.com.int.zone/view/components/job/uam/job/21/job/tests/job/21/",
 			"https://jenkins.com.int.zone/job/discountmanager/job/master/job/tests/job/21/view/abondarenko/",
+      */
 	],
 };
 
