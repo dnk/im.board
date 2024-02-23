@@ -41,13 +41,13 @@ const COMPONENTS = {
             },
             qualityGate: "https://sonarqube.int.zone/api/project_badges/measure?project=com.odin.idp%3Aidp-backend&metric=alert_status&token=sqb_e483fbb106e86c618eec3a4ad7a6df87f0a5ade0"
         },
-        "4.0": {
-            board: {
-                "buildUrl": "https://jenkins.com.int.zone/job/idp-backend/job/release-4.0/job/validate-and-promote/",
-                "imageUrl": "https://jenkins.com.int.zone/job/idp-backend/job/release-4.0/job/validate-and-promote/badge/icon?&subject=${params.BUILD_NAME}"
-            },
-            qualityGate: "https://sonarqube.int.zone/api/project_badges/measure?project=com.odin.idp%3Aidp-backend&metric=alert_status&token=sqb_e483fbb106e86c618eec3a4ad7a6df87f0a5ade0"
-        }
+        // "4.0": {
+        //     board: {
+        //         "buildUrl": "https://jenkins.com.int.zone/job/idp-backend/job/release-4.0/job/validate-and-promote/",
+        //         "imageUrl": "https://jenkins.com.int.zone/job/idp-backend/job/release-4.0/job/validate-and-promote/badge/icon?&subject=${params.BUILD_NAME}"
+        //     },
+        //     qualityGate: "https://sonarqube.int.zone/api/project_badges/measure?project=com.odin.idp%3Aidp-backend&metric=alert_status&token=sqb_e483fbb106e86c618eec3a4ad7a6df87f0a5ade0"
+        // }
     },
     "Rating Engine": {
         "unstable": {
@@ -66,12 +66,12 @@ const COMPONENTS = {
             },
             qualityGate: "https://sonarqube.int.zone/api/project_badges/measure?project=com.odin.marketing%3Adiscountmanager-backend&metric=alert_status&token=sqb_2364a2c3973e6d393722f9c1eb8536ddfaf35fe6"
         },
-        "1.4": {
-            board: {
-                "buildUrl": "https://jenkins.com.int.zone/job/discountmanager/job/release-1.4/job/validate-and-promote/",
-                "imageUrl": "https://jenkins.com.int.zone/job/discountmanager/job/release-1.4/job/validate-and-promote/badge/icon?&subject=${params.BUILD_NAME}"
-            }
-        }
+        // "1.4": {
+        //     board: {
+        //         "buildUrl": "https://jenkins.com.int.zone/job/discountmanager/job/release-1.4/job/validate-and-promote/",
+        //         "imageUrl": "https://jenkins.com.int.zone/job/discountmanager/job/release-1.4/job/validate-and-promote/badge/icon?&subject=${params.BUILD_NAME}"
+        //     }
+        // }
     },
     "UAM": {
         "unstable": {
@@ -80,12 +80,12 @@ const COMPONENTS = {
                 "imageUrl": "https://jenkins.com.int.zone/job/uam/job/master/job/validate-and-promote/badge/icon?&subject=${params.BUILD_NAME}"
             }
         },
-        "2.0": {
-            board: {
-                "buildUrl": "https://jenkins.com.int.zone/job/uam/job/release-2.0/job/validate-and-promote/",
-                "imageUrl": "https://jenkins.com.int.zone/job/uam/job/release-2.0/job/validate-and-promote/badge/icon?&subject=${params.BUILD_NAME}"
-            }
-        }
+        // "2.0": {
+        //     board: {
+        //         "buildUrl": "https://jenkins.com.int.zone/job/uam/job/release-2.0/job/validate-and-promote/",
+        //         "imageUrl": "https://jenkins.com.int.zone/job/uam/job/release-2.0/job/validate-and-promote/badge/icon?&subject=${params.BUILD_NAME}"
+        //     }
+        // }
     },
     "E2E SDK": {
         "unstable": {
@@ -138,7 +138,7 @@ function Releases() {
         })
         .reduce((result, current) => {
             return Object.assign(result, current);
-        });
+        }, {});
 
 
     return (
