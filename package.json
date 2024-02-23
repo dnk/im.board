@@ -1,6 +1,7 @@
 {
   "name": "board",
   "version": "0.1.0",
+  "homepage": "https://dnk.github.io/im.board",
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.10.6",
@@ -20,6 +21,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "build-release": "GENERATE_SOURCEMAP=false react-scripts build && npm-build-zip --name=${npm_package_name} --name_only=true",
+    "predeploy": "GENERATE_SOURCEMAP=false react-scripts build",
+    "deploy": "gh-pages -d build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
@@ -42,6 +45,7 @@
     ]
   },
   "devDependencies": {
+    "gh-pages": "^6.1.1",
     "npm-build-zip": "^1.0.4"
   }
 }
