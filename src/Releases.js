@@ -5,141 +5,89 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 
 import Status from "./Status";
-import { Container, Typography } from '@mui/material';
+import { Container } from '@mui/material';
 
 const COMPONENTS = {
     "OSS": {
-        "unstable": {
-            board: {
-                "buildUrl": "https://jenkins.com.int.zone/job/oss/job/unstable/job/validate-and-promote/",
-                "imageUrl": "https://jenkins.com.int.zone/job/oss/job/unstable/job/validate-and-promote/badge/icon?&subject=${params.BUILD_NAME}"
-            },
-            qualityGate: "https://sonarqube.int.zone/api/project_badges/measure?project=com.parallels.poa.platform.bvt%3Aplatform-coverage&metric=alert_status&token=sqb_97bfab629a698f7abf87bc5af7e07efa2764dbda"
+        "buildUrl": "https://jenkins.com.int.zone/job/oss/job/unstable/job/validate-and-promote/",
+        "sonar": {
+            badges: [
+                {
+                    url: "https://sonarqube.int.zone/dashboard?id=com.parallels.poa.platform.bvt%3Aplatform-coverage",
+                    image: "https://sonarqube.int.zone/api/project_badges/measure?project=com.parallels.poa.platform.bvt%3Aplatform-coverage&metric=alert_status&token=sqb_97bfab629a698f7abf87bc5af7e07efa2764dbda"
+                }
+            ]
         }
     },
     "BSS": {
-        "unstable": {
-            board: {
-                "buildUrl": "https://jenkins.com.int.zone/job/bss/job/unstable/job/validate-and-promote/",
-                "imageUrl": "https://jenkins.com.int.zone/job/bss/job/unstable/job/validate-and-promote/badge/icon?&subject=${params.BUILD_NAME}"
-            }
+        "buildUrl": "https://jenkins.com.int.zone/job/bss/job/unstable/job/validate-and-promote/",
+        "sonar": {
+            badges: [
+                {
+                    url: "https://sonarqube.int.zone/dashboard?id=commerce-bss",
+                    image: "https://sonarqube.int.zone/api/project_badges/measure?project=commerce-bss&metric=alert_status&token=sqb_2c3480cdab3ec1f930476a8b6b4712f9459012f8",
+                },
+                // {
+                //     url: "https://sonarqube.int.zone/dashboard?id=commerce-bss-cpp",
+                //     image: "https://sonarqube.int.zone/api/project_badges/measure?project=commerce-bss-cpp&metric=alert_status&token=sqb_a7c999459618b42b03379b817d592d54dd0a5857"
+                // }
+            ]
         }
     },
     "Branding UI Cluster": {
-        "unstable": {
-            board: {
-                "buildUrl": "https://jenkins.com.int.zone/job/branding-ui-cluster/job/unstable/job/validate-and-promote/",
-                "imageUrl": "https://jenkins.com.int.zone/job/branding-ui-cluster/job/unstable/job/validate-and-promote/badge/icon?&subject=${params.BUILD_NAME}"
-            }
-        }
+        "buildUrl": "https://jenkins.com.int.zone/job/branding-ui-cluster/job/unstable/job/validate-and-promote/",
     },
     "IDP": {
-        "unstable": {
-            board: {
-                "buildUrl": "https://jenkins.com.int.zone/job/idp-backend/job/master/job/validate-and-promote/",
-                "imageUrl": "https://jenkins.com.int.zone/job/idp-backend/job/master/job/validate-and-promote/badge/icon?&subject=${params.BUILD_NAME}"
-            },
-            qualityGate: "https://sonarqube.int.zone/api/project_badges/measure?project=com.odin.idp%3Aidp-backend&metric=alert_status&token=sqb_e483fbb106e86c618eec3a4ad7a6df87f0a5ade0"
-        },
-        // "4.0": {
-        //     board: {
-        //         "buildUrl": "https://jenkins.com.int.zone/job/idp-backend/job/release-4.0/job/validate-and-promote/",
-        //         "imageUrl": "https://jenkins.com.int.zone/job/idp-backend/job/release-4.0/job/validate-and-promote/badge/icon?&subject=${params.BUILD_NAME}"
-        //     },
-        //     qualityGate: "https://sonarqube.int.zone/api/project_badges/measure?project=com.odin.idp%3Aidp-backend&metric=alert_status&token=sqb_e483fbb106e86c618eec3a4ad7a6df87f0a5ade0"
-        // }
+        "buildUrl": "https://jenkins.com.int.zone/job/idp-backend/job/master/job/validate-and-promote/",
+        "sonar": {
+            badges: [
+                {
+                    url: "https://sonarqube.int.zone/dashboard?id=com.odin.idp%3Aidp-backend",
+                    image: "https://sonarqube.int.zone/api/project_badges/measure?project=com.odin.idp%3Aidp-backend&metric=alert_status&token=sqb_e483fbb106e86c618eec3a4ad7a6df87f0a5ade0"
+                }
+            ]
+        }
     },
     "Rating Engine": {
-        "unstable": {
-            board: {
-                "buildUrl": "https://jenkins.com.int.zone/job/ratingengine-backend/job/master/job/validate-and-promote/",
-                "imageUrl": "https://jenkins.com.int.zone/job/ratingengine-backend/job/master/job/validate-and-promote/badge/icon?&subject=${params.BUILD_NAME}"
-            },
-            qualityGate: "https://sonarqube.int.zone/api/project_badges/measure?project=com.ingrammicro.bss%3Aratingengine-backend&metric=alert_status&token=sqb_d75c12fcb769db163f2ec1f6072849397f3c1a68"
+        "buildUrl": "https://jenkins.com.int.zone/job/ratingengine-backend/job/master/job/validate-and-promote/",
+        "sonar": {
+            badges: [
+                {
+                    url: "https://sonarqube.int.zone/dashboard?id=com.ingrammicro.bss%3Aratingengine-backend",
+                    image: "https://sonarqube.int.zone/api/project_badges/measure?project=com.ingrammicro.bss%3Aratingengine-backend&metric=alert_status&token=sqb_d75c12fcb769db163f2ec1f6072849397f3c1a68"
+                }
+            ]
         }
     },
     "Discount Manager": {
-        "unstable": {
-            board: {
-                "buildUrl": "https://jenkins.com.int.zone/job/discountmanager/job/master/job/validate-and-promote/",
-                "imageUrl": "https://jenkins.com.int.zone/job/discountmanager/job/master/job/validate-and-promote/badge/icon?&subject=${params.BUILD_NAME}"
-            },
-            qualityGate: "https://sonarqube.int.zone/api/project_badges/measure?project=com.odin.marketing%3Adiscountmanager-backend&metric=alert_status&token=sqb_2364a2c3973e6d393722f9c1eb8536ddfaf35fe6"
-        },
-        // "1.4": {
-        //     board: {
-        //         "buildUrl": "https://jenkins.com.int.zone/job/discountmanager/job/release-1.4/job/validate-and-promote/",
-        //         "imageUrl": "https://jenkins.com.int.zone/job/discountmanager/job/release-1.4/job/validate-and-promote/badge/icon?&subject=${params.BUILD_NAME}"
-        //     }
-        // }
+        "buildUrl": "https://jenkins.com.int.zone/job/discountmanager/job/master/job/validate-and-promote/",
+        "sonar": {
+            badges: [
+                {
+                    url: "https://sonarqube.int.zone/dashboard?id=com.odin.marketing%3Adiscountmanager-backend",
+                    image: "https://sonarqube.int.zone/api/project_badges/measure?project=com.odin.marketing%3Adiscountmanager-backend&metric=alert_status&token=sqb_2364a2c3973e6d393722f9c1eb8536ddfaf35fe6"
+                }
+            ]
+        }
     },
     "UAM": {
-        "unstable": {
-            board: {
-                "buildUrl": "https://jenkins.com.int.zone/job/uam/job/master/job/validate-and-promote/",
-                "imageUrl": "https://jenkins.com.int.zone/job/uam/job/master/job/validate-and-promote/badge/icon?&subject=${params.BUILD_NAME}"
-            }
-        },
-        // "2.0": {
-        //     board: {
-        //         "buildUrl": "https://jenkins.com.int.zone/job/uam/job/release-2.0/job/validate-and-promote/",
-        //         "imageUrl": "https://jenkins.com.int.zone/job/uam/job/release-2.0/job/validate-and-promote/badge/icon?&subject=${params.BUILD_NAME}"
-        //     }
-        // }
+        "buildUrl": "https://jenkins.com.int.zone/job/uam/job/master/job/validate-and-promote/",
+        "sonar": {
+            badges: [
+                {
+                    url: "https://sonarqube.int.zone/dashboard?branch=master&id=com.cloudblue.uam%3Auam-backend%3A2.1",
+                    image: "https://sonarqube.int.zone/api/project_badges/measure?branch=master&project=com.cloudblue.uam%3Auam-backend%3A2.1&metric=alert_status&token=sqb_c5692665acaa51d145cd33bf000be4250ea93e88"
+                }
+            ]
+        }
     },
     "E2E SDK": {
-        "unstable": {
-            board: {
-                "buildUrl": "https://jenkins.com.int.zone/job/e2e-tests-v2/job/unstable/job/validate-and-promote/",
-                "imageUrl": "https://jenkins.com.int.zone/job/e2e-tests-v2/job/unstable/job/validate-and-promote/badge/icon?&subject=${params.BUILD_NAME}"
-            }
-        }
+        "buildUrl": "https://jenkins.com.int.zone/job/e2e-tests-v2/job/unstable/job/validate-and-promote/"
     },
 };
 
 
 function Releases() {
-
-    const singleVersionComponents = Object.keys(COMPONENTS)
-        .map((key) => {
-            const component = COMPONENTS[key];
-            const keys = Object.keys(component);
-            if (keys.length > 1 || keys.length === 0) {
-                return null;
-            }
-
-            let result = {};
-            result[key] = component[keys[0]];
-
-            return result;
-        })
-        .filter((value) => {
-            return !!value;
-        })
-        .reduce((result, current) => {
-            return Object.assign(result, current);
-        });
-
-    const multiVersionComponents = Object.keys(COMPONENTS)
-        .map((key) => {
-            const component = COMPONENTS[key];
-            const keys = Object.keys(component);
-            if (keys.length <= 1) {
-                return null;
-            }
-
-            let result = {};
-            result[key] = component;
-
-            return result;
-        })
-        .filter((value) => {
-            return !!value;
-        })
-        .reduce((result, current) => {
-            return Object.assign(result, current);
-        }, {});
-
 
     return (
         <Container sx={{
@@ -150,54 +98,41 @@ function Releases() {
             <TableContainer component={Paper} >
                 <Table>
                     {
-                        Object.keys(singleVersionComponents).map((key) => {
+                        Object.keys(COMPONENTS).map((key) => {
                             const name = key;
-                            const value = singleVersionComponents[key];
+                            const component = COMPONENTS[key];
+                            const buildStatus = {
+                                "buildUrl": component.buildUrl,
+                                "imageUrl": component.buildUrl + 'badge/icon?&subject=${params.BUILD_NAME}'
+                            }
+
+                            const sonarBadgesCells = ((component.sonar || {}).badges || [])
+                                .map((badge) => {
+                                    const data = {
+                                        buildUrl: badge.url,
+                                        imageUrl: badge.image
+                                    }
+                                    return <TableCell>
+                                        <Status board={data} />
+                                    </TableCell>;
+                                });
+
+
                             return (
                                 <TableRow key={name}>
                                     <TableCell>
                                         {name}
                                     </TableCell>
                                     <TableCell>
-                                        <Status board={value.board} />
+                                        <Status board={buildStatus} />
                                     </TableCell>
+                                    {sonarBadgesCells}
                                 </TableRow>
                             )
                         })
                     }
                 </Table>
             </TableContainer>
-            {
-                Object.keys(multiVersionComponents).map((key) => {
-                    const name = key;
-                    const values = multiVersionComponents[key];
-                    return (
-                        <Container component={Paper}>
-                            <Typography noWrap>{name}</Typography>
-                            <TableContainer>
-                                <Table>
-                                    {
-                                        Object.keys(values).map((key) => {
-                                            const version = `${key}`;
-                                            const value = values[key];
-                                            return (
-                                                <TableRow key={version}>
-                                                    <TableCell>
-                                                        {version}
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <Status board={value.board} />
-                                                    </TableCell>
-                                                </TableRow>
-                                            )
-                                        })
-                                    }
-                                </Table>
-                            </TableContainer>
-                        </Container>
-                    )
-                })
-            }
         </Container>
     );
 }
