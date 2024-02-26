@@ -98,9 +98,7 @@ function Releases() {
             <TableContainer component={Paper} >
                 <Table>
                     {
-                        Object.keys(COMPONENTS).map((key) => {
-                            const name = key;
-                            const component = COMPONENTS[key];
+                        Object.entries(COMPONENTS).map(([name, component]) => {
                             const buildStatus = {
                                 "buildUrl": component.buildUrl,
                                 "imageUrl": component.buildUrl + 'badge/icon?&subject=${params.BUILD_NAME}'

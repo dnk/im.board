@@ -134,19 +134,17 @@ function Tests() {
           return acc;
         }, {});
 
-        const dashboardIds = Object.keys(dashboards);
-
         const data = Object.entries(stability2tests).reduce((acc, e) => {
           const [isStable, tests] = e;
 
           const testsData = tests.map((testName) => {
             const boards = test2dashboard[testName];
 
-            const boardsData = dashboardIds.map((dashboardId) => {
+            const boardsData = Object.entries(dashboards).map(([dashboardId, dashboard]) => {
                 if (boards.includes(dashboardId)) {
-                    const buildUrl = dashboards[dashboardId][testName].url;
+                    const buildUrl = dashboard[testName].url;
                     const imageUrl = buildUrl + "badge/icon";
-                    const color = dashboards[dashboardId][testName].color;
+                    const color = dashboard[testName].color;
                     return {"buildUrl": redirect_url(buildUrl), "imageUrl": imageUrl, "color": color};
                 }
                 return null;
