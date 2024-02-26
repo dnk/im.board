@@ -75,6 +75,16 @@ const COMPONENTS = {
             ]
         }
     },
+    "GDPR": {
+        "buildUrl": "https://jenkins.com.int.zone/job/gdpr-backend/job/master/job/validate-and-promote/",
+        "sonar": {
+            badges: [
+                {
+                    sonarProjectId: "com.odin.gdpr:gdpr-backend"
+                }
+            ]
+        }
+    },
     "E2E SDK": {
         "buildUrl": "https://jenkins.com.int.zone/job/e2e-tests-v2/job/unstable/job/validate-and-promote/"
     },
