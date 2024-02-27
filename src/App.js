@@ -15,15 +15,13 @@ function App() {
   return (
       <ThemeProvider theme={darkTheme}>
         <CssBaseline />
-        <Card sx={{ display: 'flex' }} variant='outlined'>
-          <Box sx={{ display: 'flex' }}>
-            <CardContent >
+        <Card sx={{ display: 'flex', flexWrap: 'wrap-reverse' }} variant='outlined'>
+            <CardContent sx={{ flexGrow: 1 }}>
               <Releases />
             </CardContent>
-            <CardContent >
+            <CardContent sx={{ flexGrow: 1 }}>
               <Tests />
             </CardContent>
-          </Box>
         </Card>
       </ThemeProvider>
   );
