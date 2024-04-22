@@ -1,4 +1,4 @@
-import { Box, Card, CardContent, CssBaseline, createTheme, useMediaQuery } from '@mui/material';
+import { Card, CardContent, CssBaseline, createTheme, useMediaQuery } from '@mui/material';
 import Releases from './Releases';
 import Tests from './Tests';
 import { ThemeProvider } from '@emotion/react';

@@ -43,7 +43,7 @@ function QualityGateStatus({ data }) {
             })
         );
 
-        const isPassed = ((branch || {}).status || {}).qualityGateStatus == "OK";
+        const isPassed = ((branch || {}).status || {}).qualityGateStatus === "OK";
 
         if (isPassed) {
             setStatus('passed');
