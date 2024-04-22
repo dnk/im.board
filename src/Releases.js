@@ -10,6 +10,16 @@ import { TableHead } from '@mui/material';
 const STABLE_VERSION = "21.16";
 const UNSTABLE_VERSION = "unstable"
 
+const IDP_UNSTABLE_VERSION = "master";
+const IDP_STABLE_VERSION = "release-4.0";
+
+const UAM_UNSTABLE_VERSION = "master";
+const UAM_STABLE_VERSION = "release-2.0";
+
+const DM_UNSTABLE_VERSION = "master";
+const DM_STABLE_VERSION = "release-1.4";
+
+
 const COMPONENTS = {
     "OSS": [
         {
@@ -69,16 +79,28 @@ const COMPONENTS = {
             "buildUrl": `https://jenkins.com.int.zone/job/branding-ui-cluster/job/${STABLE_VERSION}/job/validate-and-promote/`,
         }
     ],
-    "IDP": {
-        "buildUrl": "https://jenkins.com.int.zone/job/idp-backend/job/master/job/validate-and-promote/",
-        "sonar": {
-            badges: [
-                {
-                    sonarProjectId: "com.odin.idp:idp-backend"
-                }
-            ]
+    "IDP": [
+        {
+            "buildUrl": `https://jenkins.com.int.zone/job/idp-backend/job/${IDP_UNSTABLE_VERSION}/job/validate-and-promote/`,
+            "sonar": {
+                badges: [
+                    {
+                        sonarProjectId: "com.odin.idp:idp-backend"
+                    }
+                ]
+            }
+        },
+        {
+            "buildUrl": `https://jenkins.com.int.zone/job/idp-backend/job/${IDP_STABLE_VERSION}/job/validate-and-promote/`,
+            "sonar": {
+                badges: [
+                    {
+                        sonarProjectId: "com.odin.idp:idp-backend"
+                    }
+                ]
+            }
         }
-    },
+    ],
     "Rating Engine": {
         "buildUrl": "https://jenkins.com.int.zone/job/ratingengine-backend/job/master/job/validate-and-promote/",
         "sonar": {
@@ -89,26 +111,22 @@ const COMPONENTS = {
             ]
         }
     },
-    "Discount Manager": {
-        "buildUrl": "https://jenkins.com.int.zone/job/discountmanager/job/master/job/validate-and-promote/",
-        "sonar": {
-            badges: [
-                {
-                    sonarProjectId: "com.odin.marketing:discountmanager-backend"
-                }
-            ]
+    "Discount Manager": [
+        {
+            "buildUrl": `https://jenkins.com.int.zone/job/discountmanager/job/${DM_UNSTABLE_VERSION}/job/validate-and-promote/`
+        },
+        {
+            "buildUrl": `https://jenkins.com.int.zone/job/discountmanager/job/${DM_STABLE_VERSION}/job/validate-and-promote/`
         }
-    },
-    "UAM": {
-        "buildUrl": "https://jenkins.com.int.zone/job/uam/job/master/job/validate-and-promote/",
-        "sonar": {
-            badges: [
-                {
-                    sonarProjectId: "com.cloudblue.uam:uam-backend:2.1"
-                }
-            ]
+    ],
+    "UAM": [
+        {
+            "buildUrl": `https://jenkins.com.int.zone/job/uam/job/${UAM_UNSTABLE_VERSION}/job/validate-and-promote/`
+        },
+        {
+            "buildUrl": `https://jenkins.com.int.zone/job/uam/job/${UAM_STABLE_VERSION}/job/validate-and-promote/`
         }
-    },
+    ],
     "GDPR": {
         "buildUrl": "https://jenkins.com.int.zone/job/gdpr-backend/job/master/job/validate-and-promote/",
         "sonar": {
@@ -141,8 +159,8 @@ function Releases() {
             }}>
                 <TableHead>
                     <TableCell></TableCell>
-                    <TableCell>master</TableCell>
-                    <TableCell>21.16</TableCell>
+                    <TableCell>unstable</TableCell>
+                    <TableCell>release</TableCell>
                 </TableHead>
                 {
                     Object.entries(COMPONENTS).map(([name, components]) => {
