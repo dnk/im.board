@@ -44,6 +44,11 @@ const STADALONE_TESTS = {
   ]
 };
 
+const TEST_NAME_CORRECTIONS = {
+  'upgrade-idp-backend': 'ipd-upgrade',
+  'idp-21': 'idp'
+}
+
 function fix_url(url) {
   url = url.replace("https://jenkins.com.int.zone", "https://dashboard.cloud-blue.website/jenkins"); //"/jenkins");
   return url;
@@ -94,7 +99,8 @@ function Tests() {
         acc = acc || {};
         value.forEach((item, i) => {
           const [name, url, color] = item;
-          acc[name] = { "url": url, "color": color };
+          const corrected_name = TEST_NAME_CORRECTIONS[name] || name;
+          acc[corrected_name] = { "url": url, "color": color };
         });
 
         return acc;
