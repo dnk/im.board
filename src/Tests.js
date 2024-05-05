@@ -45,7 +45,7 @@ const STADALONE_TESTS = {
 };
 
 const TEST_NAME_CORRECTIONS = {
-  'upgrade-idp-backend': 'ipd-upgrade',
+  'upgrade-idp-backend': 'idp-upgrade',
   'idp-21': 'idp'
 }
 
