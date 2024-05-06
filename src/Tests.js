@@ -145,6 +145,8 @@ function Tests() {
     const data = Object.entries(stability2tests).reduce((acc, e) => {
       const [isStable, tests] = e;
 
+      tests.sort();
+
       const testsData = tests.map((testName) => {
         const boards = test2dashboard[testName];
 
