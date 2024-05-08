@@ -46,7 +46,8 @@ const STADALONE_TESTS = {
 
 const TEST_NAME_CORRECTIONS = {
   'upgrade-idp-backend': 'idp-upgrade',
-  'idp-21': 'idp'
+  'idp-21': 'idp',
+  'upgrade-discountmanager': 'discountmanager-upgrade'
 }
 
 function fix_url(url) {
