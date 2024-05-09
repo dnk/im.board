@@ -32,22 +32,22 @@ const DASHBOARDS = {
 };
 
 const STADALONE_TESTS = {
-  "unstable": [
-    "https://jenkins.com.int.zone/job/ratingengine-backend/job/master/job/tests/job/master/job/refund-policies-cancellation/",
-    "https://jenkins.com.int.zone/job/ratingengine-backend/job/master/job/tests/job/master/job/refund-policies-cancellation-with-renew/",
-    "https://jenkins.com.int.zone/job/ratingengine-backend/job/master/job/tests/job/master/job/refund-policies-downsizing/",
-    //"https://jenkins.com.int.zone/job/idp-backend/job/master/job/tests/job/master/job/idp/",
-    //"https://ci.na.int.zone/jenkins/job/trunk/job/tests/job/perftests-ng/job/perftest-uam-cnc/",
-    "https://jenkins.com.int.zone/job/ratingengine-backend/job/master/job/tests/job/master/job/ratingengine-migration/",
-    "https://jenkins.com.int.zone/job/ratingengine-backend/job/master/job/tests/job/master/job/marketplace-anonymous-context/",
-    "https://jenkins.com.int.zone/job/ratingengine-backend/job/master/job/tests/job/master/job/refund-policies-downsizing-with-renew/",
-  ]
+  // "unstable": [
+  //   "https://jenkins.com.int.zone/job/ratingengine-backend/job/master/job/tests/job/master/job/refund-policies-cancellation/",
+  //   "https://jenkins.com.int.zone/job/ratingengine-backend/job/master/job/tests/job/master/job/refund-policies-cancellation-with-renew/",
+  //   "https://jenkins.com.int.zone/job/ratingengine-backend/job/master/job/tests/job/master/job/refund-policies-downsizing/",
+  //   //"https://jenkins.com.int.zone/job/idp-backend/job/master/job/tests/job/master/job/idp/",
+  //   //"https://ci.na.int.zone/jenkins/job/trunk/job/tests/job/perftests-ng/job/perftest-uam-cnc/",
+  //   "https://jenkins.com.int.zone/job/ratingengine-backend/job/master/job/tests/job/master/job/ratingengine-migration/",
+  //   "https://jenkins.com.int.zone/job/ratingengine-backend/job/master/job/tests/job/master/job/marketplace-anonymous-context/",
+  //   "https://jenkins.com.int.zone/job/ratingengine-backend/job/master/job/tests/job/master/job/refund-policies-downsizing-with-renew/",
+  // ]
 };
 
 const TEST_NAME_CORRECTIONS = {
-  'upgrade-idp-backend': 'idp-upgrade',
-  'idp-21': 'idp',
-  'upgrade-discountmanager': 'discountmanager-upgrade'
+  'IDP : upgrade-idp-backend': 'IDP : idp-upgrade',
+  'IDP : idp-21': 'IDP : idp',
+  'DISCOUNTMANAGER : upgrade-discountmanager': 'DISCOUNTMANAGER : discountmanager-upgrade'
 }
 
 function fix_url(url) {
@@ -73,6 +73,11 @@ function sortKeys(obj) {
   return Object.keys(obj).sort().reduce((acc, c) => { acc[c] = obj[c]; return acc }, {})
 }
 
+function jobName(name, url) {
+  const group = url.split('/job/')[1].split('-')[0].toUpperCase();
+  return `${group} : ${name}`;
+}
+
 
 function Tests() {
   const [tests, getTests] = useState([]);
@@ -84,13 +89,13 @@ function Tests() {
         let url = (viewUrl + "/api/json?tree=jobs[name,url,color]").replaceAll('${dashboardId}', dashboardId)
         const response = await xhr(url);
         const jobs = response["jobs"] || [];
-        return jobs.map(job => [job.name, job.url, job.color]);
+        return jobs.map(job => [jobName(job.name, job.url), job.url, job.color]);
       });
 
       const standaloneTests = STADALONE_TESTS[dashboardId] || [];
       const standaloneTestsPromises = standaloneTests.map(async (standaloneTestUrl) => {
         const response = await xhr(standaloneTestUrl + "/api/json?tree=name,url,color");
-        return [[response.name, response.url, response.color]];
+        return [[jobName(response.name, response.url), response.url, response.color]];
       })
 
       const viewTests = await Promise.all([...viewPromises, ...standaloneTestsPromises]);
