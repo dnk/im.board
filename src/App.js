@@ -16,10 +16,10 @@ function App() {
       <ThemeProvider theme={darkTheme}>
         <CssBaseline />
         <Card sx={{ display: 'flex', flexWrap: 'wrap-reverse' }} variant='outlined'>
-            <CardContent sx={{ flexGrow: 1 }}>
+            <CardContent sx={{ flex: 'flex-shrink' }}>
               <Releases />
             </CardContent>
-            <CardContent sx={{ flexGrow: 1 }}>
+            <CardContent sx={{ flex: 'flex-shrink' }}>
               <Tests />
             </CardContent>
         </Card>

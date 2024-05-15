@@ -11,7 +11,7 @@ function Status({board}) {
     }
 
     return <a href={board.buildUrl} target='_blank' rel='nofollow noopener noreferrer'>
-            <img src={fix_url(board.imageUrl)} />
+            <img src={fix_url(board.imageUrl)} alt=''/>
         </a>
 }
 

@@ -33,7 +33,7 @@ function CollapsibleRow({ dashboards, tests, isStable, isOpen }) {
             <Box>
               <Table size="small">
                 <TableHead>
-                  <TableCell></TableCell>
+                  <TableCell />
                   {dashboards.map((key) => {
                     return <TableCell key={key}>{key}</TableCell>
                   })}
@@ -47,14 +47,12 @@ function CollapsibleRow({ dashboards, tests, isStable, isOpen }) {
                       test.boards.map((board) => {
                         if (board) {
                           return (
-                            <TableCell key={board.buildUrl}>
+                            <TableCell key={board.buildUrl} >
                               <Status board={board} />
                             </TableCell>
-                          )
+                          );
                         } else {
-                          return (
-                            <TableCell />
-                          )
+                          return (<TableCell />);
                         }
                       })
                     }

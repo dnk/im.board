@@ -11,7 +11,8 @@ const STABLE_VERSION = "21.16";
 const UNSTABLE_VERSION = "unstable"
 
 const IDP_UNSTABLE_VERSION = "master";
-const IDP_STABLE_VERSION = "release-4.0";
+const IDP_STABLE_VERSION_4_1 = "release-4.1";
+const IDP_STABLE_VERSION_4_0 = "release-4.0";
 
 const UAM_UNSTABLE_VERSION = "master";
 const UAM_STABLE_VERSION = "release-2.0";
@@ -82,23 +83,12 @@ const COMPONENTS = {
     "IDP": [
         {
             "buildUrl": `https://jenkins.com.int.zone/job/idp-backend/job/${IDP_UNSTABLE_VERSION}/job/validate-and-promote/`,
-            "sonar": {
-                badges: [
-                    {
-                        sonarProjectId: "com.odin.idp:idp-backend"
-                    }
-                ]
-            }
         },
         {
-            "buildUrl": `https://jenkins.com.int.zone/job/idp-backend/job/${IDP_STABLE_VERSION}/job/validate-and-promote/`,
-            "sonar": {
-                badges: [
-                    {
-                        sonarProjectId: "com.odin.idp:idp-backend"
-                    }
-                ]
-            }
+            "buildUrl": `https://jenkins.com.int.zone/job/idp-backend/job/${IDP_STABLE_VERSION_4_1}/job/validate-and-promote/`,
+        },
+        {
+            "buildUrl": `https://jenkins.com.int.zone/job/idp-backend/job/${IDP_STABLE_VERSION_4_0}/job/validate-and-promote/`,
         }
     ],
     "Rating Engine": {
@@ -159,8 +149,8 @@ function Releases() {
             }}>
                 <TableHead>
                     <TableCell></TableCell>
-                    <TableCell>unstable</TableCell>
-                    <TableCell>release</TableCell>
+                    <TableCell>Unstable</TableCell>
+                    <TableCell>Releases</TableCell>
                 </TableHead>
                 {
                     Object.entries(COMPONENTS).map(([name, components]) => {
@@ -169,7 +159,7 @@ function Releases() {
                             .map((component, index) => {
                                 const buildStatus = {
                                     "buildUrl": component.buildUrl,
-                                    "imageUrl": component.buildUrl + 'badge/icon?&subject=${params.BUILD_NAME}'
+                                    "imageUrl": component.buildUrl + "badge/icon?&subject=${params.BUILD_NAME}"
                                 };
 
                                 // const sonarBadgesCells = ((component.sonar || {}).badges || [])
@@ -184,7 +174,7 @@ function Releases() {
 
                                 const key = `${name}-${index}`;
 
-                                return <TableCell key={key}>
+                                return <TableCell key={key} >
                                     <Status board={buildStatus} />
                                 </TableCell>;
                             });
