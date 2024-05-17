@@ -31,19 +31,6 @@ const DASHBOARDS = {
   ],
 };
 
-const STADALONE_TESTS = {
-  // "unstable": [
-  //   "https://jenkins.com.int.zone/job/ratingengine-backend/job/master/job/tests/job/master/job/refund-policies-cancellation/",
-  //   "https://jenkins.com.int.zone/job/ratingengine-backend/job/master/job/tests/job/master/job/refund-policies-cancellation-with-renew/",
-  //   "https://jenkins.com.int.zone/job/ratingengine-backend/job/master/job/tests/job/master/job/refund-policies-downsizing/",
-  //   //"https://jenkins.com.int.zone/job/idp-backend/job/master/job/tests/job/master/job/idp/",
-  //   //"https://ci.na.int.zone/jenkins/job/trunk/job/tests/job/perftests-ng/job/perftest-uam-cnc/",
-  //   "https://jenkins.com.int.zone/job/ratingengine-backend/job/master/job/tests/job/master/job/ratingengine-migration/",
-  //   "https://jenkins.com.int.zone/job/ratingengine-backend/job/master/job/tests/job/master/job/marketplace-anonymous-context/",
-  //   "https://jenkins.com.int.zone/job/ratingengine-backend/job/master/job/tests/job/master/job/refund-policies-downsizing-with-renew/",
-  // ]
-};
-
 const TEST_NAME_CORRECTIONS = {
   'IDP : upgrade-idp-backend': 'IDP : idp-upgrade',
   'IDP : idp-21': 'IDP : idp',
@@ -78,35 +65,88 @@ function jobName(name, url) {
   return `${group} : ${name}`;
 }
 
+function getParameter(response, name) {
+  const actions = response.actions || [];
+  const parametersAction = actions.find((action) => action._class === "hudson.model.ParametersAction") || {};
+  const parameters = parametersAction.parameters || [];
+  const parameter = parameters.find((parameter) => parameter.name === name) || {};
+  return parameter.value;
+}
+
+function getJobData(promise, diveDeep = true) {
+  return promise.then((jobResponse) => {
+    if (jobResponse.color === "notbuilt" || !jobResponse.previousBuild || !jobResponse.previousBuild.url) {
+      return { "url": null, "color": "notbuilt" };
+    }
+
+    const previousBuildUrl = jobResponse.previousBuild.url + "/api/json";
+
+    const buildName = getParameter(jobResponse, "BUILD_NAME");
+    if (buildName === "") {
+      if (jobResponse.inProgress) {
+        return getJobData(xhr(previousBuildUrl), false).then((data) => {
+          return { "url": jobResponse.url, "color": data.color };
+        });
+      }
+      const color = jobResponse.result === "SUCCESS" ? "blue" : "yellow";
+      return { "url": jobResponse.url, "color": color };
+    }
+
+    if (diveDeep) {
+      return getJobData(xhr(previousBuildUrl));
+    } else {
+      const color = jobResponse.result === "SUCCESS" ? "blue" : "yellow";
+      return { "url": jobResponse.url, "color": color };
+    }
+  });
+}
+
+
+function getStableComponentJobPromise(url) {
+  let promise = new Promise((resolve, reject) => {
+    let jobJsonUrl = url + "/lastBuild/api/json";
+    const promise = xhr(jobJsonUrl);
+
+    getJobData(promise).then(
+      (data) => {
+        const jobUrl = data.url || url;
+        const color = data.color;
+        resolve({ "url": jobUrl, "color": color });
+      },
+      (data) => reject(data)
+    );
+  });
+
+  return promise;
+}
 
 function Tests() {
-  const [tests, getTests] = useState([]);
+  const [tests, setTests] = useState([]);
 
   const fetchTests = async () => {
     const dashboardsPromises = Object.entries(DASHBOARDS).map(async (e) => {
       const [dashboardId, views] = e;
-      const viewPromises = views.map(async (viewUrl) => {
+      const viewPromises = views.map((viewUrl) => {
         let url = (viewUrl + "/api/json?tree=jobs[name,url,color]").replaceAll('${dashboardId}', dashboardId)
-        const response = await xhr(url);
-        const jobs = response["jobs"] || [];
-        return jobs.map(job => [jobName(job.name, job.url), job.url, job.color]);
+        return xhr(url).then((response) => {
+          const jobs = response["jobs"] || [];
+          const promises = jobs.map((job) => {
+            return getStableComponentJobPromise(job.url).then((stableJob) => {
+              return [jobName(job.name, job.url), job.url, stableJob];
+            });
+          });
+          return Promise.all(promises);
+        })
       });
 
-      const standaloneTests = STADALONE_TESTS[dashboardId] || [];
-      const standaloneTestsPromises = standaloneTests.map(async (standaloneTestUrl) => {
-        const response = await xhr(standaloneTestUrl + "/api/json?tree=name,url,color");
-        return [[jobName(response.name, response.url), response.url, response.color]];
-      })
-
-      const viewTests = await Promise.all([...viewPromises, ...standaloneTestsPromises]);
-
+      const viewTests = (await Promise.all(viewPromises));
 
       const boardTests = viewTests.reduce((acc, value) => {
         acc = acc || {};
         value.forEach((item, i) => {
-          const [name, url, color] = item;
+          const [name, url, stableComponentJob] = item;
           const corrected_name = TEST_NAME_CORRECTIONS[name] || name;
-          acc[corrected_name] = { "url": url, "color": color };
+          acc[corrected_name] = { "url": url, "color": stableComponentJob.color, "stableComponentJobUrl": stableComponentJob.url };
         });
 
         return acc;
@@ -138,7 +178,7 @@ function Tests() {
     const stability2tests = Object.entries(test2dashboard).reduce((acc, e) => {
       const [testname, dashboardIds] = e;
       const unstableTests = dashboardIds.filter((dashboardId) => {
-        const testColor = dashboards[dashboardId][testname].color;
+        const testColor = dashboards[dashboardId][testname].color || "yellow";
         return !testColor.startsWith('blue') && testColor !== 'notbuilt';
       });
 
@@ -158,8 +198,8 @@ function Tests() {
 
         const boardsData = Object.entries(dashboards).map(([dashboardId, dashboard]) => {
           if (boards.includes(dashboardId)) {
-            const buildUrl = dashboard[testName].url;
-            const imageUrl = buildUrl + "badge/icon?build=last:${params.BUILD_NAME=}";
+            const buildUrl = dashboard[testName].stableComponentJobUrl;
+            const imageUrl = buildUrl + "badge/icon";
             const color = dashboard[testName].color;
             return { "buildUrl": redirect_url(buildUrl), "imageUrl": imageUrl, "color": color };
           }
@@ -173,7 +213,7 @@ function Tests() {
       return acc;
     }, {});
 
-    return getTests(sortKeys(data));
+    return setTests(sortKeys(data));
   };
 
   useEffect(() => {
