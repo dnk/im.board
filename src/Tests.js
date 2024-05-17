@@ -159,7 +159,7 @@ function Tests() {
         const boardsData = Object.entries(dashboards).map(([dashboardId, dashboard]) => {
           if (boards.includes(dashboardId)) {
             const buildUrl = dashboard[testName].url;
-            const imageUrl = buildUrl + "badge/icon";
+            const imageUrl = buildUrl + "badge/icon?build=last:${params.BUILD_NAME=}";
             const color = dashboard[testName].color;
             return { "buildUrl": redirect_url(buildUrl), "imageUrl": imageUrl, "color": color };
           }
