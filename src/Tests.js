@@ -39,12 +39,12 @@ const TEST_NAME_CORRECTIONS = {
 }
 
 function fix_url(url) {
-  url = url.replace("https://jenkins.com.int.zone", "https://dashboard.cloud-blue.website/jenkins"); //"/jenkins");
+  url = url.replace("https://jenkins.com.int.zone", "https://dashboard.cloud-blue.online/jenkins"); //"/jenkins");
   return url;
 }
 
 function redirect_url(url) {
-  return "https://dashboard.cloud-blue.website/redirect?url=" + encodeURIComponent(url);
+  return "https://dashboard.cloud-blue.online/redirect?url=" + encodeURIComponent(url);
 }
 
 function xhr(url) {

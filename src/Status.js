@@ -1,7 +1,7 @@
 import React from 'react'
 
 function fix_url(url) {
-    url = url.replace("https://jenkins.com.int.zone", "https://dashboard.cloud-blue.website/jenkins"); //"/jenkins");
+    url = url.replace("https://jenkins.com.int.zone", "https://dashboard.cloud-blue.online/jenkins"); //"/jenkins");
     return url;
   }
 
