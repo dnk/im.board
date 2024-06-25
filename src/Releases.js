@@ -5,7 +5,7 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 
 import Status from "./Status";
-import { TableHead } from '@mui/material';
+import { TableBody, TableHead } from '@mui/material';
 
 const STABLE_VERSION = "21.16";
 const UNSTABLE_VERSION = "unstable"
@@ -141,57 +141,59 @@ const COMPONENTS = {
 function Releases() {
 
     return (
-        <TableContainer component={Paper} >
+        <TableContainer component={Paper} key="releases-table-container">
             <Table sx={{
                 [`& .${tableCellClasses.root}`]: {
                     border: "none"
                 }
-            }}>
-                <TableHead>
-                    <TableCell></TableCell>
-                    <TableCell>Unstable</TableCell>
-                    <TableCell>Releases</TableCell>
+            }} size="small" key='releases-table'>
+                <TableHead key='releases-head'>
+                    <TableCell key='releases-head-name'></TableCell>
+                    <TableCell key='releases-head-unstable'>Unstable</TableCell>
+                    <TableCell key='releases-head-realeases'>Releases</TableCell>
                 </TableHead>
-                {
-                    Object.entries(COMPONENTS).map(([name, components]) => {
+                <TableBody key='releases-body'>
+                    {
+                        Object.entries(COMPONENTS).map(([name, components]) => {
+                            return (
+                                <TableRow key={name}>
+                                    <TableCell>
+                                        {name}
+                                    </TableCell>
+                                    {
+                                        (Array.isArray(components) ? components : [components])
+                                            .map((component, index) => {
+                                                const buildStatus = {
+                                                    "buildUrl": component.buildUrl,
+                                                    "imageUrl": component.buildUrl + "badge/icon?&subject=${params.BUILD_NAME}"
+                                                };
 
-                        let cells = (Array.isArray(components) ? components : [components])
-                            .map((component, index) => {
-                                const buildStatus = {
-                                    "buildUrl": component.buildUrl,
-                                    "imageUrl": component.buildUrl + "badge/icon?&subject=${params.BUILD_NAME}"
-                                };
+                                                // const sonarBadgesCells = ((component.sonar || {}).badges || [])
+                                                //     .map((badge) => {
+                                                //         const data = {
+                                                //             sonarProjectId: badge.sonarProjectId
+                                                //         }
+                                                //         return <TableCell>
+                                                //             <QualityGateStatus data={data} />
+                                                //         </TableCell>;
+                                                //     });
 
-                                // const sonarBadgesCells = ((component.sonar || {}).badges || [])
-                                //     .map((badge) => {
-                                //         const data = {
-                                //             sonarProjectId: badge.sonarProjectId
-                                //         }
-                                //         return <TableCell>
-                                //             <QualityGateStatus data={data} />
-                                //         </TableCell>;
-                                //     });
+                                                const key = `${name}-${index}`;
 
-                                const key = `${name}-${index}`;
-
-                                return <TableCell key={key} >
-                                    <Status board={buildStatus} />
-                                </TableCell>;
-                            });
-
-                        return (
-                            <TableRow key={name}>
-                                <TableCell>
-                                    {name}
-                                </TableCell>
-                                {cells}
-                            </TableRow>
-                        )
-                    })
-                }
+                                                return (
+                                                    <TableCell key={key} >
+                                                        <Status board={buildStatus} key={key + "-status"} />
+                                                    </TableCell>
+                                                );
+                                            })
+                                    }
+                                </TableRow>
+                            )
+                        })
+                    }
+                </TableBody>
             </Table>
         </TableContainer>
-
     );
 }
 export default Releases;

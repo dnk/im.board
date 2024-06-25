@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -6,7 +6,8 @@ import TableContainer from '@mui/material/TableContainer';
 import Paper from '@mui/material/Paper';
 
 import CollapsibleRow from './CollapsibleRow';
-import { tableCellClasses } from '@mui/material';
+import { TableCell, TableHead, TableRow, tableCellClasses } from '@mui/material';
+import Status from './Status';
 
 const DASHBOARDS = {
   "unstable": [
@@ -120,10 +121,12 @@ function getStableComponentJobPromise(url) {
   return promise;
 }
 
-function Tests() {
-  const [tests, setTests] = useState([]);
+function Tests({ id }) {
+  const [xid, setXid] = useState(id);
+  const [tests, setTests] = useState(false);
 
   const fetchTests = async () => {
+    console.log(`fetchTests ${xid}`);
     const dashboardsPromises = Object.entries(DASHBOARDS).map(async (e) => {
       const [dashboardId, views] = e;
       const viewPromises = views.map((viewUrl) => {
@@ -213,17 +216,27 @@ function Tests() {
       return acc;
     }, {});
 
-    return setTests(sortKeys(data));
+    setTests(sortKeys(data));
   };
 
   useEffect(() => {
+    console.log(`useEffect ${xid}`);
     fetchTests();
-  }, []);
+  }, [xid]);
 
+  let dashboards = Object.keys(DASHBOARDS);
+  let xtests = [...(tests[false] || []), ...(tests[true] || [])];
+
+  console.log(`render tests: ${xtests.length}`);
+
+  if (!tests) {
+    // first render
+    return false;
+  }
 
   return (
-    <TableContainer component={Paper}>
-      <Table size={'small'} sx={{
+    <TableContainer component={Paper} key="tests-TableContainer">
+      {/* <Table size={'small'} sx={{
         [`& .${tableCellClasses.root}`]: {
           border: "none"
         }
@@ -243,6 +256,40 @@ function Tests() {
               )
             })
           }
+        </TableBody>
+      </Table> */}
+      <Table size="small" sx={{
+        [`& .${tableCellClasses.root}`]: {
+          border: "none"
+        }
+      }} key="tests-Table">
+        <TableHead key="tests-head">
+          <TableCell key="tests-name" />
+          {dashboards.map((key) => {
+            return <TableCell key={key}>{key}</TableCell>
+          })}
+        </TableHead>
+        <TableBody key="tests-body">
+          {xtests.map((test) => (
+            <TableRow key={test.name}>
+              <TableCell key={test.name + '-name'}>
+                {test.name}
+              </TableCell>
+              {
+                test.boards.map((board) => {
+                  if (board) {
+                    return (
+                      <TableCell key={board.buildUrl} >
+                        <Status board={board} key={board.buildUrl + '-status'} />
+                      </TableCell>
+                    );
+                  } else {
+                    return false;
+                  }
+                })
+              }
+            </TableRow>
+          ))}
         </TableBody>
       </Table>
     </TableContainer>

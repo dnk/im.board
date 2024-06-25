@@ -13,17 +13,17 @@ function App() {
   });
 
   return (
-      <ThemeProvider theme={darkTheme}>
-        <CssBaseline />
-        <Card sx={{ display: 'flex', flexWrap: 'wrap-reverse' }} variant='outlined'>
-            <CardContent sx={{ flex: 'flex-shrink' }}>
-              <Releases />
-            </CardContent>
-            <CardContent sx={{ flex: 'flex-shrink' }}>
-              <Tests />
-            </CardContent>
-        </Card>
-      </ThemeProvider>
+    <ThemeProvider theme={darkTheme} key="theme-provider">
+      <CssBaseline />
+      <Card sx={{ display: 'flex', flexWrap: 'wrap-reverse' }} variant='outlined' key="card" >
+        <CardContent sx={{ flex: 'flex-shrink', padding: '8px' }} key='card-releases'>
+          <Releases key="releases" />
+        </CardContent>
+        <CardContent sx={{ flex: 'flex-shrink', padding: '8px'}} key='card-tests'>
+          <Tests key="tests" id={123}/>
+        </CardContent>
+      </Card>
+    </ThemeProvider>
   );
 }
 
