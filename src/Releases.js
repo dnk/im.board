@@ -18,7 +18,8 @@ const UAM_UNSTABLE_VERSION = "master";
 const UAM_STABLE_VERSION = "release-2.0";
 
 const DM_UNSTABLE_VERSION = "master";
-const DM_STABLE_VERSION = "release-1.4";
+const DM_STABLE_VERSION_1_5 = "release-1.5";
+const DM_STABLE_VERSION_1_4 = "release-1.4";
 
 
 const COMPONENTS = {
@@ -106,7 +107,10 @@ const COMPONENTS = {
             "buildUrl": `https://jenkins.com.int.zone/job/discountmanager/job/${DM_UNSTABLE_VERSION}/job/validate-and-promote/`
         },
         {
-            "buildUrl": `https://jenkins.com.int.zone/job/discountmanager/job/${DM_STABLE_VERSION}/job/validate-and-promote/`
+            "buildUrl": `https://jenkins.com.int.zone/job/discountmanager/job/${DM_STABLE_VERSION_1_5}/job/validate-and-promote/`
+        },
+        {
+            "buildUrl": `https://jenkins.com.int.zone/job/discountmanager/job/${DM_STABLE_VERSION_1_4}/job/validate-and-promote/`
         }
     ],
     "UAM": [
