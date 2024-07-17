@@ -1,18 +1,20 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect } from 'react'
 
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableContainer from '@mui/material/TableContainer';
 import Paper from '@mui/material/Paper';
 
-import CollapsibleRow from './CollapsibleRow';
 import { TableCell, TableHead, TableRow, tableCellClasses } from '@mui/material';
 import Status from './Status';
 
 const DASHBOARDS = {
   "unstable": [
     "https://jenkins.com.int.zone/view/Tests/view/master/view/abondarenko/",
-    "https://jenkins.com.int.zone/view/Tests/view/master/view/igarro-to-abondarenko/"
+    "https://jenkins.com.int.zone/view/Tests/view/master/view/eoktyabrskiy/",
+    "https://jenkins.com.int.zone/view/Tests/view/master/view/igarro/",
+    "https://jenkins.com.int.zone/view/Tests/view/master/view/ivagulin/",
+    "https://jenkins.com.int.zone/view/Tests/view/master/view/rbesolov/",
     /*
     "https://jenkins.com.int.zone/view/components/job/bss/job/${dashboardId}/job/tests/job/master/view/abondarenko/",
     "https://jenkins.com.int.zone/view/components/job/oss/job/${dashboardId}/job/tests/job/master/view/abondarenko/",
@@ -22,7 +24,10 @@ const DASHBOARDS = {
   ],
   "21.16": [
     "https://jenkins.com.int.zone/view/Tests/view/21/view/abondarenko/",
-    "https://jenkins.com.int.zone/view/Tests/view/21/view/igarro-to-abondarenko/",
+    "https://jenkins.com.int.zone/view/Tests/view/21/view/eoktyabrskiy/",
+    "https://jenkins.com.int.zone/view/Tests/view/21/view/igarro/",
+    "https://jenkins.com.int.zone/view/Tests/view/21/view/ivagulin/",
+    "https://jenkins.com.int.zone/view/Tests/view/21/view/rbesolov/",
     /*
     "https://jenkins.com.int.zone/view/components/job/bss/job/${dashboardId}/job/tests/job/21/view/abondarenko/",
     "https://jenkins.com.int.zone/view/components/job/oss/job/${dashboardId}/job/tests/job/21/view/abondarenko/",
@@ -122,15 +127,14 @@ function getStableComponentJobPromise(url) {
 }
 
 function Tests({ id }) {
-  const [xid, setXid] = useState(id);
   const [tests, setTests] = useState(false);
 
   const fetchTests = async () => {
-    console.log(`fetchTests ${xid}`);
+    console.log(`fetchTests ${id}`);
     const dashboardsPromises = Object.entries(DASHBOARDS).map(async (e) => {
       const [dashboardId, views] = e;
       const viewPromises = views.map((viewUrl) => {
-        let url = (viewUrl + "/api/json?tree=jobs[name,url,color]").replaceAll('${dashboardId}', dashboardId)
+        let url = (viewUrl + "/api/json?tree=jobs[name,url,color]"); //.replaceAll('${dashboardId}', dashboardId)
         return xhr(url).then((response) => {
           const jobs = response["jobs"] || [];
           const promises = jobs.map((job) => {
@@ -220,9 +224,9 @@ function Tests({ id }) {
   };
 
   useEffect(() => {
-    console.log(`useEffect ${xid}`);
+    console.log(`useEffect ${id}`);
     fetchTests();
-  }, [xid]);
+  });
 
   let dashboards = Object.keys(DASHBOARDS);
   let xtests = [...(tests[false] || []), ...(tests[true] || [])];
