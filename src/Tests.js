@@ -228,15 +228,15 @@ function Tests({ id }) {
     fetchTests();
   });
 
-  let dashboards = Object.keys(DASHBOARDS);
-  let xtests = [...(tests[false] || []), ...(tests[true] || [])];
-
-  console.log(`render tests: ${xtests.length}`);
-
   if (!tests) {
     // first render
     return false;
   }
+
+  let dashboards = Object.keys(DASHBOARDS);
+  let xtests = [...(tests[false] || []), ...(tests[true] || [])];
+
+  console.log(`render tests: ${xtests.length}`);
 
   return (
     <TableContainer component={Paper} key="tests-TableContainer">
