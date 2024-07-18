@@ -15,6 +15,8 @@ const DASHBOARDS = {
     "https://jenkins.com.int.zone/view/Tests/view/master/view/igarro/",
     "https://jenkins.com.int.zone/view/Tests/view/master/view/ivagulin/",
     "https://jenkins.com.int.zone/view/Tests/view/master/view/rbesolov/",
+    "https://jenkins.com.int.zone/view/Tests/view/master/view/nnetesov/",
+    "https://jenkins.com.int.zone/view/Tests/view/master/view/vkopchenin/",
     /*
     "https://jenkins.com.int.zone/view/components/job/bss/job/${dashboardId}/job/tests/job/master/view/abondarenko/",
     "https://jenkins.com.int.zone/view/components/job/oss/job/${dashboardId}/job/tests/job/master/view/abondarenko/",
@@ -28,6 +30,8 @@ const DASHBOARDS = {
     "https://jenkins.com.int.zone/view/Tests/view/21/view/igarro/",
     "https://jenkins.com.int.zone/view/Tests/view/21/view/ivagulin/",
     "https://jenkins.com.int.zone/view/Tests/view/21/view/rbesolov/",
+    "https://jenkins.com.int.zone/view/Tests/view/21/view/nnetesov/",
+    "https://jenkins.com.int.zone/view/Tests/view/21/view/vkopchenin/",
     /*
     "https://jenkins.com.int.zone/view/components/job/bss/job/${dashboardId}/job/tests/job/21/view/abondarenko/",
     "https://jenkins.com.int.zone/view/components/job/oss/job/${dashboardId}/job/tests/job/21/view/abondarenko/",
@@ -288,7 +292,7 @@ function Tests({ id }) {
                       </TableCell>
                     );
                   } else {
-                    return false;
+                    return <TableCell/>;
                   }
                 })
               }

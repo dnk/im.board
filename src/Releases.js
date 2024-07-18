@@ -21,6 +21,9 @@ const DM_UNSTABLE_VERSION = "master";
 const DM_STABLE_VERSION_1_5 = "release-1.5";
 const DM_STABLE_VERSION_1_4 = "release-1.4";
 
+const INHOUSE_UNSTABLE_VERSION = "master";
+const INHOUSE_VERSION_2_3 = "2.3";
+const INHOUSE_VERSION_2_2 = "2.2";
 
 const COMPONENTS = {
     "OSS": [
@@ -81,17 +84,6 @@ const COMPONENTS = {
             "buildUrl": `https://jenkins.com.int.zone/job/branding-ui-cluster/job/${STABLE_VERSION}/job/validate-and-promote/`,
         }
     ],
-    "IDP": [
-        {
-            "buildUrl": `https://jenkins.com.int.zone/job/idp-backend/job/${IDP_UNSTABLE_VERSION}/job/validate-and-promote/`,
-        },
-        {
-            "buildUrl": `https://jenkins.com.int.zone/job/idp-backend/job/${IDP_STABLE_VERSION_4_1}/job/validate-and-promote/`,
-        },
-        {
-            "buildUrl": `https://jenkins.com.int.zone/job/idp-backend/job/${IDP_STABLE_VERSION_4_0}/job/validate-and-promote/`,
-        }
-    ],
     "Rating Engine": {
         "buildUrl": "https://jenkins.com.int.zone/job/ratingengine-backend/job/master/job/validate-and-promote/",
         "sonar": {
@@ -111,6 +103,33 @@ const COMPONENTS = {
         },
         {
             "buildUrl": `https://jenkins.com.int.zone/job/discountmanager/job/${DM_STABLE_VERSION_1_4}/job/validate-and-promote/`
+        }
+    ],
+    "Product Registry": [
+        {
+            "buildUrl": `https://jenkins.com.int.zone/job/product-registry/job/master/job/validate-and-promote/`,
+        }
+    ],
+    "Inhouse Products": [
+        {
+            "buildUrl": `https://jenkins.com.int.zone/job/inhouse-products/job/${INHOUSE_UNSTABLE_VERSION}/job/validate-and-promote/`
+        },
+        {
+            "buildUrl": `https://jenkins.com.int.zone/job/inhouse-products/job/${INHOUSE_VERSION_2_3}/job/validate-and-promote/`
+        },
+        {
+            "buildUrl": `https://jenkins.com.int.zone/job/inhouse-products/job/${INHOUSE_VERSION_2_2}/job/validate-and-promote/`
+        },
+    ],
+    "IDP": [
+        {
+            "buildUrl": `https://jenkins.com.int.zone/job/idp-backend/job/${IDP_UNSTABLE_VERSION}/job/validate-and-promote/`,
+        },
+        {
+            "buildUrl": `https://jenkins.com.int.zone/job/idp-backend/job/${IDP_STABLE_VERSION_4_1}/job/validate-and-promote/`,
+        },
+        {
+            "buildUrl": `https://jenkins.com.int.zone/job/idp-backend/job/${IDP_STABLE_VERSION_4_0}/job/validate-and-promote/`,
         }
     ],
     "UAM": [
