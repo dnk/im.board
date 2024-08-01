@@ -17,14 +17,8 @@ const DASHBOARDS = {
     "https://jenkins.com.int.zone/view/Tests/view/master/view/rbesolov/",
     "https://jenkins.com.int.zone/view/Tests/view/master/view/nnetesov/",
     "https://jenkins.com.int.zone/view/Tests/view/master/view/vkopchenin/",
-    /*
-    "https://jenkins.com.int.zone/view/components/job/bss/job/${dashboardId}/job/tests/job/master/view/abondarenko/",
-    "https://jenkins.com.int.zone/view/components/job/oss/job/${dashboardId}/job/tests/job/master/view/abondarenko/",
-    "https://jenkins.com.int.zone/job/uam/job/master/job/tests/job/master/view/abondarenko/", // was "https://jenkins.com.int.zone/view/components/job/uam/job/master/job/tests/job/master/"
-    "https://jenkins.com.int.zone/job/discountmanager/job/master/job/tests/job/master/view/abondarenko/",
-    */
   ],
-  "21.16": [
+  "cb-21": [
     "https://jenkins.com.int.zone/view/Tests/view/21/view/abondarenko/",
     "https://jenkins.com.int.zone/view/Tests/view/21/view/eoktyabrskiy/",
     "https://jenkins.com.int.zone/view/Tests/view/21/view/igarro/",
@@ -32,12 +26,6 @@ const DASHBOARDS = {
     "https://jenkins.com.int.zone/view/Tests/view/21/view/rbesolov/",
     "https://jenkins.com.int.zone/view/Tests/view/21/view/nnetesov/",
     "https://jenkins.com.int.zone/view/Tests/view/21/view/vkopchenin/",
-    /*
-    "https://jenkins.com.int.zone/view/components/job/bss/job/${dashboardId}/job/tests/job/21/view/abondarenko/",
-    "https://jenkins.com.int.zone/view/components/job/oss/job/${dashboardId}/job/tests/job/21/view/abondarenko/",
-    "https://jenkins.com.int.zone/job/uam/job/master/job/tests/job/21/view/abondarenko/", //was "https://jenkins.com.int.zone/view/components/job/uam/job/21/job/tests/job/21/",
-    "https://jenkins.com.int.zone/job/discountmanager/job/master/job/tests/job/21/view/abondarenko/",
-    */
   ],
 };
 
@@ -244,28 +232,6 @@ function Tests({ id }) {
 
   return (
     <TableContainer component={Paper} key="tests-TableContainer">
-      {/* <Table size={'small'} sx={{
-        [`& .${tableCellClasses.root}`]: {
-          border: "none"
-        }
-      }}
-      >
-        <TableBody>
-          {
-            Object.entries(tests).map((e) => {
-              const [isStableValue, data] = e;
-
-              const isStable = isStableValue !== "false";
-              // tests is an object
-              const isOpen = (isStable && Object.keys(tests).length === 1) || !isStable;
-
-              return (
-                <CollapsibleRow dashboards={Object.keys(DASHBOARDS)} tests={data} isStable={isStable} isOpen={isOpen} />
-              )
-            })
-          }
-        </TableBody>
-      </Table> */}
       <Table size="small" sx={{
         [`& .${tableCellClasses.root}`]: {
           border: "none"
