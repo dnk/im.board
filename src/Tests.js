@@ -118,15 +118,14 @@ function getStableComponentJobPromise(url) {
   return promise;
 }
 
-function Tests({ id }) {
-  const [tests, setTests] = useState(false);
+function Tests() {
+  const [tests, setTests] = useState({});
 
   const fetchTests = async () => {
-    console.log(`fetchTests ${id}`);
     const dashboardsPromises = Object.entries(DASHBOARDS).map(async (e) => {
       const [dashboardId, views] = e;
       const viewPromises = views.map((viewUrl) => {
-        let url = (viewUrl + "/api/json?tree=jobs[name,url,color]"); //.replaceAll('${dashboardId}', dashboardId)
+        let url = (viewUrl + "/api/json?tree=jobs[name,url,color]");
         return xhr(url).then((response) => {
           const jobs = response["jobs"] || [];
           const promises = jobs.map((job) => {
@@ -212,23 +211,26 @@ function Tests({ id }) {
       return acc;
     }, {});
 
-    setTests(sortKeys(data));
+    const newTests = sortKeys(data);
+    //fixme use something better/smarter to not update state => trigger rerendering
+    if (JSON.stringify(newTests) !== JSON.stringify(tests)) {
+      setTests(newTests);
+    }
   };
 
   useEffect(() => {
-    console.log(`useEffect ${id}`);
     fetchTests();
   });
-
-  if (!tests) {
-    // first render
-    return false;
-  }
 
   let dashboards = Object.keys(DASHBOARDS);
   let xtests = [...(tests[false] || []), ...(tests[true] || [])];
 
   console.log(`render tests: ${xtests.length}`);
+
+  // first render: do not render without tests
+  if (xtests.length === 0) {
+    return false;
+  }
 
   return (
     <TableContainer component={Paper} key="tests-TableContainer">
