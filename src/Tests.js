@@ -36,26 +36,19 @@ const TEST_NAME_CORRECTIONS = {
 }
 
 function fix_url(url) {
-  url = url.replace("https://jenkins.com.int.zone", "https://dashboard.cloud-blue.online/jenkins"); //"/jenkins");
+  url = url.replace("https://jenkins.com.int.zone", "https://dashboard.cloud-blue.online/jenkins");
   return url;
 }
 
-function redirect_url(url) {
-  return "https://dashboard.cloud-blue.online/redirect?url=" + encodeURIComponent(url);
-}
-
-function xhr(url) {
+async function xhr(url) {
   url = fix_url(url);
-  return fetch(url)
-    .then(response => response.json())
-    .catch(error => {
-      console.log(error);
-      return {};
-    });
-}
-
-function sortKeys(obj) {
-  return Object.keys(obj).sort().reduce((acc, c) => { acc[c] = obj[c]; return acc }, {})
+  try {
+    const response = await fetch(url);
+    return await response.json();
+  } catch (error) {
+    console.log(error);
+    return {};
+  }
 }
 
 function jobName(name, url) {
@@ -63,63 +56,12 @@ function jobName(name, url) {
   return `${group} : ${name}`;
 }
 
-function getParameter(response, name) {
-  const actions = response.actions || [];
-  const parametersAction = actions.find((action) => action._class === "hudson.model.ParametersAction") || {};
-  const parameters = parametersAction.parameters || [];
-  const parameter = parameters.find((parameter) => parameter.name === name) || {};
-  return parameter.value;
-}
-
-function getJobData(promise, diveDeep = true) {
-  return promise.then((jobResponse) => {
-    if (jobResponse.color === "notbuilt" || !jobResponse.previousBuild || !jobResponse.previousBuild.url) {
-      return { "url": null, "color": "notbuilt" };
-    }
-
-    const previousBuildUrl = jobResponse.previousBuild.url + "/api/json";
-
-    const buildName = getParameter(jobResponse, "BUILD_NAME");
-    if (buildName === "") {
-      if (jobResponse.inProgress) {
-        return getJobData(xhr(previousBuildUrl), false).then((data) => {
-          return { "url": jobResponse.url, "color": data.color };
-        });
-      }
-      const color = jobResponse.result === "SUCCESS" ? "blue" : "yellow";
-      return { "url": jobResponse.url, "color": color };
-    }
-
-    if (diveDeep) {
-      return getJobData(xhr(previousBuildUrl));
-    } else {
-      const color = jobResponse.result === "SUCCESS" ? "blue" : "yellow";
-      return { "url": jobResponse.url, "color": color };
-    }
-  });
-}
-
-
-function getStableComponentJobPromise(url) {
-  let promise = new Promise((resolve, reject) => {
-    let jobJsonUrl = url + "/lastBuild/api/json";
-    const promise = xhr(jobJsonUrl);
-
-    getJobData(promise).then(
-      (data) => {
-        const jobUrl = data.url || url;
-        const color = data.color;
-        resolve({ "url": jobUrl, "color": color });
-      },
-      (data) => reject(data)
-    );
-  });
-
-  return promise;
-}
-
 function Tests() {
   const [tests, setTests] = useState({});
+
+  function isFirstRender() {
+    return Object.keys(tests).length === 0;
+  }
 
   const fetchTests = async () => {
     const dashboardsPromises = Object.entries(DASHBOARDS).map(async (e) => {
@@ -129,9 +71,9 @@ function Tests() {
         return xhr(url).then((response) => {
           const jobs = response["jobs"] || [];
           const promises = jobs.map((job) => {
-            return getStableComponentJobPromise(job.url).then((stableJob) => {
-              return [jobName(job.name, job.url), job.url, stableJob];
-            });
+            let name = jobName(job.name, job.url);
+            name = TEST_NAME_CORRECTIONS[name] || name;
+            return [name, job.url];
           });
           return Promise.all(promises);
         })
@@ -142,9 +84,8 @@ function Tests() {
       const boardTests = viewTests.reduce((acc, value) => {
         acc = acc || {};
         value.forEach((item, i) => {
-          const [name, url, stableComponentJob] = item;
-          const corrected_name = TEST_NAME_CORRECTIONS[name] || name;
-          acc[corrected_name] = { "url": url, "color": stableComponentJob.color, "stableComponentJobUrl": stableComponentJob.url };
+          const [name, url] = item;
+          acc[name] = { "url": url};
         });
 
         return acc;
@@ -155,66 +96,21 @@ function Tests() {
 
     const dashboardsValues = await Promise.all(dashboardsPromises);
 
-    const dashboards = dashboardsValues.reduce((acc, value) => {
-      const [dashboardId, testsX] = value;
-      acc[dashboardId] = testsX;
-      return acc;
-    }, {});
-
-    const test2dashboard = Object.entries(dashboards).reduce((acc, e) => {
-      const [dashboardId, tests] = e;
-      Object.entries(tests).forEach((e, i) => {
-        const [name] = e;
-        const ids = acc[name] || [];
-        ids.push(dashboardId);
-        acc[name] = ids;
-      });
+    const dashboardTests = dashboardsValues.reduce((acc, value) => {
+      const [dashboardId, tests] = value;
+      Object.entries(tests).reduce((acc, e) => {
+        const [testName, data] = e;
+        let boards = acc[testName] || {};
+        boards[dashboardId] = data;
+        acc[testName] = boards;
+        return acc;
+      }, acc)
 
       return acc;
     }, {});
 
-    const stability2tests = Object.entries(test2dashboard).reduce((acc, e) => {
-      const [testname, dashboardIds] = e;
-      const unstableTests = dashboardIds.filter((dashboardId) => {
-        const testColor = dashboards[dashboardId][testname].color || "yellow";
-        return !testColor.startsWith('blue') && testColor !== 'notbuilt';
-      });
-
-      const isStable = unstableTests.length === 0;
-      const tests = [testname, ...acc[isStable] || []];
-      acc[isStable] = tests;
-      return acc;
-    }, {});
-
-    const data = Object.entries(stability2tests).reduce((acc, e) => {
-      const [isStable, tests] = e;
-
-      tests.sort();
-
-      const testsData = tests.map((testName) => {
-        const boards = test2dashboard[testName];
-
-        const boardsData = Object.entries(dashboards).map(([dashboardId, dashboard]) => {
-          if (boards.includes(dashboardId)) {
-            const buildUrl = dashboard[testName].stableComponentJobUrl;
-            const imageUrl = buildUrl + "badge/icon";
-            const color = dashboard[testName].color;
-            return { "buildUrl": redirect_url(buildUrl), "imageUrl": imageUrl, "color": color };
-          }
-          return null;
-        });
-
-        return { "name": testName, "boards": boardsData };
-      });
-
-      acc[isStable] = testsData;
-      return acc;
-    }, {});
-
-    const newTests = sortKeys(data);
-    //fixme use something better/smarter to not update state => trigger rerendering
-    if (JSON.stringify(newTests) !== JSON.stringify(tests)) {
-      setTests(newTests);
+    if (isFirstRender()) {
+      setTests(dashboardTests);
     }
   };
 
@@ -222,13 +118,9 @@ function Tests() {
     fetchTests();
   });
 
-  let dashboards = Object.keys(DASHBOARDS);
-  let xtests = [...(tests[false] || []), ...(tests[true] || [])];
-
-  console.log(`render tests: ${xtests.length}`);
-
-  // first render: do not render without tests
-  if (xtests.length === 0) {
+  const dashboards = Object.keys(DASHBOARDS);
+  
+  if (isFirstRender()) {
     return false;
   }
 
@@ -240,32 +132,43 @@ function Tests() {
         }
       }} key="tests-Table">
         <TableHead key="tests-head">
-          <TableCell key="tests-name" />
-          {dashboards.map((key) => {
-            return <TableCell key={key}>{key}</TableCell>
-          })}
+          <TableRow>
+            <TableCell key="tests-name" />
+            {dashboards.map((key) => {
+              return <TableCell key={key}>{key}</TableCell>
+            })}
+          </TableRow>
         </TableHead>
         <TableBody key="tests-body">
-          {xtests.map((test) => (
-            <TableRow key={test.name}>
-              <TableCell key={test.name + '-name'}>
-                {test.name}
-              </TableCell>
-              {
-                test.boards.map((board) => {
-                  if (board) {
-                    return (
-                      <TableCell key={board.buildUrl} >
-                        <Status board={board} key={board.buildUrl + '-status'} />
-                      </TableCell>
-                    );
-                  } else {
-                    return <TableCell/>;
-                  }
-                })
-              }
-            </TableRow>
-          ))}
+          {
+            Object.entries(tests).map(([testName, boards]) => {
+                return (
+                  <TableRow key={testName}>
+                    <TableCell key={testName + '-name'}>
+                      {testName}
+                    </TableCell>
+                    {
+                      Object.entries(boards).map(([dashboardId, data]) => {
+                        const rowKeyTemplate = testName + '-' + dashboardId;
+                        if (data) {
+                          const boardData = {
+                            buildUrl: data.url
+                          }
+                          return (
+                            <TableCell key={rowKeyTemplate + "-cell"} >
+                              <Status board={boardData} key={rowKeyTemplate + '-status'} /*updateStatus=*/ />
+                            </TableCell>
+                          );
+                        } else {
+                          return <TableCell/>;
+                        }
+                      })
+                    }
+                  </TableRow>
+                );
+            }
+          )
+          }
         </TableBody>
       </Table>
     </TableContainer>

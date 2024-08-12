@@ -30,74 +30,23 @@ const COMPONENTS = {
     "OSS": [
         {
             "buildUrl": `https://jenkins.com.int.zone/job/oss/job/${UNSTABLE_VERSION}/job/validate-and-promote/`,
-            "sonar": {
-                badges: [
-                    {
-                        sonarProjectId: "com.parallels.poa.platform.bvt:platform-coverage"
-                    }
-                ]
-            }
         },
         {
             "buildUrl": `https://jenkins.com.int.zone/job/oss/job/${STABLE_VERSION_21_17}/job/validate-and-promote/`,
-            "sonar": {
-                badges: [
-                    {
-                        sonarProjectId: "com.parallels.poa.platform.bvt:platform-coverage"
-                    }
-                ]
-            }
         },
         {
             "buildUrl": `https://jenkins.com.int.zone/job/oss/job/${STABLE_VERSION_21_16}/job/validate-and-promote/`,
-            "sonar": {
-                badges: [
-                    {
-                        sonarProjectId: "com.parallels.poa.platform.bvt:platform-coverage"
-                    }
-                ]
-            }
         }
     ],
     "BSS": [
         {
             "buildUrl": `https://jenkins.com.int.zone/job/bss/job/${UNSTABLE_VERSION}/job/validate-and-promote/`,
-            "sonar": {
-                badges: [
-                    {
-                        sonarProjectId: "commerce-bss"
-                    },
-                    // {
-                    //     sonarProjectId: "commerce-bss-cpp"
-                    // }
-                ]
-            }
         },
         {
             "buildUrl": `https://jenkins.com.int.zone/job/bss/job/${STABLE_VERSION_21_17}/job/validate-and-promote/`,
-            "sonar": {
-                badges: [
-                    {
-                        sonarProjectId: "commerce-bss"
-                    },
-                    // {
-                    //     sonarProjectId: "commerce-bss-cpp"
-                    // }
-                ]
-            }
         },
         {
             "buildUrl": `https://jenkins.com.int.zone/job/bss/job/${STABLE_VERSION_21_16}/job/validate-and-promote/`,
-            "sonar": {
-                badges: [
-                    {
-                        sonarProjectId: "commerce-bss"
-                    },
-                    // {
-                    //     sonarProjectId: "commerce-bss-cpp"
-                    // }
-                ]
-            }
         }
     ],
     "Branding UI Cluster": [
@@ -113,13 +62,6 @@ const COMPONENTS = {
     ],
     "Rating Engine": {
         "buildUrl": "https://jenkins.com.int.zone/job/ratingengine-backend/job/master/job/validate-and-promote/",
-        "sonar": {
-            badges: [
-                {
-                    sonarProjectId: "com.ingrammicro.bss:ratingengine-backend"
-                }
-            ]
-        }
     },
     "Discount Manager": [
         {
@@ -169,13 +111,6 @@ const COMPONENTS = {
     ],
     "GDPR": {
         "buildUrl": "https://jenkins.com.int.zone/job/gdpr-backend/job/master/job/validate-and-promote/",
-        "sonar": {
-            badges: [
-                {
-                    sonarProjectId: "com.odin.gdpr:gdpr-backend"
-                }
-            ]
-        }
     },
     "E2E SDK": [
         {
@@ -201,9 +136,11 @@ function Releases() {
                 }
             }} size="small" key='releases-table'>
                 <TableHead key='releases-head'>
-                    <TableCell key='releases-head-name'></TableCell>
-                    <TableCell key='releases-head-unstable'>Unstable</TableCell>
-                    <TableCell key='releases-head-realeases'>Releases</TableCell>
+                    <TableRow>
+                        <TableCell key='releases-head-name'></TableCell>
+                        <TableCell key='releases-head-unstable'>Unstable</TableCell>
+                        <TableCell key='releases-head-realeases'>Releases</TableCell>
+                    </TableRow>
                 </TableHead>
                 <TableBody key='releases-body'>
                     {
@@ -218,18 +155,8 @@ function Releases() {
                                             .map((component, index) => {
                                                 const buildStatus = {
                                                     "buildUrl": component.buildUrl,
-                                                    "imageUrl": component.buildUrl + "badge/icon?&subject=${params.BUILD_NAME}"
+                                                    "imageUrl": component.buildUrl + `badge/icon?&subject=\${params.BUILD_NAME}`
                                                 };
-
-                                                // const sonarBadgesCells = ((component.sonar || {}).badges || [])
-                                                //     .map((badge) => {
-                                                //         const data = {
-                                                //             sonarProjectId: badge.sonarProjectId
-                                                //         }
-                                                //         return <TableCell>
-                                                //             <QualityGateStatus data={data} />
-                                                //         </TableCell>;
-                                                //     });
 
                                                 const key = `${name}-${index}`;
 
