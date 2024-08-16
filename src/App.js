@@ -19,8 +19,8 @@ function App() {
         <CardContent sx={{ flex: 'flex-shrink', padding: '8px' }} key='card-releases'>
           <Releases key="releases" />
         </CardContent>
-        <CardContent sx={{ flex: 'flex-shrink', padding: '8px'}} key='card-tests'>
-          <Tests key="tests"/>
+        <CardContent sx={{ flex: 'flex-shrink', padding: '8px' }} key='card-tests'>
+          <Tests key="tests" />
         </CardContent>
       </Card>
     </ThemeProvider>
