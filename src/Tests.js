@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableContainer from '@mui/material/TableContainer';
 import Paper from '@mui/material/Paper';
 
-import { TableCell, TableHead, TableRow, tableCellClasses } from '@mui/material';
+import { TableCell, TableHead, TablePagination, TableRow, tableCellClasses } from '@mui/material';
 import Status from './Status';
 
 const DASHBOARDS = {
@@ -124,6 +124,8 @@ function toRows(tests) {
 function Tests() {
   const [loaded, setLoaded] = useState(false);
   const [rows, setRows] = useState([]);
+  const [amountOfFailedTests, setAmountOfFailedTests] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(0);
 
   async function fetchTests() {
     const dashboardsPromises = Object.entries(DASHBOARDS).map(async (e) => {
@@ -180,6 +182,21 @@ function Tests() {
       return acc;
     }, {});
 
+    const amountOfFailedTests = Object.entries(dashboardTests).reduce((acc, [name, tests]) => {
+      const amount = Object.entries(tests).reduce((acc, [_, data]) => {
+        if (acc !== 0) {
+          return acc;
+        } else {
+          const amount = data.status.stable ? 0 : 1
+          return acc + amount;
+        }
+      }, 0);
+
+      return acc + amount;
+    }, 0);
+
+    setAmountOfFailedTests(amountOfFailedTests);
+    setRowsPerPage(amountOfFailedTests);
     const rows = toRows(dashboardTests);
     setRows(rows);
   };
@@ -190,6 +207,13 @@ function Tests() {
       fetchTests();
     }
   }, [loaded]);
+
+  const visibleRows = useMemo(
+    () =>
+      rows.slice(0, rowsPerPage),
+    [rows, rowsPerPage]
+  );
+
 
   if (!loaded) {
     return false;
@@ -206,7 +230,28 @@ function Tests() {
       }} key="tests-Table">
         <TableHead key="tests-head">
           <TableRow>
-            <TableCell key="tests-name" />
+            <TableCell key="tests-name">
+              {
+                // TODO: replace TablePagination with "toggle" widget
+              }
+              <TablePagination
+                count={-1}
+                rowsPerPageOptions={[{ value: amountOfFailedTests, label: 'Failed Tests' }, { value: rows.length, label: 'All Tests' }]}
+                labelDisplayedRows={() => ""}
+                labelRowsPerPage=""
+                rowsPerPage={rowsPerPage}
+                onPageChange={(event, page) => {
+                  if (rowsPerPage === amountOfFailedTests) {
+                    setRowsPerPage(rows.length)
+                  } else {
+                    setRowsPerPage(amountOfFailedTests);
+                  }
+                }}
+                onRowsPerPageChange={(event) => {
+                  setRowsPerPage(parseInt(event.target.value, 10));
+                }}
+              />
+            </TableCell>
             {dashboards.map((key) => {
               return <TableCell key={key}>{key}</TableCell>
             })}
@@ -214,7 +259,7 @@ function Tests() {
         </TableHead>
         <TableBody key="tests-body">
           {
-            rows.map((row) => {
+            visibleRows.map((row) => {
               return (
                 <TableRow>
                   {
