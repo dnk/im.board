@@ -6,16 +6,16 @@ import { ThemeProvider } from '@emotion/react';
 function App() {
 
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
-  const darkTheme = createTheme({
+  const theme = createTheme({
     palette: {
       mode: prefersDarkMode ? 'dark' : 'light',
     },
   });
 
   return (
-    <ThemeProvider theme={darkTheme} key="theme-provider">
+    <ThemeProvider theme={theme} key="theme-provider">
       <CssBaseline />
-      <Card sx={{ display: 'flex', flexWrap: 'wrap-reverse' }} variant='outlined' key="card" >
+      <Card sx={{ display: 'flex', flexWrap: 'wrap-reverse', border: '0px' }} variant='outlined' key="card" >
         <CardContent sx={{ flex: 'flex-shrink', padding: '8px' }} key='card-releases'>
           <Releases key="releases" />
         </CardContent>
