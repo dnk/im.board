@@ -79,7 +79,7 @@ async function fetchSvgText(buildUrl) {
 
 function getStatus(svgText) {
   const running = svgText.includes(">running</text>");
-  const stable = svgText.includes('fill="#44cc11"/>');
+  const stable = svgText.includes('fill="#44cc11"/>') || svgText.includes(">not run</text>");
   return { "running": running, "stable": stable };
 }
 
@@ -197,9 +197,9 @@ function Tests() {
     }, 0);
 
     setAmountOfFailedTests(amountOfFailedTests);
-    setRowsPerPage(amountOfFailedTests);
     const rows = toRows(dashboardTests);
     setRows(rows);
+    setRowsPerPage(amountOfFailedTests !== 0 ? amountOfFailedTests : rows.length);
   };
 
   useEffect(() => {
@@ -216,7 +216,7 @@ function Tests() {
   );
 
 
-  if (!loaded) {
+  if (!loaded || rows.length === 0) {
     return false;
   }
 
@@ -239,7 +239,10 @@ function Tests() {
                   } else {
                     setRowsPerPage(amountOfFailedTests);
                   }
-                }}/>
+                }}
+                  disabled={amountOfFailedTests === 0}
+                  checked={rowsPerPage !== amountOfFailedTests}
+                />
               </Stack>
             </TableCell>
             {dashboards.map((key) => {
