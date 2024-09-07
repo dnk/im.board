@@ -12,8 +12,8 @@ const STABLE_VERSION_21_17 = "21.17";
 const UNSTABLE_VERSION = "unstable"
 
 const IDP_UNSTABLE_VERSION = "master";
+const IDP_STABLE_VERSION_4_2 = "release-4.2";
 const IDP_STABLE_VERSION_4_1 = "release-4.1";
-const IDP_STABLE_VERSION_4_0 = "release-4.0";
 
 const UAM_UNSTABLE_VERSION = "master";
 const UAM_STABLE_VERSION = "release-2.0";
@@ -95,10 +95,10 @@ const COMPONENTS = {
             "buildUrl": `https://jenkins.com.int.zone/job/idp-backend/job/${IDP_UNSTABLE_VERSION}/job/validate-and-promote/`,
         },
         {
-            "buildUrl": `https://jenkins.com.int.zone/job/idp-backend/job/${IDP_STABLE_VERSION_4_1}/job/validate-and-promote/`,
+            "buildUrl": `https://jenkins.com.int.zone/job/idp-backend/job/${IDP_STABLE_VERSION_4_2}/job/validate-and-promote/`,
         },
         {
-            "buildUrl": `https://jenkins.com.int.zone/job/idp-backend/job/${IDP_STABLE_VERSION_4_0}/job/validate-and-promote/`,
+            "buildUrl": `https://jenkins.com.int.zone/job/idp-backend/job/${IDP_STABLE_VERSION_4_1}/job/validate-and-promote/`,
         }
     ],
     "UAM": [
