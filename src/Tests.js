@@ -18,6 +18,23 @@ const DASHBOARDS = {
     //    "https://jenkins.com.int.zone/view/Tests/view/master/view/rbesolov/",
     "https://jenkins.com.int.zone/view/Tests/view/master/view/nnetesov/",
     "https://jenkins.com.int.zone/view/Tests/view/master/view/vkopchenin/",
+    "https://jenkins.com.int.zone/job/idp-backend/job/release-4.2/job/tests/job/master/view/eoktyabrskiy/",
+    "https://jenkins.com.int.zone/job/idp-backend/job/release-4.1/job/tests/job/master/view/eoktyabrskiy/",
+    "https://jenkins.com.int.zone/job/idp-backend/job/release-4.0/job/tests/job/master/view/eoktyabrskiy/",
+
+    "https://jenkins.com.int.zone/job/uam/job/master/job/tests/job/master/view/abondarenko",
+    "https://jenkins.com.int.zone/job/uam/job/master/job/tests/job/master/view/danieli",
+    "https://jenkins.com.int.zone/job/uam/job/release-2.1/job/tests/job/master/view/abondarenko",
+    "https://jenkins.com.int.zone/job/uam/job/release-2.1/job/tests/job/master/view/danieli",
+    "https://jenkins.com.int.zone/job/uam/job/release-2.0/job/tests/job/master/view/abondarenko",
+    "https://jenkins.com.int.zone/job/uam/job/release-2.0/job/tests/job/master/view/tyukish",
+
+    "https://jenkins.com.int.zone/job/inhouse-products/job/master/job/tests/job/master/view/eoktyabrskiy",
+    "https://jenkins.com.int.zone/job/inhouse-products/job/master/job/tests/job/master/view/danieli",
+    "https://jenkins.com.int.zone/job/inhouse-products/job/2.4/job/tests/job/master/view/eoktyabrskiy",
+    "https://jenkins.com.int.zone/job/inhouse-products/job/2.4/job/tests/job/master/view/danieli",
+    "https://jenkins.com.int.zone/job/inhouse-products/job/2.3/job/tests/job/master/view/vkopchenin",
+    "https://jenkins.com.int.zone/job/inhouse-products/job/2.3/job/tests/job/master/view/danieli",
   ],
   "cb-21": [
     "https://jenkins.com.int.zone/view/Tests/view/21/view/abondarenko/",
@@ -27,11 +44,29 @@ const DASHBOARDS = {
     //    "https://jenkins.com.int.zone/view/Tests/view/21/view/rbesolov/",
     "https://jenkins.com.int.zone/view/Tests/view/21/view/nnetesov/",
     "https://jenkins.com.int.zone/view/Tests/view/21/view/vkopchenin/",
+    "https://jenkins.com.int.zone/job/idp-backend/job/release-4.2/job/tests/job/21/view/eoktyabrskiy/",
+    "https://jenkins.com.int.zone/job/idp-backend/job/release-4.1/job/tests/job/21/view/eoktyabrskiy/",
+    "https://jenkins.com.int.zone/job/idp-backend/job/release-4.0/job/tests/job/21/view/eoktyabrskiy/",
+    
+    "https://jenkins.com.int.zone/job/uam/job/master/job/tests/job/21/view/abondarenko",
+    "https://jenkins.com.int.zone/job/uam/job/master/job/tests/job/21/view/danieli",
+    "https://jenkins.com.int.zone/job/uam/job/release-2.1/job/tests/job/21/view/abondarenko",
+    "https://jenkins.com.int.zone/job/uam/job/release-2.1/job/tests/job/21/view/danieli",
+    "https://jenkins.com.int.zone/job/uam/job/release-2.0/job/tests/job/21/view/abondarenko",
+    "https://jenkins.com.int.zone/job/uam/job/release-2.0/job/tests/job/21/view/tyukish",
+
+    "https://jenkins.com.int.zone/job/inhouse-products/job/master/job/tests/job/21/view/eoktyabrskiy",
+    "https://jenkins.com.int.zone/job/inhouse-products/job/master/job/tests/job/21/view/danieli",
+    "https://jenkins.com.int.zone/job/inhouse-products/job/2.4/job/tests/job/21/view/eoktyabrskiy",
+    "https://jenkins.com.int.zone/job/inhouse-products/job/2.4/job/tests/job/21/view/danieli",
+    "https://jenkins.com.int.zone/job/inhouse-products/job/2.3/job/tests/job/21/view/vkopchenin",
+    "https://jenkins.com.int.zone/job/inhouse-products/job/2.3/job/tests/job/21/view/danieli",
+    
   ],
 };
 
 const TEST_NAME_CORRECTIONS = {
-  'IDP : upgrade-idp-backend': 'IDP : idp-upgrade'
+  //'IDP : upgrade-idp-backend': 'IDP : idp-upgrade'
 }
 
 function fix_url(url) {
@@ -83,9 +118,19 @@ function getStatus(svgText) {
   return { "running": running, "stable": stable };
 }
 
+const CORE_COMPONENTS = ["OSS", "BSS", "BRANDING"];
 function jobName(name, url) {
-  const group = url.split('/job/')[1].split('-')[0].toUpperCase();
-  return `${group} : ${name}`;
+  const parts = url.split('/job/');
+  const branch = parts[2];
+  const branch_parts = branch.split("-");
+  const version = branch_parts[branch_parts.length-1];
+  
+  const group = parts[1].split('-')[0].toUpperCase();
+  if (CORE_COMPONENTS.includes(group)) {
+    return `${group} : ${name}`;
+  } else {
+    return `${group}/${version} : ${name}`;
+  }
 }
 
 function toRows(tests) {
