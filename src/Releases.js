@@ -7,7 +7,7 @@ import Paper from '@mui/material/Paper';
 import Status from "./Status";
 import { TableBody, TableHead } from '@mui/material';
 
-const STABLE_VERSION_21_16 = "21.16";
+const STABLE_VERSION_21_18 = "21.18";
 const STABLE_VERSION_21_17 = "21.17";
 const UNSTABLE_VERSION = "unstable"
 
@@ -34,10 +34,10 @@ const COMPONENTS = {
             "buildUrl": `https://jenkins.com.int.zone/job/oss/job/${UNSTABLE_VERSION}/job/validate-and-promote/`,
         },
         {
-            "buildUrl": `https://jenkins.com.int.zone/job/oss/job/${STABLE_VERSION_21_17}/job/validate-and-promote/`,
+            "buildUrl": `https://jenkins.com.int.zone/job/oss/job/${STABLE_VERSION_21_18}/job/validate-and-promote/`,
         },
         {
-            "buildUrl": `https://jenkins.com.int.zone/job/oss/job/${STABLE_VERSION_21_16}/job/validate-and-promote/`,
+            "buildUrl": `https://jenkins.com.int.zone/job/oss/job/${STABLE_VERSION_21_17}/job/validate-and-promote/`,
         }
     ],
     "BSS": [
@@ -45,10 +45,10 @@ const COMPONENTS = {
             "buildUrl": `https://jenkins.com.int.zone/job/bss/job/${UNSTABLE_VERSION}/job/validate-and-promote/`,
         },
         {
-            "buildUrl": `https://jenkins.com.int.zone/job/bss/job/${STABLE_VERSION_21_17}/job/validate-and-promote/`,
+            "buildUrl": `https://jenkins.com.int.zone/job/bss/job/${STABLE_VERSION_21_18}/job/validate-and-promote/`,
         },
         {
-            "buildUrl": `https://jenkins.com.int.zone/job/bss/job/${STABLE_VERSION_21_16}/job/validate-and-promote/`,
+            "buildUrl": `https://jenkins.com.int.zone/job/bss/job/${STABLE_VERSION_21_17}/job/validate-and-promote/`,
         }
     ],
     "Branding UI Cluster": [
@@ -56,10 +56,10 @@ const COMPONENTS = {
             "buildUrl": `https://jenkins.com.int.zone/job/branding-ui-cluster/job/${UNSTABLE_VERSION}/job/validate-and-promote/`,
         },
         {
-            "buildUrl": `https://jenkins.com.int.zone/job/branding-ui-cluster/job/${STABLE_VERSION_21_17}/job/validate-and-promote/`,
+            "buildUrl": `https://jenkins.com.int.zone/job/branding-ui-cluster/job/${STABLE_VERSION_21_18}/job/validate-and-promote/`,
         },
         {
-            "buildUrl": `https://jenkins.com.int.zone/job/branding-ui-cluster/job/${STABLE_VERSION_21_16}/job/validate-and-promote/`,
+            "buildUrl": `https://jenkins.com.int.zone/job/branding-ui-cluster/job/${STABLE_VERSION_21_17}/job/validate-and-promote/`,
         }
     ],
     "Rating Engine": {
@@ -122,10 +122,10 @@ const COMPONENTS = {
             "buildUrl": `https://jenkins.com.int.zone/job/e2e-tests-v2/job/${UNSTABLE_VERSION}/job/validate-and-promote/`
         },
         {
-            "buildUrl": `https://jenkins.com.int.zone/job/e2e-tests-v2/job/${STABLE_VERSION_21_17}/job/validate-and-promote/`
+            "buildUrl": `https://jenkins.com.int.zone/job/e2e-tests-v2/job/${STABLE_VERSION_21_18}/job/validate-and-promote/`
         },
         {
-            "buildUrl": `https://jenkins.com.int.zone/job/e2e-tests-v2/job/${STABLE_VERSION_21_16}/job/validate-and-promote/`
+            "buildUrl": `https://jenkins.com.int.zone/job/e2e-tests-v2/job/${STABLE_VERSION_21_17}/job/validate-and-promote/`
         }
     ],
 };
