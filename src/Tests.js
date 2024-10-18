@@ -121,7 +121,7 @@ async function fetchSvgText(buildUrl, preferStableBuild) {
     //   return [prferableUrl, preferableResponseText];
     // } else {
     if (alternativeResponseText.includes("not run</text>")) {
-      return [alternativeUrl, alternativeResponseText.replace('/buildId', '')];
+      return preferStableBuild ? [prferableUrl, preferableResponseText.replace('/buildId', '')]: [alternativeUrl, alternativeResponseText.replace('/buildId', '')];
     } else {
       return [alternativeUrl, alternativeResponseText];
     }
