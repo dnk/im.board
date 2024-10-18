@@ -203,7 +203,7 @@ function Tests() {
             let name = jobName(job.name, job.url);
             name = TEST_NAME_CORRECTIONS[name] || name;
 
-            const preferStableBuild = false;
+            const preferStableBuild = dashboardId === 'unstable';
             const [url, svgText] = await fetchSvgText(job.url, preferStableBuild);
             const status = getStatus(svgText);
 
