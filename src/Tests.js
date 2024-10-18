@@ -116,12 +116,16 @@ async function fetchSvgText(buildUrl, preferStableBuild) {
     const alternativeResponsePromise = fetch(alternativeUrl).then(response => response.text());
     const alternativeResponseText = await alternativeResponsePromise;
 
-    const isAlternativeNOK = alternativeResponseText.includes("not run</text>") || alternativeResponseText.includes('>params.'); // there is unresolved param in alternative response. not applicable for when stable is alternative
-    if (isAlternativeNOK) {
-      return [prferableUrl, preferableResponseText];
+    // const isAlternativeNOK = alternativeResponseText.includes("not run</text>") || alternativeResponseText.includes('>params.'); // there is unresolved param in alternative response. not applicable for when stable is alternative
+    // if (isAlternativeNOK) {
+    //   return [prferableUrl, preferableResponseText];
+    // } else {
+    if (alternativeResponseText.includes("not run</text>")) {
+      return [alternativeUrl, alternativeResponseText.replace('/buildId', '')];
     } else {
       return [alternativeUrl, alternativeResponseText];
     }
+    //}
   }
 
   return [prferableUrl, preferableResponseText];
