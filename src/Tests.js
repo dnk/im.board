@@ -96,8 +96,15 @@ async function xhr(url) {
 }
 
 async function fetchSvgText(buildUrl, preferStableBuild) {
-  const urlStable = fix_url(buildUrl + `badge/icon?link=${buildUrl}/\${buildId}&build=last:\${params.BUILD_NAME=}`);
-  const urlComponent = fix_url(buildUrl + `badge/icon?link=${buildUrl}/&build=last:\${params.BUILD_NAME!=}&subject=\${params.COMPONENT_NAME}-\${params.BUILD_NAME}`)
+  const urlStable = new URL(fix_url(buildUrl) + 'badge/icon');
+  urlStable.searchParams.append("link", `${buildUrl}/\${buildId}`);
+  urlStable.searchParams.append("build", 'last:${params.BUILD_NAME=}');
+
+  const urlComponent = new URL(fix_url(buildUrl) + 'badge/icon');
+  urlComponent.searchParams.append("link", `${buildUrl}/\${buildId}`);
+//  urlComponent.searchParams.append("build", 'last:${params.BUILD_NAME!=}'); //not work
+  urlComponent.searchParams.append("subject", '${params.COMPONENT_NAME}-${params.BUILD_NAME}');
+
   const prferableUrl = preferStableBuild ? urlStable: urlComponent;
 
   const preferableResponsePromise = fetch(prferableUrl).then(response => response.text());
