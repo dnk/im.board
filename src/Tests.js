@@ -95,21 +95,29 @@ async function xhr(url) {
   }
 }
 
-async function fetchSvgText(buildUrl) {
-  const url = fix_url(buildUrl + `badge/icon?link=${buildUrl}/\${buildId}&build=last:\${params.BUILD_NAME=}`);
-  const responseText = await fetch(url).then(response => response.text());
+async function fetchSvgText(buildUrl, preferStableBuild) {
+  const urlStable = fix_url(buildUrl + `badge/icon?link=${buildUrl}/\${buildId}&build=last:\${params.BUILD_NAME=}`);
+  const urlComponent = fix_url(buildUrl + `badge/icon?link=${buildUrl}/&build=last:\${params.BUILD_NAME!=}&subject=\${params.COMPONENT_NAME}-\${params.BUILD_NAME}`)
+  const prferableUrl = preferStableBuild ? urlStable: urlComponent;
 
-  if (responseText.includes(">not run</text>")) {
-    const url2 = fix_url(buildUrl + `badge/icon?link=${buildUrl}&subject=\${params.COMPONENT_NAME}-\${params.BUILD_NAME}`)
-    const responseText2 = await fetch(url2).then(response => response.text());
+  const preferableResponsePromise = fetch(prferableUrl).then(response => response.text());
+  const preferableResponseText = await preferableResponsePromise;
 
-    if (responseText2.includes('>params.')) {
-      return [url, responseText];
+  const isPreferebleNOK = preferableResponseText.includes("not run</text>") || preferableResponseText.includes("-</text>")
+  if (isPreferebleNOK) {
+    const alternativeUrl = !preferStableBuild ? urlStable: urlComponent;
+    const alternativeResponsePromise = fetch(alternativeUrl).then(response => response.text());
+    const alternativeResponseText = await alternativeResponsePromise;
+
+    const isAlternativeNOK = alternativeResponseText.includes("not run</text>") || alternativeResponseText.includes('>params.'); // there is unresolved param in alternative response. not applicable for when stable is alternative
+    if (isAlternativeNOK) {
+      return [prferableUrl, preferableResponseText];
     } else {
-      return [url2, responseText2];
+      return [alternativeUrl, alternativeResponseText];
     }
   }
-  return [url, responseText];
+
+  return [prferableUrl, preferableResponseText];
 }
 
 function getStatus(svgText) {
@@ -184,7 +192,8 @@ function Tests() {
             let name = jobName(job.name, job.url);
             name = TEST_NAME_CORRECTIONS[name] || name;
 
-            const [url, svgText] = await fetchSvgText(job.url);
+            const preferStableBuild = false;
+            const [url, svgText] = await fetchSvgText(job.url, preferStableBuild);
             const status = getStatus(svgText);
 
             return [name, url, job.url, svgText, status];
