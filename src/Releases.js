@@ -16,8 +16,8 @@ const IDP_STABLE_VERSION_4_2 = "release-4.2";
 const IDP_STABLE_VERSION_4_1 = "release-4.1";
 
 const UAM_UNSTABLE_VERSION = "master";
+const UAM_STABLE_VERSION_3_0 = "release-3.0";
 const UAM_STABLE_VERSION_2_1 = "release-2.1";
-const UAM_STABLE_VERSION_2_0 = "release-2.0";
 
 const DM_UNSTABLE_VERSION = "master";
 const DM_STABLE_VERSION_1_5 = "release-1.5";
@@ -108,10 +108,10 @@ const COMPONENTS = {
             "buildUrl": `https://jenkins.com.int.zone/job/uam/job/${UAM_UNSTABLE_VERSION}/job/validate-and-promote/`
         },
         {
-            "buildUrl": `https://jenkins.com.int.zone/job/uam/job/${UAM_STABLE_VERSION_2_1}/job/validate-and-promote/`
+            "buildUrl": `https://jenkins.com.int.zone/job/uam/job/${UAM_STABLE_VERSION_3_0}/job/validate-and-promote/`
         },
         {
-            "buildUrl": `https://jenkins.com.int.zone/job/uam/job/${UAM_STABLE_VERSION_2_0}/job/validate-and-promote/`
+            "buildUrl": `https://jenkins.com.int.zone/job/uam/job/${UAM_STABLE_VERSION_2_1}/job/validate-and-promote/`
         }
     ],
     "GDPR": {
