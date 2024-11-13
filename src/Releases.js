@@ -24,8 +24,8 @@ const DM_STABLE_VERSION_1_5 = "release-1.5";
 const DM_STABLE_VERSION_1_4 = "release-1.4";
 
 const INHOUSE_UNSTABLE_VERSION = "master";
+const INHOUSE_VERSION_3_0 = "3.0";
 const INHOUSE_VERSION_2_4 = "2.4";
-const INHOUSE_VERSION_2_3 = "2.3";
 
 
 const COMPONENTS = {
@@ -86,10 +86,10 @@ const COMPONENTS = {
             "buildUrl": `https://jenkins.com.int.zone/job/inhouse-products/job/${INHOUSE_UNSTABLE_VERSION}/job/validate-and-promote/`
         },
         {
-            "buildUrl": `https://jenkins.com.int.zone/job/inhouse-products/job/${INHOUSE_VERSION_2_4}/job/validate-and-promote/`
+            "buildUrl": `https://jenkins.com.int.zone/job/inhouse-products/job/${INHOUSE_VERSION_3_0}/job/validate-and-promote/`
         },
         {
-            "buildUrl": `https://jenkins.com.int.zone/job/inhouse-products/job/${INHOUSE_VERSION_2_3}/job/validate-and-promote/`
+            "buildUrl": `https://jenkins.com.int.zone/job/inhouse-products/job/${INHOUSE_VERSION_2_4}/job/validate-and-promote/`
         },
     ],
     "IDP": [
