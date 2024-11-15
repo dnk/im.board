@@ -27,9 +27,11 @@ const DASHBOARDS = {
     "https://jenkins.com.int.zone/job/uam/job/release-3.0/job/tests/job/master/view/%20 All-launches",
     "https://jenkins.com.int.zone/job/uam/job/release-2.1/job/tests/job/master/view/%20 All-launches",
 
-    "https://jenkins.com.int.zone/job/inhouse-products/job/master/job/tests/job/master/view/%20 All-launches",
-    "https://jenkins.com.int.zone/job/inhouse-products/job/3.0/job/tests/job/master/view/%20 All-launches",
-    "https://jenkins.com.int.zone/job/inhouse-products/job/2.4/job/tests/job/master/view/%20 All-launches",
+    "https://jenkins.com.int.zone/job/gdpr-backend/job/master/job/tests/job/master/view/%20 All-launches",
+
+    // "https://jenkins.com.int.zone/job/inhouse-products/job/master/job/tests/job/master/view/%20 All-launches",
+    // "https://jenkins.com.int.zone/job/inhouse-products/job/3.0/job/tests/job/master/view/%20 All-launches",
+    // "https://jenkins.com.int.zone/job/inhouse-products/job/2.4/job/tests/job/master/view/%20 All-launches",
   ],
   "cb-21": [
     "https://jenkins.com.int.zone/view/Tests/view/21/view/abondarenko/",
@@ -48,9 +50,11 @@ const DASHBOARDS = {
     "https://jenkins.com.int.zone/job/uam/job/release-3.0/job/tests/job/21/view/%20 All-launches",
     "https://jenkins.com.int.zone/job/uam/job/release-2.1/job/tests/job/21/view/%20 All-launches",
 
-    "https://jenkins.com.int.zone/job/inhouse-products/job/master/job/tests/job/21/view/%20 All-launches",
-    "https://jenkins.com.int.zone/job/inhouse-products/job/3.0/job/tests/job/21/view/%20 All-launches",
-    "https://jenkins.com.int.zone/job/inhouse-products/job/2.4/job/tests/job/21/view/%20 All-launches",
+    "https://jenkins.com.int.zone/job/gdpr-backend/job/master/job/tests/job/21/view/%20 All-launches",
+
+    // "https://jenkins.com.int.zone/job/inhouse-products/job/master/job/tests/job/21/view/%20 All-launches",
+    // "https://jenkins.com.int.zone/job/inhouse-products/job/3.0/job/tests/job/21/view/%20 All-launches",
+    // "https://jenkins.com.int.zone/job/inhouse-products/job/2.4/job/tests/job/21/view/%20 All-launches",
   ],
 };
 

@@ -19,13 +19,13 @@ const UAM_UNSTABLE_VERSION = "master";
 const UAM_STABLE_VERSION_3_0 = "release-3.0";
 const UAM_STABLE_VERSION_2_1 = "release-2.1";
 
-const DM_UNSTABLE_VERSION = "master";
-const DM_STABLE_VERSION_1_5 = "release-1.5";
-const DM_STABLE_VERSION_1_4 = "release-1.4";
+// const DM_UNSTABLE_VERSION = "master";
+// const DM_STABLE_VERSION_1_5 = "release-1.5";
+// const DM_STABLE_VERSION_1_4 = "release-1.4";
 
-const INHOUSE_UNSTABLE_VERSION = "master";
-const INHOUSE_VERSION_3_0 = "3.0";
-const INHOUSE_VERSION_2_4 = "2.4";
+// const INHOUSE_UNSTABLE_VERSION = "master";
+// const INHOUSE_VERSION_3_0 = "3.0";
+// const INHOUSE_VERSION_2_4 = "2.4";
 
 
 const COMPONENTS = {
@@ -62,36 +62,36 @@ const COMPONENTS = {
             "buildUrl": `https://jenkins.com.int.zone/job/branding-ui-cluster/job/${STABLE_VERSION_21_17}/job/validate-and-promote/`,
         }
     ],
-    "Rating Engine": {
-        "buildUrl": "https://jenkins.com.int.zone/job/ratingengine-backend/job/master/job/validate-and-promote/",
-    },
-    "Discount Manager": [
-        {
-            "buildUrl": `https://jenkins.com.int.zone/job/discountmanager/job/${DM_UNSTABLE_VERSION}/job/validate-and-promote/`
-        },
-        {
-            "buildUrl": `https://jenkins.com.int.zone/job/discountmanager/job/${DM_STABLE_VERSION_1_5}/job/validate-and-promote/`
-        },
-        {
-            "buildUrl": `https://jenkins.com.int.zone/job/discountmanager/job/${DM_STABLE_VERSION_1_4}/job/validate-and-promote/`
-        }
-    ],
-    "Product Registry": [
-        {
-            "buildUrl": `https://jenkins.com.int.zone/job/product-registry/job/master/job/validate-and-promote/`,
-        }
-    ],
-    "Inhouse Products": [
-        {
-            "buildUrl": `https://jenkins.com.int.zone/job/inhouse-products/job/${INHOUSE_UNSTABLE_VERSION}/job/validate-and-promote/`
-        },
-        {
-            "buildUrl": `https://jenkins.com.int.zone/job/inhouse-products/job/${INHOUSE_VERSION_3_0}/job/validate-and-promote/`
-        },
-        {
-            "buildUrl": `https://jenkins.com.int.zone/job/inhouse-products/job/${INHOUSE_VERSION_2_4}/job/validate-and-promote/`
-        },
-    ],
+    // "Rating Engine": {
+    //     "buildUrl": "https://jenkins.com.int.zone/job/ratingengine-backend/job/master/job/validate-and-promote/",
+    // },
+    // "Discount Manager": [
+    //     {
+    //         "buildUrl": `https://jenkins.com.int.zone/job/discountmanager/job/${DM_UNSTABLE_VERSION}/job/validate-and-promote/`
+    //     },
+    //     {
+    //         "buildUrl": `https://jenkins.com.int.zone/job/discountmanager/job/${DM_STABLE_VERSION_1_5}/job/validate-and-promote/`
+    //     },
+    //     {
+    //         "buildUrl": `https://jenkins.com.int.zone/job/discountmanager/job/${DM_STABLE_VERSION_1_4}/job/validate-and-promote/`
+    //     }
+    // ],
+    // "Product Registry": [
+    //     {
+    //         "buildUrl": `https://jenkins.com.int.zone/job/product-registry/job/master/job/validate-and-promote/`,
+    //     }
+    // ],
+    // "Inhouse Products": [
+    //     {
+    //         "buildUrl": `https://jenkins.com.int.zone/job/inhouse-products/job/${INHOUSE_UNSTABLE_VERSION}/job/validate-and-promote/`
+    //     },
+    //     {
+    //         "buildUrl": `https://jenkins.com.int.zone/job/inhouse-products/job/${INHOUSE_VERSION_3_0}/job/validate-and-promote/`
+    //     },
+    //     {
+    //         "buildUrl": `https://jenkins.com.int.zone/job/inhouse-products/job/${INHOUSE_VERSION_2_4}/job/validate-and-promote/`
+    //     },
+    // ],
     "IDP": [
         {
             "buildUrl": `https://jenkins.com.int.zone/job/idp-backend/job/${IDP_UNSTABLE_VERSION}/job/validate-and-promote/`,
