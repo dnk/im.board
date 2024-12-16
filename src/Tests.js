@@ -22,7 +22,7 @@ const DASHBOARDS = {
     "https://jenkins.com.int.zone/job/idp-backend/job/master/job/tests/job/master/view/%20 All-launches",
     "https://jenkins.com.int.zone/job/idp-backend/job/release-4.2/job/tests/job/master/view/%20 All-launches",
     "https://jenkins.com.int.zone/job/idp-backend/job/release-4.1/job/tests/job/master/view/%20 All-launches",
-    
+
     "https://jenkins.com.int.zone/job/uam/job/master/job/tests/job/master/view/%20 All-launches",
     "https://jenkins.com.int.zone/job/uam/job/release-3.0/job/tests/job/master/view/%20 All-launches",
     "https://jenkins.com.int.zone/job/uam/job/release-2.1/job/tests/job/master/view/%20 All-launches",
@@ -95,17 +95,17 @@ async function fetchSvgText(buildUrl, preferStableBuild) {
 
   const urlComponent = new URL(fix_url(buildUrl) + 'badge/icon');
   urlComponent.searchParams.append("link", `${buildUrl}/\${buildId}`);
-//  urlComponent.searchParams.append("build", 'last:${params.BUILD_NAME!=}'); //not work
+  //  urlComponent.searchParams.append("build", 'last:${params.BUILD_NAME!=}'); //not work
   urlComponent.searchParams.append("subject", '${params.COMPONENT_NAME}-${params.BUILD_NAME}');
 
-  const prferableUrl = preferStableBuild ? urlStable: urlComponent;
+  const prferableUrl = preferStableBuild ? urlStable : urlComponent;
 
   const preferableResponsePromise = fetch(prferableUrl).then(response => response.text());
   const preferableResponseText = await preferableResponsePromise;
 
   const isPreferebleNOK = preferableResponseText.includes("not run</text>") || preferableResponseText.includes("-</text>")
   if (isPreferebleNOK) {
-    const alternativeUrl = !preferStableBuild ? urlStable: urlComponent;
+    const alternativeUrl = !preferStableBuild ? urlStable : urlComponent;
     const alternativeResponsePromise = fetch(alternativeUrl).then(response => response.text());
     const alternativeResponseText = await alternativeResponsePromise;
 
@@ -114,7 +114,7 @@ async function fetchSvgText(buildUrl, preferStableBuild) {
     //   return [prferableUrl, preferableResponseText];
     // } else {
     if (alternativeResponseText.includes("not run</text>")) {
-      return preferStableBuild ? [prferableUrl, preferableResponseText.replace('/buildId', '')]: [alternativeUrl, alternativeResponseText.replace('/buildId', '')];
+      return preferStableBuild ? [prferableUrl, preferableResponseText.replace('/buildId', '')] : [alternativeUrl, alternativeResponseText.replace('/buildId', '')];
     } else {
       return [alternativeUrl, alternativeResponseText];
     }
@@ -135,8 +135,8 @@ function jobName(name, url) {
   const parts = url.split('/job/');
   const branch = parts[2];
   const branch_parts = branch.split("-");
-  const version = branch_parts[branch_parts.length-1];
-  
+  const version = branch_parts[branch_parts.length - 1];
+
   const group = parts[1].split('-')[0].toUpperCase();
   if (CORE_COMPONENTS.includes(group)) {
     return `${group} : ${name}`;
