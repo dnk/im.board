@@ -5,7 +5,7 @@ import TableBody from '@mui/material/TableBody';
 import TableContainer from '@mui/material/TableContainer';
 import Paper from '@mui/material/Paper';
 
-import { Stack, TableCell, TableHead, TableRow, tableCellClasses } from '@mui/material';
+import { Stack, TableCell, TableHead, TableRow, TableSortLabel, tableCellClasses } from '@mui/material';
 import Status from './Status';
 import MaterialUISwitch from './MaterialUISwitch';
 
@@ -67,15 +67,48 @@ function fix_url(url) {
   return url;
 }
 
-function comporator(a, b) {
-  const aWeight = a.weightHolder.weight;
-  const bWeight = b.weightHolder.weight;
-  if (aWeight === bWeight) {
+function comporator(field, order) {
+
+  function nameComporator(a, b) {
     return a.testName.localeCompare(b.testName);
-  } else {
-    return aWeight > bWeight ? -1 : 1;
   }
+
+  function weightComporator(a, b) {
+    const aWeight = a.weightHolder.weight;
+    const bWeight = b.weightHolder.weight;
+    if (aWeight === bWeight) {
+      return 0
+    } else {
+      return aWeight > bWeight ? -1 : 1;
+    }
+  }
+
+  const sign = order === 'asc' ? 1 : -1;
+
+  return (a, b) => {
+    switch (field) {
+      case 'name': {
+        const result = nameComporator(a, b);
+        if (result === 0) {
+          return weightComporator(a, b) * sign;
+        }
+        return result * sign;
+      }
+
+      case 'weight':
+      default: {
+        const result = weightComporator(a, b);
+        if (result === 0) {
+          return nameComporator(a, b) * sign;
+        }
+
+        return result * sign;
+      }
+    }
+  };
 }
+
+
 
 async function xhr(url) {
   url = fix_url(url);
@@ -95,7 +128,6 @@ async function fetchSvgText(buildUrl, preferStableBuild) {
 
   const urlComponent = new URL(fix_url(buildUrl) + 'badge/icon');
   urlComponent.searchParams.append("link", `${buildUrl}/\${buildId}`);
-  //  urlComponent.searchParams.append("build", 'last:${params.BUILD_NAME!=}'); //not work
   urlComponent.searchParams.append("subject", '${params.COMPONENT_NAME}-${params.BUILD_NAME}');
 
   const prferableUrl = preferStableBuild ? urlStable : urlComponent;
@@ -146,7 +178,7 @@ function jobName(name, url) {
 }
 
 function toRows(tests) {
-  return Object.entries(tests).map(([testName, boards]) => {
+  const rows = Object.entries(tests).map(([testName, boards]) => {
     const weightHolder = {
       weight: -1
     };
@@ -155,7 +187,8 @@ function toRows(tests) {
       const rowKeyTemplate = testName + '-' + dashboardId;
 
       if (data) {
-        weightHolder.weight = Math.max(weightHolder.weight, (data.status.stable ? 0 : 10) + (data.status.running ? 5 : 0));
+        const weight = (data.status.stable ? 0 : 10) + (data.status.running ? 5 : 0);
+        weightHolder.weight = Math.max(weightHolder.weight, weight);
         const board = {
           "svgText": data.svgText,
           "imageUrl": data.url,
@@ -172,16 +205,20 @@ function toRows(tests) {
       status: statuses,
       weightHolder: weightHolder
     };
-  })
-    .toSorted(comporator)
-    .map((row) => {
-      return [row.testName, ...row.status];
-    });
+  });
+
+  return rows;
 }
 
 function Tests() {
   const [loaded, setLoaded] = useState(false);
   const [rows, setRows] = useState([]);
+  const defaultSort = { "field": "weight", "order": "asc" };
+  const [sort, setSort] = useState(defaultSort);
+  const sortComporator = useMemo(
+    () => comporator(sort.field, sort.order),
+    [sort]
+  );
   const [amountOfFailedTests, setAmountOfFailedTests] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(0);
 
@@ -269,8 +306,12 @@ function Tests() {
 
   const visibleRows = useMemo(
     () =>
-      rows.slice(0, rowsPerPage),
-    [rows, rowsPerPage]
+      rows.toSorted(sortComporator)
+        .map((row) => {
+          return [row.testName, ...row.status];
+        })
+        .slice(0, rowsPerPage),
+    [rows, rowsPerPage, sortComporator]
   );
 
 
@@ -290,22 +331,43 @@ function Tests() {
         <TableHead key="tests-head">
           <TableRow>
             <TableCell key="tests-name">
-              <Stack direction="row" spacing={1} alignItems="center">
-                <MaterialUISwitch size='small' onChange={() => {
-                  if (rowsPerPage === amountOfFailedTests) {
-                    setRowsPerPage(rows.length)
-                  } else {
-                    setRowsPerPage(amountOfFailedTests);
-                  }
-                }}
-                  disabled={amountOfFailedTests === 0}
-                  checked={rowsPerPage !== amountOfFailedTests}
-                />
-              </Stack>
+              <TableSortLabel active={sort.field === "name"} direction={sort.field === "name" ? sort.order : 'asc'} onClick={
+                () => {
+                  const currentDirection = sort.field === "name" ? sort.order : 'desc';
+                  const order = currentDirection === 'desc' ? 'asc' : 'desc';
+                  setRowsPerPage(rows.length)
+                  setSort({ "field": "name", "order": order })
+                }
+              }>
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <MaterialUISwitch size='small' onChange={() => {
+                    if (rowsPerPage === amountOfFailedTests) {
+                      setRowsPerPage(rows.length)
+                    } else {
+                      setSort(defaultSort);
+                      setRowsPerPage(amountOfFailedTests);
+                    }
+                  }}
+                    disabled={amountOfFailedTests === 0}
+                    checked={rowsPerPage !== amountOfFailedTests}
+                  />
+                </Stack>
+              </TableSortLabel>
             </TableCell>
-            {dashboards.map((key) => {
-              return <TableCell key={key}>{key}</TableCell>
-            })}
+            {
+              dashboards.map((key) => {
+                return <TableCell key={key}>
+                  <TableSortLabel active={sort.field === key} direction={sort.field === key ? sort.order : 'asc'} onClick={
+                    () => {
+                      const currentDirection = sort.field === key ? sort.order : 'desc';
+                      const order = currentDirection === 'desc' ? 'asc' : 'desc';
+                      setRowsPerPage(rows.length)
+                      setSort({ "field": key, "order": order })
+                    }
+                  }>{key}</TableSortLabel>
+                </TableCell>
+              })
+            }
           </TableRow>
         </TableHead>
         <TableBody key="tests-body">
