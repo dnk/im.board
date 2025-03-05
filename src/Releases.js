@@ -7,7 +7,7 @@ import Paper from "@mui/material/Paper";
 import Status from "./Status";
 import { TableBody, TableHead } from "@mui/material";
 
-const CB_VERSIONS = ["unstable", "21.19", "21.18"];
+const CB_VERSIONS = ["unstable", "21.20", "21.19"];
 const IDP_VERSIONS = ["master", "release-5.0", "release-4.2"];
 const UAM_VERSIONS = ["master", "release-3.0", "release-2.1"];
 const INHOUSE_VERSIONS = ["master", "3.1", "3.0"];
