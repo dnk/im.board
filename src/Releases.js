@@ -10,7 +10,7 @@ import { TableBody, TableHead } from "@mui/material";
 const CB_VERSIONS = ["unstable", "21.20", "21.19"];
 const IDP_VERSIONS = ["master", "release-5.0", "release-4.2"];
 const UAM_VERSIONS = ["master", "release-3.0", "release-2.1"];
-const INHOUSE_VERSIONS = ["master", "3.1", "3.0"];
+const INHOUSE_VERSIONS = ["master", "3.2", "3.1"];
 
 const COMPONENTS = {
   OSS: CB_VERSIONS.map((version) => {
