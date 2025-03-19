@@ -20,8 +20,6 @@ const DASHBOARDS = {
   unstable: [
     "https://jenkins.com.int.zone/view/Tests/view/master/view/abondarenko/",
     "https://jenkins.com.int.zone/view/Tests/view/master/view/eoktyabrskiy/",
-    "https://jenkins.com.int.zone/view/Tests/view/master/view/igarro/",
-    "https://jenkins.com.int.zone/view/Tests/view/master/view/ivagulin/",
     //    "https://jenkins.com.int.zone/view/Tests/view/master/view/rbesolov/",
     "https://jenkins.com.int.zone/view/Tests/view/master/view/nnetesov/",
     "https://jenkins.com.int.zone/view/Tests/view/master/view/vkopchenin/",
@@ -43,8 +41,6 @@ const DASHBOARDS = {
   "cb-21": [
     "https://jenkins.com.int.zone/view/Tests/view/21/view/abondarenko/",
     "https://jenkins.com.int.zone/view/Tests/view/21/view/eoktyabrskiy/",
-    "https://jenkins.com.int.zone/view/Tests/view/21/view/igarro/",
-    "https://jenkins.com.int.zone/view/Tests/view/21/view/ivagulin/",
     //    "https://jenkins.com.int.zone/view/Tests/view/21/view/rbesolov/",
     "https://jenkins.com.int.zone/view/Tests/view/21/view/nnetesov/",
     "https://jenkins.com.int.zone/view/Tests/view/21/view/vkopchenin/",
