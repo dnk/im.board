@@ -124,8 +124,9 @@ async function xhr(url) {
   }
 }
 
-async function fetchSvgText(buildUrl, preferStableBuild) {
+async function fetchSvgText(buildUrl, preferStableBuild, timestamp) {
   const urlStable = new URL(fix_url(buildUrl) + "badge/icon");
+  urlStable.searchParams.append("timestamp", timestamp);
   urlStable.searchParams.append("link", `${buildUrl}/\${buildId}`);
   urlStable.searchParams.append("build", "last:${params.BUILD_NAME=}");
 
@@ -242,17 +243,20 @@ function Tests() {
     const dashboardsPromises = Object.entries(DASHBOARDS).map(async (e) => {
       const [dashboardId, views] = e;
       const viewPromises = views.map((viewUrl) => {
-        let url = viewUrl + "/api/json?tree=jobs[name,url,color]";
+        let url = viewUrl + "/api/json?tree=jobs[name,url,lastBuild[timestamp]]";
         return xhr(url).then((response) => {
           const jobs = response["jobs"] || [];
           const promises = jobs.map(async (job) => {
             let name = jobName(job.name, job.url);
             name = TEST_NAME_CORRECTIONS[name] || name;
 
+            const timestamp = (job.lastBuild || {}).timestamp || Date.now();
+
             const preferStableBuild = dashboardId === "unstable";
             const [url, svgText] = await fetchSvgText(
               job.url,
               preferStableBuild,
+              timestamp
             );
             const status = getStatus(svgText);
 
