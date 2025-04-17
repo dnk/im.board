@@ -128,13 +128,13 @@ async function fetchSvgText(buildUrl, preferStableBuild, timestamp) {
   const urlStable = new URL(fix_url(buildUrl) + "badge/icon");
   urlStable.searchParams.append("timestamp", timestamp);
   urlStable.searchParams.append("link", `${buildUrl}/\${buildId}`);
-  urlStable.searchParams.append("build", "last:${params.BUILD_NAME=}");
+  urlStable.searchParams.append("build", `last:\${params.BUILD_NAME=}`);
 
   const urlComponent = new URL(fix_url(buildUrl) + "badge/icon");
   urlComponent.searchParams.append("link", `${buildUrl}/\${buildId}`);
   urlComponent.searchParams.append(
     "subject",
-    "${params.COMPONENT_NAME}-${params.BUILD_NAME}",
+    `\${params.COMPONENT_NAME}-\${params.BUILD_NAME}`,
   );
 
   const prferableUrl = preferStableBuild ? urlStable : urlComponent;

@@ -10,53 +10,7 @@ import { useEffect, useState } from "react";
 
 import { compareVersions } from 'compare-versions';
 
-// const CB_VERSIONS = ["unstable", "21.20", "21.19"];
-// const IDP_VERSIONS = ["master", "release-5.0", "release-4.2"];
-// const UAM_VERSIONS = ["master", "release-3.0", "release-2.1"];
-// const INHOUSE_VERSIONS = ["master", "3.2", "3.1"];
-
-const COMPONENTS = {
-  // OSS: CB_VERSIONS.map((version) => {
-  //   return {
-  //     buildUrl: `https://jenkins.com.int.zone/job/oss/job/${version}/job/validate-and-promote/`,
-  //   };
-  // }),
-  // BSS: CB_VERSIONS.map((version) => {
-  //   return {
-  //     buildUrl: `https://jenkins.com.int.zone/job/bss/job/${version}/job/validate-and-promote/`,
-  //   };
-  // }),
-  // "Branding UI Cluster": CB_VERSIONS.map((version) => {
-  //   return {
-  //     buildUrl: `https://jenkins.com.int.zone/job/branding-ui-cluster/job/${version}/job/validate-and-promote/`,
-  //   };
-  // }),
-  // IDP: IDP_VERSIONS.map((version) => {
-  //   return {
-  //     buildUrl: `https://jenkins.com.int.zone/job/idp-backend/job/${version}/job/validate-and-promote/`,
-  //   };
-  // }),
-  // UAM: UAM_VERSIONS.map((version) => {
-  //   return {
-  //     buildUrl: `https://jenkins.com.int.zone/job/uam/job/${version}/job/validate-and-promote/`,
-  //   };
-  // }),
-  // GDPR: {
-  //   buildUrl:
-  //     "https://jenkins.com.int.zone/job/gdpr-backend/job/master/job/validate-and-promote/",
-  // },
-  // INHOUSE: INHOUSE_VERSIONS.map((version) => {
-  //   return {
-  //     buildUrl: `https://jenkins.com.int.zone/job/inhouse-products/job/${version}/job/validate-and-promote/`,
-  //   };
-  // }),
-  // "E2E SDK": CB_VERSIONS.map((version) => {
-  //   return {
-  //     buildUrl: `https://jenkins.com.int.zone/job/e2e-tests-v2/job/${version}/job/validate-and-promote/`,
-  //   };
-  // }),
-};
-
+const AMOUNT_OF_DYNAMIC_RELEASES = 2;
 const DYNAMIC_RELEASES = {
   OSS: 'https://jenkins.com.int.zone/job/oss',
   BSS: 'https://jenkins.com.int.zone/job/bss',
@@ -93,16 +47,16 @@ const LATEST_RELEASE_NAME = 'master';
 async function fetchDynamicReleases(setter) {
 
   const promises = Object.entries(DYNAMIC_RELEASES).map(async ([name, baseUrl]) => {
-    const url = `${baseUrl}/api/json`;
+    const url = `${baseUrl}/api/json?tree=jobs[name,jobs[name,url,lastBuild[timestamp]]]`;
     return xhr(url).then((response) => {
       const jobs = (response["jobs"] || [])
         .filter((job) => job["_class"] === 'com.cloudbees.hudson.plugins.folder.Folder')
         .reduce((acc, job) => {
           if (job.name === 'master' || job.name === 'unstable') {
             delete acc[job.name];
-            acc[LATEST_RELEASE_NAME] = job.url;
+            acc[LATEST_RELEASE_NAME] = job;
           } else {
-            acc[`1.0.0-${job.name}`] = job.url;
+            acc[`1.0.0-${job.name}`] = job;
           }
 
           return acc;
@@ -120,13 +74,16 @@ async function fetchDynamicReleases(setter) {
     }, {})
 
     const releases = Object.entries(components).map(([name, component]) => {
-      const latestVersionUrl = component[LATEST_RELEASE_NAME];
+      const latestVersionJob = component[LATEST_RELEASE_NAME];
       delete component[LATEST_RELEASE_NAME];
-      const urls = Object.keys(component).sort(compareVersions).reverse().slice(0, 2).map((key) => component[key]);
+      const jobs = Object.keys(component).sort(compareVersions).reverse().slice(0, AMOUNT_OF_DYNAMIC_RELEASES).map((key) => component[key]);
       const data = {}
-      data[name] = [latestVersionUrl].concat(urls).map((url) => {
+      data[name] = [latestVersionJob, ...jobs].map((job) => {
+        const validateAndPromoteJob = job.jobs.find((job) => job.name === 'validate-and-promote');
+        const timestamp = (validateAndPromoteJob.lastBuild || {}).timestamp || Date.now();
         return {
-          buildUrl: `${url}/job/validate-and-promote/`,
+          buildUrl: validateAndPromoteJob.url,
+          timestamp: timestamp
         };
       });
       return data;
@@ -171,17 +128,16 @@ function Releases() {
           </TableRow>
         </TableHead>
         <TableBody key="releases-body">
-          {Object.entries({ ...dynamicReleases, ...COMPONENTS }).map(([name, components]) => {
+          {Object.entries({ ...dynamicReleases }).map(([name, components]) => {
             return (
               <TableRow key={name}>
                 <TableCell>{name}</TableCell>
                 {(Array.isArray(components) ? components : [components]).map(
                   (component, index) => {
+
                     const buildStatus = {
                       buildUrl: component.buildUrl,
-                      imageUrl:
-                        component.buildUrl +
-                        `badge/icon?&subject=\${params.BUILD_NAME}`,
+                      imageUrl: `${component.buildUrl}/badge/icon?timestamp=${component.timestamp}&subject=\${params.BUILD_NAME}`,
                     };
 
                     const key = `${name}-${index}`;
