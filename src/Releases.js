@@ -47,7 +47,7 @@ const LATEST_RELEASE_NAME = 'master';
 async function fetchDynamicReleases(setter) {
 
   const promises = Object.entries(DYNAMIC_RELEASES).map(async ([name, baseUrl]) => {
-    const url = `${baseUrl}/api/json?tree=jobs[name,jobs[name,url,lastBuild[timestamp]]]`;
+    const url = `${baseUrl}/api/json?tree=jobs[name,jobs[name,url,lastBuild[timestamp,inProgress]]]`;
     return xhr(url).then((response) => {
       const jobs = (response["jobs"] || [])
         .filter((job) => job["_class"] === 'com.cloudbees.hudson.plugins.folder.Folder')
@@ -81,9 +81,11 @@ async function fetchDynamicReleases(setter) {
       data[name] = [latestVersionJob, ...jobs].filter((job) => !!job).map((job) => {
         const validateAndPromoteJob = (job.jobs || []).find((job) => job.name === 'validate-and-promote');
         const timestamp = (validateAndPromoteJob.lastBuild || {}).timestamp || Date.now();
+        const inProgress = (validateAndPromoteJob.lastBuild || {}).inProgress;
+        const tag = `${timestamp}-${inProgress ? 1 : 0}`;
         return {
           buildUrl: validateAndPromoteJob.url,
-          timestamp: timestamp
+          tag: tag
         };
       });
       return data;
@@ -137,8 +139,8 @@ function Releases() {
 
                     const buildStatus = {
                       buildUrl: component.buildUrl,
-                      timestamp: component.timestamp,
-                      imageUrl: `${component.buildUrl}/badge/icon?timestamp=${component.timestamp}&subject=\${params.BUILD_NAME}`,
+                      tag: component.tag,
+                      imageUrl: `${component.buildUrl}/badge/icon?tag=${component.tag}&subject=\${params.BUILD_NAME}`,
                     };
 
                     const key = `${name}-${index}`;
