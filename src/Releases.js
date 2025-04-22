@@ -14,7 +14,7 @@ const AMOUNT_OF_DYNAMIC_RELEASES = 2;
 const DYNAMIC_RELEASES = {
   OSS: 'https://jenkins.com.int.zone/job/oss',
   BSS: 'https://jenkins.com.int.zone/job/bss',
-  "Branding UI Cluster": 'https://jenkins.com.int.zone/job/branding-ui-cluster',
+  "Branding UI": 'https://jenkins.com.int.zone/job/branding-ui-cluster',
   IDP: 'https://jenkins.com.int.zone/job/idp-backend',
   UAM: 'https://jenkins.com.int.zone/job/uam',
   GDPR: 'https://jenkins.com.int.zone/job/gdpr-backend',
