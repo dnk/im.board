@@ -5,8 +5,9 @@ function fix_url(url) {
     return url;
 }
 
-async function fetchSvgText(buildUrl, imageUrl) {
-    const url = fix_url(imageUrl || (buildUrl + `badge/icon?link=${buildUrl}/\${buildId}&build=last:\${params.BUILD_NAME=}`));
+async function fetchSvgText(buildUrl, imageUrl, timestamp) {
+    const ts = timestamp || Date.now();
+    const url = fix_url(imageUrl || (buildUrl + `badge/icon?timestamp=${ts}&link=${buildUrl}/\${buildId}&build=last:\${params.BUILD_NAME=}`));
     const responseText = await fetch(url).then(response => response.text());
 
     return [url, responseText];
@@ -21,7 +22,8 @@ function Status({ board }) {
         if (svgText !== "") {
             return;
         }
-        fetchSvgText(board.buildUrl, board.imageUrl).then(([imageUrl, svgText]) => {
+
+        fetchSvgText(board.buildUrl, board.imageUrl, board.timestamp).then(([imageUrl, svgText]) => {
             setImageUrl(imageUrl);
             setSvgText(svgText);
         });
