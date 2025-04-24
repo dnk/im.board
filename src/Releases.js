@@ -42,6 +42,8 @@ async function xhr(url) {
   }
 }
 
+const UNSTABLE_JOB_NAMES = ["master", "unstable"];
+
 const LATEST_RELEASE_NAME = 'master';
 
 async function fetchDynamicReleases(setter) {
@@ -50,9 +52,10 @@ async function fetchDynamicReleases(setter) {
     const url = `${baseUrl}/api/json?tree=jobs[name,jobs[name,url,lastBuild[timestamp,inProgress]]]`;
     return xhr(url).then((response) => {
       const jobs = (response["jobs"] || [])
-        .filter((job) => job["_class"] === 'com.cloudbees.hudson.plugins.folder.Folder')
+        .filter((job) => job["_class"] === 'com.cloudbees.hudson.plugins.folder.Folder' && (job.name.includes(".") || UNSTABLE_JOB_NAMES.includes(job.name)))
+        .sort((a, b) => a.name.localeCompare(b.name)) // sort by name to enusre that "master" job comes before "unstable" job
         .reduce((acc, job) => {
-          if (job.name === 'master' || job.name === 'unstable') {
+          if (UNSTABLE_JOB_NAMES.includes(job.name)) {
             delete acc[job.name];
             acc[LATEST_RELEASE_NAME] = job;
           } else {
