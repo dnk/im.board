@@ -81,7 +81,7 @@ async function fetchDynamicReleases(setter) {
       delete component[LATEST_RELEASE_NAME];
       const jobs = Object.keys(component).sort(compareVersions).reverse().slice(0, AMOUNT_OF_DYNAMIC_RELEASES).map((key) => component[key]);
       const data = {}
-      data[name] = [latestVersionJob, ...jobs].filter((job) => !!job).map((job) => {
+      data[name] = [latestVersionJob, ...jobs].filter((job) => !!job && !!job.jobs).map((job) => {
         const validateAndPromoteJob = (job.jobs || []).find((job) => job.name === 'validate-and-promote');
         const timestamp = (validateAndPromoteJob.lastBuild || {}).timestamp || Date.now();
         const inProgress = (validateAndPromoteJob.lastBuild || {}).inProgress;
