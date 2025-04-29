@@ -12,14 +12,14 @@ import { compareVersions } from 'compare-versions';
 
 const AMOUNT_OF_DYNAMIC_RELEASES = 2;
 const DYNAMIC_RELEASES = {
-  OSS: 'https://jenkins.com.int.zone/job/oss',
-  BSS: 'https://jenkins.com.int.zone/job/bss',
-  "Branding UI": 'https://jenkins.com.int.zone/job/branding-ui-cluster',
-  IDP: 'https://jenkins.com.int.zone/job/idp-backend',
-  UAM: 'https://jenkins.com.int.zone/job/uam',
-  GDPR: 'https://jenkins.com.int.zone/job/gdpr-backend',
-  INHOUSE: 'https://jenkins.com.int.zone/job/inhouse-products',
-  E2E: 'https://jenkins.com.int.zone/job/e2e-tests-v2'
+  OSS: ['https://jenkins.com.int.zone/job/oss', 'https://jenkins.com.int.zone/job/oss/job/release'],
+  BSS: ['https://jenkins.com.int.zone/job/bss', 'https://jenkins.com.int.zone/job/bss/job/release'],
+  "Branding UI": ['https://jenkins.com.int.zone/job/branding-ui-cluster', 'https://jenkins.com.int.zone/job/branding-ui-cluster/job/release'],
+  IDP: ['https://jenkins.com.int.zone/job/idp-backend'],
+  UAM: ['https://jenkins.com.int.zone/job/uam'],
+  GDPR: ['https://jenkins.com.int.zone/job/gdpr-backend'],
+  INHOUSE: ['https://jenkins.com.int.zone/job/inhouse-products'],
+  E2E: ['https://jenkins.com.int.zone/job/e2e-tests-v2', 'https://jenkins.com.int.zone/job/e2e-tests-v2/job/release']
 };
 
 function fix_url(url) {
@@ -46,29 +46,49 @@ const UNSTABLE_JOB_NAMES = ["master", "unstable"];
 
 const LATEST_RELEASE_NAME = 'master';
 
+async function fetchJobs(name, baseUrl) {
+  const url = `${baseUrl}/api/json?tree=jobs[name,jobs[name,url,lastBuild[timestamp,inProgress]]]`;
+  return xhr(url).then((response) => {
+    const jobs = (response["jobs"] || [])
+      .filter((job) => job["_class"] === 'com.cloudbees.hudson.plugins.folder.Folder' && (job.name.includes(".") || UNSTABLE_JOB_NAMES.includes(job.name)))
+      .sort((a, b) => a.name.localeCompare(b.name)) // sort by name to enusre that "master" job comes before "unstable" job
+      .reduce((acc, job) => {
+        if (UNSTABLE_JOB_NAMES.includes(job.name)) {
+          delete acc[job.name];
+          acc[LATEST_RELEASE_NAME] = job;
+        } else {
+          acc[`1.0.0-${job.name}`] = job;
+        }
+
+        return acc;
+      }, {});
+
+    const release = {};
+    release[name] = jobs;
+    return release;
+  });
+}
+
 async function fetchDynamicReleases(setter) {
 
-  const promises = Object.entries(DYNAMIC_RELEASES).map(async ([name, baseUrl]) => {
-    const url = `${baseUrl}/api/json?tree=jobs[name,jobs[name,url,lastBuild[timestamp,inProgress]]]`;
-    return xhr(url).then((response) => {
-      const jobs = (response["jobs"] || [])
-        .filter((job) => job["_class"] === 'com.cloudbees.hudson.plugins.folder.Folder' && (job.name.includes(".") || UNSTABLE_JOB_NAMES.includes(job.name)))
-        .sort((a, b) => a.name.localeCompare(b.name)) // sort by name to enusre that "master" job comes before "unstable" job
-        .reduce((acc, job) => {
-          if (UNSTABLE_JOB_NAMES.includes(job.name)) {
-            delete acc[job.name];
-            acc[LATEST_RELEASE_NAME] = job;
+  const promises = Object.entries(DYNAMIC_RELEASES).map(async ([name, baseUrls]) => {
+    const promises = baseUrls.map((baseUrl) => {
+      return fetchJobs(name, baseUrl);
+    });
+
+    return Promise.all(promises).then((values) => {
+      return values.reduce((acc, value) => [...acc, ...Object.entries(value)], [])
+        .reduce((acc, [key, value]) => {
+          if (acc.hasOwnProperty(key)) {
+            Object.assign(acc[key], value);
           } else {
-            acc[`1.0.0-${job.name}`] = job;
+            acc[key] = { ...value }
           }
 
           return acc;
-        }, {});
-
-      const release = {};
-      release[name] = jobs;
-      return release;
-    });
+        },
+          {});
+    })
   });
 
   Promise.all(promises).then((values) => {
@@ -76,23 +96,24 @@ async function fetchDynamicReleases(setter) {
       return { ...acc, ...value };
     }, {})
 
-    const releases = Object.entries(components).map(([name, component]) => {
-      const latestVersionJob = component[LATEST_RELEASE_NAME];
-      delete component[LATEST_RELEASE_NAME];
-      const jobs = Object.keys(component).sort(compareVersions).reverse().slice(0, AMOUNT_OF_DYNAMIC_RELEASES).map((key) => component[key]);
-      const data = {}
-      data[name] = [latestVersionJob, ...jobs].filter((job) => !!job && !!job.jobs).map((job) => {
-        const validateAndPromoteJob = (job.jobs || []).find((job) => job.name === 'validate-and-promote');
-        const timestamp = (validateAndPromoteJob.lastBuild || {}).timestamp || Date.now();
-        const inProgress = (validateAndPromoteJob.lastBuild || {}).inProgress;
-        const tag = `${timestamp}-${inProgress ? 1 : 0}`;
-        return {
-          buildUrl: validateAndPromoteJob.url,
-          tag: tag
-        };
-      });
-      return data;
-    })
+    const releases = Object.entries(components)
+      .map(([name, component]) => {
+        const latestVersionJob = component[LATEST_RELEASE_NAME];
+        delete component[LATEST_RELEASE_NAME];
+        const jobs = Object.keys(component).sort(compareVersions).reverse().slice(0, AMOUNT_OF_DYNAMIC_RELEASES).map((key) => component[key]);
+        const data = {}
+        data[name] = [latestVersionJob, ...jobs].filter((job) => !!job && !!job.jobs).map((job) => {
+          const validateAndPromoteJob = (job.jobs || []).find((job) => job.name === 'validate-and-promote');
+          const timestamp = (validateAndPromoteJob.lastBuild || {}).timestamp || Date.now();
+          const inProgress = (validateAndPromoteJob.lastBuild || {}).inProgress;
+          const tag = `${timestamp}-${inProgress ? 1 : 0}`;
+          return {
+            buildUrl: validateAndPromoteJob.url,
+            tag: tag
+          };
+        });
+        return data;
+      })
       .reduce((acc, value) => {
         return { ...acc, ...value };
       }, {});
