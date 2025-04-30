@@ -4,17 +4,17 @@
   "homepage": "https://dnk.github.io/im.board",
   "private": true,
   "dependencies": {
-    "@emotion/react": "^11.13.5",
-    "@emotion/styled": "^11.13.5",
-    "@mui/icons-material": "^5.11.16",
-    "@mui/material": "^6.1.8",
-    "@mui/x-data-grid": "^7.22.2",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mui/icons-material": "^7.0.2",
+    "@mui/material": "^7.0.2",
+    "@mui/x-data-grid": "^8.1.0",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "compare-versions": "^6.1.1",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
     "react-scripts": "^5.0.1"
   },
   "scripts": {
@@ -45,9 +45,9 @@
     ]
   },
   "devDependencies": {
-    "eslint": "^9.15.0",
+    "eslint": "^9.25.1",
     "eslint-config-react-app": "^7.0.1",
-    "gh-pages": "^6.1.1",
+    "gh-pages": "^6.3.0",
     "npm-build-zip": "^1.0.4"
   }
 }
