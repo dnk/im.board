@@ -53,10 +53,25 @@ async function fetchStatusData(baseUrl, tag, preferStableBuild = false) {
 
     const builds = json["builds"] || [];
 
-    let buildName = null;
-    let componentName;
-    let running;
+    const stableBuildData = {
+        componentName: null,
+        buildName: null,
+        running: null,
+        jobUrl: null,
+        result: null,
+    }
+
+    const versionBuildData = {
+        componentName: null,
+        buildName: null,
+        running: null,
+        jobUrl: null,
+        result: null,
+    }
+
     let result;
+
+    let buildNameFound = false;
 
     for (const build of builds) {
         const actions = build["actions"] || [];
@@ -66,28 +81,52 @@ async function fetchStatusData(baseUrl, tag, preferStableBuild = false) {
             params[parameter["name"]] = parameter["value"]
         }
 
-        if (buildName === null || !preferStableBuild) {
-            buildName = params['BUILD_NAME'];
-            componentName = params['COMPONENT_NAME'];
-            running = build.inProgress;
-        }
-
+        const buildName = params['BUILD_NAME'] || '';
+        const componentName = params['COMPONENT_NAME'];
+        const running = build.inProgress;
+        const jobUrl = build.url;
         result = build.result;
 
-        if (!!buildName && !!result) {
+        if (buildName === '') {
+            // stable build have no "BUILD_NAME" parameter
+            if (stableBuildData.buildName === null) {
+                // fill data for first stable build job
+                stableBuildData.componentName = componentName;
+                stableBuildData.buildName = buildName;
+                stableBuildData.running = running;
+                stableBuildData.jobUrl = jobUrl;
+                stableBuildData.result = result;
+                buildNameFound = preferStableBuild;
+            }
+        } else {
+            if (versionBuildData.buildName === null) {
+                versionBuildData.componentName = componentName;
+                versionBuildData.buildName = buildName;
+                versionBuildData.running = running;
+                versionBuildData.jobUrl = jobUrl;
+                versionBuildData.result = result;
+                buildNameFound = !preferStableBuild;
+            }
+        }
+
+        if (buildNameFound && !!result) {
             break;
         }
     }
 
-    const status = result || 'NOT_RUN';
+    const chooseStableBuild = (preferStableBuild && !!stableBuildData.jobUrl) || !versionBuildData.buildName;
+    const buildData = chooseStableBuild ? stableBuildData : versionBuildData;
+
+    const status = buildData.result || result || 'NOT_RUN';
     const stable = 'SUCCESS' === status;
 
     const data = {
-        componentName: componentName,
-        buildName: buildName,
-        running: running,
+        componentName: buildData.componentName,
+        buildName: buildData.buildName,
+        running: buildData.running,
         stable: stable,
-        status: status
+        status: status,
+        jobUrl: buildData.jobUrl,
     }
 
     return data;
@@ -128,7 +167,7 @@ function Status({ board }) {
         return false;
     }
 
-    const jobUrl = board.buildUrl;  //fixme link to job url
+    const jobUrl = board.jobUrl || board.buildUrl;
 
     const encodedData = encodeURIComponent(svgText);
     const svgData = `data:image/svg+xml,${encodedData}`;

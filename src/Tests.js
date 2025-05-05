@@ -158,8 +158,9 @@ function toRows(tests) {
         const weight = (data.status.stable ? 0 : 10) + (data.status.running ? 5 : 0);
         weightHolder.weight = Math.max(weightHolder.weight, weight);
         const board = {
-          buildUrl: data.buildUrl,
-          svgText: data.svgText
+          buildUrl: data.baseUrl,
+          svgText: data.svgText,
+          jobUrl: data.jobUrl
         };
         return <Status key={rowKeyTemplate + "-status"} board={board} />;
       } else {
@@ -209,7 +210,9 @@ function Tests() {
             const svgText = await buildSvgText(data)
             const status = getStatus(data);
 
-            return [name, url, job.url, svgText, status];
+            const baseUrl = job.url;
+            const jobUrl = data.jobUrl;
+            return [name, url, baseUrl, jobUrl, svgText, status];
           });
           return Promise.all(promises);
         });
@@ -220,10 +223,11 @@ function Tests() {
       const boardTests = viewTests.reduce((acc, value) => {
         acc = acc || {};
         value.forEach((item) => {
-          const [name, url, buildUrl, svgText, status] = item;
+          const [name, url, baseUrl, jobUrl, svgText, status] = item;
           acc[name] = {
             url: url,
-            buildUrl: buildUrl,
+            jobUrl: jobUrl,
+            baseUrl: baseUrl,
             svgText: svgText,
             status: status,
           };
