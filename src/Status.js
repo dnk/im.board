@@ -85,6 +85,7 @@ async function fetchAndEvaluate(url, preferStableBuild) {
         const running = build.inProgress;
         const jobUrl = build.url;
         result = build.result;
+        const previousBuildResult = (build.previousBuild || {}).result;
 
         if (buildName === '') {
             // stable build have no "BUILD_NAME" parameter
@@ -94,7 +95,7 @@ async function fetchAndEvaluate(url, preferStableBuild) {
                 stableBuildData.buildName = buildName;
                 stableBuildData.running = running;
                 stableBuildData.jobUrl = jobUrl;
-                stableBuildData.result = result;
+                stableBuildData.result = result || previousBuildResult;
                 buildNameFound = preferStableBuild;
             }
         } else {
@@ -103,7 +104,7 @@ async function fetchAndEvaluate(url, preferStableBuild) {
                 versionBuildData.buildName = buildName;
                 versionBuildData.running = running;
                 versionBuildData.jobUrl = jobUrl;
-                versionBuildData.result = result;
+                versionBuildData.result = result || previousBuildResult;
                 buildNameFound = !preferStableBuild;
             }
         }
@@ -132,7 +133,7 @@ async function fetchAndEvaluate(url, preferStableBuild) {
 }
 
 async function fetchStatusData(baseUrl, tag, preferStableBuild = false) {
-    const url = fix_url(baseUrl + `/api/json?tag=${tag || "no-tag-" + Date.now()}&tree=builds[inProgress,result,url,actions[parameters[*]]]`);
+    const url = fix_url(baseUrl + `/api/json?tag=${tag || "no-tag-" + Date.now()}&tree=builds[inProgress,result,url,actions[parameters[*]],previousBuild[result]]`);
 
     const key = localStorage.getItem(baseUrl);
     if (key === url) {
