@@ -42,8 +42,7 @@ function buildLabel(componentName, buildName) {
     return componentName && buildName ? `${componentName}-${buildName}` : `${buildName || 'stable'}`;
 }
 
-async function fetchStatusData(baseUrl, tag, preferStableBuild = false) {
-    const url = fix_url(baseUrl + `/api/json?tag=${tag || "no-tag-" + Date.now()}&tree=builds[inProgress,result,url,actions[parameters[*]]]`);
+async function fetchAndEvaluate(url, preferStableBuild) {
     const json = await fetch(url, {
         method: "GET",
         headers: {
@@ -128,6 +127,22 @@ async function fetchStatusData(baseUrl, tag, preferStableBuild = false) {
         status: status,
         jobUrl: buildData.jobUrl,
     }
+
+    return data;
+}
+
+async function fetchStatusData(baseUrl, tag, preferStableBuild = false) {
+    const url = fix_url(baseUrl + `/api/json?tag=${tag || "no-tag-" + Date.now()}&tree=builds[inProgress,result,url,actions[parameters[*]]]`);
+
+    const key = localStorage.getItem(baseUrl);
+    if (key === url) {
+        const data = localStorage.getItem(url);
+        return JSON.parse(data);
+    }
+
+    const data = await fetchAndEvaluate(url, preferStableBuild);
+    localStorage.setItem(baseUrl, url);
+    localStorage.setItem(url, JSON.stringify(data));
 
     return data;
 }
