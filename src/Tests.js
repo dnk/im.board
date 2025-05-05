@@ -13,7 +13,7 @@ import {
   TableSortLabel,
   tableCellClasses,
 } from "@mui/material";
-import Status from "./Status";
+import { buildSvgText, fetchStatusData, Status } from "./Status";
 import MaterialUISwitch from "./MaterialUISwitch";
 
 const DASHBOARDS = {
@@ -124,58 +124,9 @@ async function xhr(url) {
   }
 }
 
-async function fetchSvgText(buildUrl, preferStableBuild, tag) {
-  const urlStable = new URL(fix_url(buildUrl) + "badge/icon");
-  urlStable.searchParams.append("tag", tag);
-  urlStable.searchParams.append("link", `${buildUrl}/\${buildId}`);
-  urlStable.searchParams.append("build", `last:\${params.BUILD_NAME=}`);
-
-  const urlComponent = new URL(fix_url(buildUrl) + "badge/icon");
-  urlComponent.searchParams.append("tag", tag);
-  urlComponent.searchParams.append("link", `${buildUrl}/\${buildId}`);
-  urlComponent.searchParams.append(
-    "subject",
-    `\${params.COMPONENT_NAME}-\${params.BUILD_NAME}`,
-  );
-
-  const prferableUrl = preferStableBuild ? urlStable : urlComponent;
-
-  const preferableResponsePromise = fetch(prferableUrl).then((response) =>
-    response.text(),
-  );
-  const preferableResponseText = await preferableResponsePromise;
-
-  const isPreferebleNOK =
-    preferableResponseText.includes("not run</text>") ||
-    preferableResponseText.includes("-</text>");
-  if (isPreferebleNOK) {
-    const alternativeUrl = !preferStableBuild ? urlStable : urlComponent;
-    const alternativeResponsePromise = fetch(alternativeUrl).then((response) =>
-      response.text(),
-    );
-    const alternativeResponseText = await alternativeResponsePromise;
-
-    // const isAlternativeNOK = alternativeResponseText.includes("not run</text>") || alternativeResponseText.includes('>params.'); // there is unresolved param in alternative response. not applicable for when stable is alternative
-    // if (isAlternativeNOK) {
-    //   return [prferableUrl, preferableResponseText];
-    // } else {
-    if (alternativeResponseText.includes("not run</text>")) {
-      return preferStableBuild
-        ? [prferableUrl, preferableResponseText.replace("/buildId", "")]
-        : [alternativeUrl, alternativeResponseText.replace("/buildId", "")];
-    } else {
-      return [alternativeUrl, alternativeResponseText];
-    }
-    //}
-  }
-
-  return [prferableUrl, preferableResponseText];
-}
-
-function getStatus(svgText) {
-  const running = svgText.includes(">running</text>");
-  const stable =
-    svgText.includes('fill="#44cc11"/>') || svgText.includes(">not run</text>");
+function getStatus(data) {
+  const running = data.running;
+  const stable = data.stable;
   return { running: running, stable: stable };
 }
 
@@ -204,13 +155,11 @@ function toRows(tests) {
       const rowKeyTemplate = testName + "-" + dashboardId;
 
       if (data) {
-        const weight =
-          (data.status.stable ? 0 : 10) + (data.status.running ? 5 : 0);
+        const weight = (data.status.stable ? 0 : 10) + (data.status.running ? 5 : 0);
         weightHolder.weight = Math.max(weightHolder.weight, weight);
         const board = {
-          svgText: data.svgText,
-          imageUrl: data.url,
           buildUrl: data.buildUrl,
+          svgText: data.svgText
         };
         return <Status key={rowKeyTemplate + "-status"} board={board} />;
       } else {
@@ -256,12 +205,9 @@ function Tests() {
             const tag = `${timestamp}-${inProgress ? 1 : 0}`;
 
             const preferStableBuild = dashboardId === "unstable";
-            const [url, svgText] = await fetchSvgText(
-              job.url,
-              preferStableBuild,
-              tag
-            );
-            const status = getStatus(svgText);
+            const data = await fetchStatusData(job.url, tag, preferStableBuild)
+            const svgText = await buildSvgText(data)
+            const status = getStatus(data);
 
             return [name, url, job.url, svgText, status];
           });
@@ -370,8 +316,7 @@ function Tests() {
                 active={sort.field === "name"}
                 direction={sort.field === "name" ? sort.order : "asc"}
                 onClick={() => {
-                  const currentDirection =
-                    sort.field === "name" ? sort.order : "desc";
+                  const currentDirection = sort.field === "name" ? sort.order : "desc";
                   const order = currentDirection === "desc" ? "asc" : "desc";
                   setRowsPerPage(rows.length);
                   setSort({ field: "name", order: order });
@@ -401,10 +346,8 @@ function Tests() {
                     active={sort.field === key}
                     direction={sort.field === key ? sort.order : "asc"}
                     onClick={() => {
-                      const currentDirection =
-                        sort.field === key ? sort.order : "desc";
-                      const order =
-                        currentDirection === "desc" ? "asc" : "desc";
+                      const currentDirection = sort.field === key ? sort.order : "desc";
+                      const order = currentDirection === "desc" ? "asc" : "desc";
                       setRowsPerPage(rows.length);
                       setSort({ field: key, order: order });
                     }}

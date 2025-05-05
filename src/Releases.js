@@ -4,7 +4,7 @@ import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 
-import Status from "./Status";
+import { Status } from "./Status";
 import { TableBody, TableHead } from "@mui/material";
 import { useEffect, useState } from "react";
 
@@ -134,7 +134,6 @@ function Releases() {
 
   console.log(dynamicReleases);
 
-
   return (
     <TableContainer component={Paper} key="releases-table-container">
       <Table
@@ -163,8 +162,7 @@ function Releases() {
 
                     const buildStatus = {
                       buildUrl: component.buildUrl,
-                      tag: component.tag,
-                      imageUrl: `${component.buildUrl}/badge/icon?tag=${component.tag}&subject=\${params.BUILD_NAME}`,
+                      tag: component.tag
                     };
 
                     const key = `${name}-${index}`;
