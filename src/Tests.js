@@ -124,12 +124,6 @@ async function xhr(url) {
   }
 }
 
-function getStatus(data) {
-  const running = data.running;
-  const stable = data.stable;
-  return { running: running, stable: stable };
-}
-
 const CORE_COMPONENTS = ["OSS", "BSS", "BRANDING"];
 function jobName(name, url) {
   const parts = url.split("/job/");
@@ -187,7 +181,7 @@ function Tests() {
     () => comporator(sort.field, sort.order),
     [sort],
   );
-  const [amountOfFailedTests, setAmountOfFailedTests] = useState(0);
+  const [amountOfFailedOrRunningTests, setAmountOfFailedOrRunningTests] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(0);
 
   async function fetchTests() {
@@ -208,7 +202,8 @@ function Tests() {
             const preferStableBuild = dashboardId === "unstable";
             const data = await fetchStatusData(job.url, tag, preferStableBuild)
             const svgText = await buildSvgText(data)
-            const status = getStatus(data);
+
+            const status = { running: data.running, stable: data.stable };
 
             const baseUrl = job.url;
             const jobUrl = data.jobUrl;
@@ -254,13 +249,13 @@ function Tests() {
       return acc;
     }, {});
 
-    const amountOfFailedTests = Object.entries(dashboardTests).reduce(
+    const amountOfFailedOrRunningTests = Object.entries(dashboardTests).reduce(
       (acc, [name, tests]) => {
         const amount = Object.entries(tests).reduce((acc, [_, data]) => {
           if (acc !== 0) {
             return acc;
           } else {
-            const amount = data.status.stable ? 0 : 1;
+            const amount = (data.status.stable && !data.status.running) ? 0 : 1;
             return acc + amount;
           }
         }, 0);
@@ -270,11 +265,11 @@ function Tests() {
       0,
     );
 
-    setAmountOfFailedTests(amountOfFailedTests);
+    setAmountOfFailedOrRunningTests(amountOfFailedOrRunningTests);
     const rows = toRows(dashboardTests);
     setRows(rows);
     setRowsPerPage(
-      amountOfFailedTests !== 0 ? amountOfFailedTests : rows.length,
+      amountOfFailedOrRunningTests !== 0 ? amountOfFailedOrRunningTests : rows.length,
     );
   }
 
@@ -330,15 +325,15 @@ function Tests() {
                   <MaterialUISwitch
                     size="small"
                     onChange={() => {
-                      if (rowsPerPage === amountOfFailedTests) {
+                      if (rowsPerPage === amountOfFailedOrRunningTests) {
                         setRowsPerPage(rows.length);
                       } else {
                         setSort(defaultSort);
-                        setRowsPerPage(amountOfFailedTests);
+                        setRowsPerPage(amountOfFailedOrRunningTests);
                       }
                     }}
-                    disabled={amountOfFailedTests === 0}
-                    checked={rowsPerPage !== amountOfFailedTests}
+                    disabled={amountOfFailedOrRunningTests === 0}
+                    checked={rowsPerPage !== amountOfFailedOrRunningTests}
                   />
                 </Stack>
               </TableSortLabel>
