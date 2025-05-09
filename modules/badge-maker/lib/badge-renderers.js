@@ -131,7 +131,7 @@ class Badge {
     idSuffix = '',
     animationDuration = '',
   }) {
-    const horizPadding = 10;
+    const horizPadding = 8;
     const hasLogo = !!logo
     const totalLogoWidth = logoWidth + logoPadding
     const accessibleText = createAccessibleText({ label, message })
@@ -332,17 +332,27 @@ class Badge {
           values: '0.0;0.5;0.0'
         },
       });
+      const width = this.rightWidth - this.horizPadding/2.0;
       const animation = new XmlElement({
         name: 'rect',
         attrs: {
           x: this.leftWidth,
-          width: this.rightWidth,
+          width: width,
           height: this.constructor.height,
           fill: 'black',
         },
         content: [animate]
+      });
+      const animationForeground = new XmlElement({
+        name: 'rect',
+        attrs: {
+          x: this.leftWidth,
+          width: width,
+          height: this.constructor.height,
+          fill: '#007ec6',
+        },
       })
-      animations.push(animation);
+      animations.push(animationForeground, animation);
     }
     
     const content = withGradient
