@@ -39,7 +39,7 @@ async function fetchSvgText(buildUrl, tag) {
 }
 
 function buildLabel(componentName, buildName) {
-    return componentName && buildName ? `${componentName}-${buildName}` : `${buildName || 'stable'}`;
+    return componentName && buildName ? `${componentName.split("-")[0]}-${buildName}` : `${buildName || 'stable'}`;
 }
 
 async function fetchAndEvaluate(url, preferStableBuild) {
