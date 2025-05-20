@@ -18,11 +18,11 @@ import MaterialUISwitch from "./MaterialUISwitch";
 
 const DASHBOARDS = {
   unstable: [
-    "https://jenkins.com.int.zone/view/Tests/view/master/view/abondarenko/",
-    "https://jenkins.com.int.zone/view/Tests/view/master/view/eoktyabrskiy/",
+    //"https://jenkins.com.int.zone/view/Tests/view/master/view/abondarenko/",
+    //"https://jenkins.com.int.zone/view/Tests/view/master/view/eoktyabrskiy/",
     //    "https://jenkins.com.int.zone/view/Tests/view/master/view/rbesolov/",
     "https://jenkins.com.int.zone/view/Tests/view/master/view/nnetesov/",
-    "https://jenkins.com.int.zone/view/Tests/view/master/view/vkopchenin/",
+    //"https://jenkins.com.int.zone/view/Tests/view/master/view/vkopchenin/",
 
     "https://jenkins.com.int.zone/job/idp-backend/job/master/job/tests/job/master/view/%20 All-launches",
     "https://jenkins.com.int.zone/job/idp-backend/job/release-5.0/job/tests/job/master/view/%20 All-launches",
@@ -43,7 +43,7 @@ const DASHBOARDS = {
     "https://jenkins.com.int.zone/view/Tests/view/21/view/eoktyabrskiy/",
     //    "https://jenkins.com.int.zone/view/Tests/view/21/view/rbesolov/",
     "https://jenkins.com.int.zone/view/Tests/view/21/view/nnetesov/",
-    "https://jenkins.com.int.zone/view/Tests/view/21/view/vkopchenin/",
+    //"https://jenkins.com.int.zone/view/Tests/view/21/view/vkopchenin/",
 
     "https://jenkins.com.int.zone/job/idp-backend/job/master/job/tests/job/21/view/%20 All-launches",
     "https://jenkins.com.int.zone/job/idp-backend/job/release-5.0/job/tests/job/21/view/%20 All-launches",
