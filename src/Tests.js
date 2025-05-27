@@ -15,6 +15,7 @@ import {
 } from "@mui/material";
 import { buildSvgText, fetchStatusData, Status } from "./Status";
 import MaterialUISwitch from "./MaterialUISwitch";
+import { xhr } from "./request";
 
 const DASHBOARDS = {
   unstable: [
@@ -65,14 +66,6 @@ const TEST_NAME_CORRECTIONS = {
   //'IDP : upgrade-idp-backend': 'IDP : idp-upgrade'
 };
 
-function fix_url(url) {
-  url = url.replace(
-    "https://jenkins.com.int.zone",
-    "https://dashboard.cloud-blue.online/jenkins",
-  );
-  return url;
-}
-
 function comporator(field, order) {
   function nameComporator(a, b) {
     return a.testName.localeCompare(b.testName);
@@ -111,17 +104,6 @@ function comporator(field, order) {
       }
     }
   };
-}
-
-async function xhr(url) {
-  url = fix_url(url);
-  try {
-    const response = await fetch(url);
-    return await response.json();
-  } catch (error) {
-    console.log(error);
-    return {};
-  }
 }
 
 const CORE_COMPONENTS = ["OSS", "BSS", "BRANDING"];

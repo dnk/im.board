@@ -9,6 +9,7 @@ import { TableBody, TableHead } from "@mui/material";
 import { useEffect, useState } from "react";
 
 import { compareVersions } from 'compare-versions';
+import { xhr } from "./request";
 
 const AMOUNT_OF_DYNAMIC_RELEASES = 2;
 const DYNAMIC_RELEASES = {
@@ -21,26 +22,6 @@ const DYNAMIC_RELEASES = {
   INHOUSE: ['https://jenkins.com.int.zone/job/inhouse-products'],
   E2E: ['https://jenkins.com.int.zone/job/e2e-tests-v2', 'https://jenkins.com.int.zone/job/e2e-tests-v2/job/release']
 };
-
-function fix_url(url) {
-  url = url.replace(
-    "https://jenkins.com.int.zone",
-    "https://dashboard.cloud-blue.online/jenkins",
-  );
-  return url;
-}
-
-async function xhr(url) {
-  url = fix_url(url);
-
-  try {
-    const response = await fetch(url);
-    return await response.json();
-  } catch (error) {
-    console.log(error);
-    return {};
-  }
-}
 
 const UNSTABLE_JOB_NAMES = ["master", "unstable"];
 

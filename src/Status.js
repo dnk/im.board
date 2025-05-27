@@ -1,10 +1,6 @@
 import { makeBadge } from 'badge-maker';
-import React, { useEffect, useState } from 'react'
-
-function fix_url(url) {
-    url = url.replace("https://jenkins.com.int.zone", "https://dashboard.cloud-blue.online/jenkins");
-    return url;
-}
+import { useEffect, useState } from 'react'
+import { xhr } from './request';
 
 const INACTIVE_COLOR = "inactive";
 
@@ -39,16 +35,12 @@ async function fetchSvgText(buildUrl, tag) {
 }
 
 function buildLabel(componentName, buildName) {
-    return componentName && buildName ? `${componentName.split("-")[0]}-${buildName}` : `${buildName || 'stable'}`;
+    const shortComponentName = componentName ? componentName.split("-")[0] : componentName;
+    return componentName && buildName ? `${shortComponentName}-${buildName}` : `${buildName || `${shortComponentName || ""}/stable`}`;
 }
 
 async function fetchAndEvaluate(url, preferStableBuild) {
-    const json = await fetch(url, {
-        method: "GET",
-        headers: {
-            "Accept": "application/json"
-        }
-    }).then((response) => response.json());
+    const json = await xhr(url);
 
     const builds = json["builds"] || [];
 
@@ -133,7 +125,7 @@ async function fetchAndEvaluate(url, preferStableBuild) {
 }
 
 async function fetchStatusData(baseUrl, tag, preferStableBuild = false) {
-    const url = fix_url(baseUrl + `/api/json?tag=${tag || "no-tag-" + Date.now()}&tree=builds[inProgress,result,url,actions[parameters[*]],previousBuild[result]]`);
+    const url = baseUrl + `/api/json?tag=${tag || "no-tag-" + Date.now()}&tree=builds[inProgress,result,url,actions[parameters[*]],previousBuild[result]]`;
 
     const key = localStorage.getItem(baseUrl);
     if (key === url) {
