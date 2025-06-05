@@ -170,7 +170,7 @@ function Tests() {
     const dashboardsPromises = Object.entries(DASHBOARDS).map(async (e) => {
       const [dashboardId, views] = e;
       const viewPromises = views.map((viewUrl) => {
-        let url = viewUrl + "/api/json?tree=jobs[name,url,lastBuild[timestamp,inProgress]]";
+        let url = viewUrl + "/api/json?tree=jobs[name,url,lastBuild[timestamp,inProgress,result]]";
         return xhr(url).then((response) => {
           const jobs = response["jobs"] || [];
           const promises = jobs.map(async (job) => {
@@ -179,7 +179,8 @@ function Tests() {
 
             const timestamp = (job.lastBuild || {}).timestamp || Date.now();
             const inProgress = (job.lastBuild || {}).inProgress;
-            const tag = `${timestamp}-${inProgress ? 1 : 0}`;
+            const result = (job.lastBuild || {}).result;
+            const tag = `${timestamp}-${inProgress ? 1 : 0}-${result}`;
 
             const preferStableBuild = dashboardId === "unstable";
             const data = await fetchStatusData(job.url, tag, preferStableBuild)

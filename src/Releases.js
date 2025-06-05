@@ -28,7 +28,7 @@ const UNSTABLE_JOB_NAMES = ["master", "unstable"];
 const LATEST_RELEASE_NAME = 'master';
 
 async function fetchJobs(name, baseUrl) {
-  const url = `${baseUrl}/api/json?tree=jobs[name,jobs[name,url,lastBuild[timestamp,inProgress]]]`;
+  const url = `${baseUrl}/api/json?tree=jobs[name,jobs[name,url,lastBuild[timestamp,inProgress,result]]]`;
   return xhr(url).then((response) => {
     const jobs = (response["jobs"] || [])
       .filter((job) => job["_class"] === 'com.cloudbees.hudson.plugins.folder.Folder' && (job.name.includes(".") || UNSTABLE_JOB_NAMES.includes(job.name)))
@@ -87,7 +87,8 @@ async function fetchDynamicReleases(setter) {
           const validateAndPromoteJob = (job.jobs || []).find((job) => job.name === 'validate-and-promote');
           const timestamp = (validateAndPromoteJob.lastBuild || {}).timestamp || Date.now();
           const inProgress = (validateAndPromoteJob.lastBuild || {}).inProgress;
-          const tag = `${timestamp}-${inProgress ? 1 : 0}`;
+          const result = (validateAndPromoteJob.lastBuild || {}).result;
+          const tag = `${timestamp}-${inProgress ? 1 : 0}-${result}`;
           return {
             buildUrl: validateAndPromoteJob.url,
             tag: tag
