@@ -13,7 +13,7 @@ import {
   TableSortLabel,
   tableCellClasses,
 } from "@mui/material";
-import { buildSvgText, fetchStatusData, Status } from "./Status";
+import { buildSvgText, evaluateBuildData, Status } from "./Status";
 import MaterialUISwitch from "./MaterialUISwitch";
 import { xhr } from "./request";
 
@@ -169,22 +169,20 @@ function Tests() {
   async function fetchTests() {
     const dashboardsPromises = Object.entries(DASHBOARDS).map(async (e) => {
       const [dashboardId, views] = e;
+      const preferStableBuild = dashboardId === "unstable";
+
       const viewPromises = views.map((viewUrl) => {
-        let url = viewUrl + "/api/json?tree=jobs[name,url,lastBuild[timestamp,inProgress,result]]";
+        const url = viewUrl + "/api/json?tree=jobs[name,url,inQueue,builds[timestamp,inProgress,result,url,actions[parameters[*]],previousBuild[result]]]";
+
         return xhr(url).then((response) => {
           const jobs = response["jobs"] || [];
           const promises = jobs.map(async (job) => {
             let name = jobName(job.name, job.url);
             name = TEST_NAME_CORRECTIONS[name] || name;
 
-            const timestamp = (job.lastBuild || {}).timestamp || Date.now();
-            const inProgress = (job.lastBuild || {}).inProgress;
-            const result = (job.lastBuild || {}).result;
-            const tag = `${timestamp}-${inProgress ? 1 : 0}-${result}`;
-
-            const preferStableBuild = dashboardId === "unstable";
-            const data = await fetchStatusData(job.url, tag, preferStableBuild)
-            const svgText = await buildSvgText(data)
+            const builds = job["builds"] || [];
+            const data = evaluateBuildData(builds, preferStableBuild);
+            const svgText = buildSvgText(data)
 
             const status = { running: data.running, stable: data.stable };
 

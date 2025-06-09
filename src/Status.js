@@ -44,6 +44,10 @@ async function fetchAndEvaluate(url, preferStableBuild) {
 
     const builds = json["builds"] || [];
 
+    return evaluateBuildData(builds, preferStableBuild);
+}
+
+function evaluateBuildData(builds, preferStableBuild) {
     const stableBuildData = {
         componentName: null,
         buildName: null,
@@ -127,21 +131,12 @@ async function fetchAndEvaluate(url, preferStableBuild) {
 async function fetchStatusData(baseUrl, tag, preferStableBuild = false) {
     const url = baseUrl + `/api/json?tag=${tag || "no-tag-" + Date.now()}&tree=builds[inProgress,result,url,actions[parameters[*]],previousBuild[result]]`;
 
-    const key = localStorage.getItem(baseUrl);
-    if (key === url) {
-        const data = localStorage.getItem(url);
-        return JSON.parse(data);
-    }
-
     const data = await fetchAndEvaluate(url, preferStableBuild);
-    localStorage.setItem(baseUrl, url);
-    localStorage.setItem(url, JSON.stringify(data));
-
     return data;
 }
 
-async function buildSvgText(data) {
-    const realData = await data;
+function buildSvgText(data) {
+    const realData = data;
 
     const label = buildLabel(realData.componentName, realData.buildName);
 
@@ -187,6 +182,6 @@ function Status({ board }) {
 
 export {
     Status,
-    fetchStatusData,
+    evaluateBuildData,
     buildSvgText
 };

@@ -4,7 +4,7 @@ import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 
-import { Status } from "./Status";
+import { buildSvgText, evaluateBuildData, Status } from "./Status";
 import { TableBody, TableHead } from "@mui/material";
 import { useEffect, useState } from "react";
 
@@ -28,7 +28,8 @@ const UNSTABLE_JOB_NAMES = ["master", "unstable"];
 const LATEST_RELEASE_NAME = 'master';
 
 async function fetchJobs(name, baseUrl) {
-  const url = `${baseUrl}/api/json?tree=jobs[name,jobs[name,url,lastBuild[timestamp,inProgress,result]]]`;
+  const url = `${baseUrl}/api/json?tree=jobs[name,jobs[name,url,lastBuild[timestamp,inProgress,result],builds[inProgress,result,url,actions[parameters[*]],previousBuild[result]]]]`;
+
   return xhr(url).then((response) => {
     const jobs = (response["jobs"] || [])
       .filter((job) => job["_class"] === 'com.cloudbees.hudson.plugins.folder.Folder' && (job.name.includes(".") || UNSTABLE_JOB_NAMES.includes(job.name)))
@@ -85,13 +86,13 @@ async function fetchDynamicReleases(setter) {
         const data = {}
         data[name] = [latestVersionJob, ...jobs].filter((job) => !!job && !!job.jobs).map((job) => {
           const validateAndPromoteJob = (job.jobs || []).find((job) => job.name === 'validate-and-promote');
-          const timestamp = (validateAndPromoteJob.lastBuild || {}).timestamp || Date.now();
-          const inProgress = (validateAndPromoteJob.lastBuild || {}).inProgress;
-          const result = (validateAndPromoteJob.lastBuild || {}).result;
-          const tag = `${timestamp}-${inProgress ? 1 : 0}-${result}`;
+
+          const builds = validateAndPromoteJob["builds"] || [];
+          const data = evaluateBuildData(builds, false);
+          const svgText = buildSvgText(data)
           return {
             buildUrl: validateAndPromoteJob.url,
-            tag: tag
+            svgText: svgText
           };
         });
         return data;
@@ -144,7 +145,7 @@ function Releases() {
 
                     const buildStatus = {
                       buildUrl: component.buildUrl,
-                      tag: component.tag
+                      svgText: component.svgText
                     };
 
                     const key = `${name}-${index}`;
