@@ -131,7 +131,7 @@ function toRows(tests) {
       const rowKeyTemplate = testName + "-" + dashboardId;
 
       if (data) {
-        const weight = (data.status.stable ? 0 : 10) + (data.status.running ? 5 : 0);
+        const weight = (!data.status.stable || data.status.running ? 10 : 0);
         weightHolder.weight = Math.max(weightHolder.weight, weight);
         const board = {
           buildUrl: data.baseUrl,
