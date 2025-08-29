@@ -5,9 +5,11 @@ import TableBody from "@mui/material/TableBody";
 import TableContainer from "@mui/material/TableContainer";
 import Paper from "@mui/material/Paper";
 
+import { styled } from "@mui/material/styles";
+import MuiTableCell from "@mui/material/TableCell";
+
 import {
   Stack,
-  TableCell,
   TableHead,
   TableRow,
   TableSortLabel,
@@ -153,6 +155,16 @@ function toRows(tests) {
 
   return rows;
 }
+
+  // set the entire last column with Mui 5 Styled-Component
+const TableCell = styled(MuiTableCell)`
+  :nth-child(1) {
+    max-width: 35em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+`;
 
 function Tests() {
   const [loaded, setLoaded] = useState(false);
