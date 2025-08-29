@@ -5,7 +5,7 @@ import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 
 import { buildSvgText, evaluateBuildData, Status } from "./Status";
-import { TableBody, TableHead } from "@mui/material";
+import { TableBody } from "@mui/material";
 import { useEffect, useState } from "react";
 
 import { compareVersions } from 'compare-versions';
@@ -142,13 +142,6 @@ function Releases() {
         size="small"
         key="releases-table"
       >
-        <TableHead key="releases-head">
-          <TableRow>
-            <TableCell key="releases-head-name"></TableCell>
-            <TableCell key="releases-head-unstable">Unstable</TableCell>
-            <TableCell key="releases-head-realeases">Releases</TableCell>
-          </TableRow>
-        </TableHead>
         <TableBody key="releases-body">
           {Object.entries({ ...dynamicReleases }).map(([name, components]) => {
             return (
