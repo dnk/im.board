@@ -30,7 +30,7 @@ const UNSTABLE_JOB_NAMES = [LATEST_RELEASE_NAME, UNSTABLE_RELEASE_NAME];
 function getReleaseName(componentName) {
   switch (componentName) {
     case 'OSS': case 'BSS': case 'Branding UI': case 'E2E': {
-      return UNSTABLE_JOB_NAMES;
+      return UNSTABLE_RELEASE_NAME;
     }
 
     default: {
@@ -44,12 +44,19 @@ async function fetchJobs(name, baseUrl) {
 
   return xhr(url).then((response) => {
     const jobs = (response["jobs"] || [])
-      .filter((job) => job["_class"] === 'com.cloudbees.hudson.plugins.folder.Folder' && (job.name.includes(".") || UNSTABLE_JOB_NAMES.includes(job.name)))
+      .filter((job) => {
+        const isFolder = job["_class"] === 'com.cloudbees.hudson.plugins.folder.Folder';
+        const isVersion = job.name.includes(".");
+        const isUnableOrMaster = UNSTABLE_JOB_NAMES.includes(job.name);
+        return isFolder && (isVersion || isUnableOrMaster)
+      })
       .sort((a, b) => a.name.localeCompare(b.name)) // sort by name to enusre that "master" job comes before "unstable" job
       .reduce((acc, job) => {
         if (UNSTABLE_JOB_NAMES.includes(job.name)) {
-          delete acc[job.name];
-          acc[LATEST_RELEASE_NAME] = job;
+          UNSTABLE_JOB_NAMES.forEach(value => {
+            delete acc[value];
+          });
+          acc[job.name] = job;
         } else {
           acc[`1.0.0-${job.name}`] = job;
         }
