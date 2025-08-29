@@ -23,9 +23,21 @@ const DYNAMIC_RELEASES = {
   E2E: ['https://jenkins.com.int.zone/job/e2e-tests-v2', 'https://jenkins.com.int.zone/job/e2e-tests-v2/job/release']
 };
 
-const UNSTABLE_JOB_NAMES = ["master", "unstable"];
-
 const LATEST_RELEASE_NAME = 'master';
+const UNSTABLE_RELEASE_NAME = 'unstable';
+const UNSTABLE_JOB_NAMES = [LATEST_RELEASE_NAME, UNSTABLE_RELEASE_NAME];
+
+function getReleaseName(componentName) {
+  switch (componentName) {
+    case 'OSS': case 'BSS': case 'Branding UI': case 'E2E': {
+      return UNSTABLE_JOB_NAMES;
+    }
+
+    default: {
+      return LATEST_RELEASE_NAME;
+    }
+  }
+}
 
 async function fetchJobs(name, baseUrl) {
   const url = `${baseUrl}/api/json?tree=jobs[name,jobs[name,url,lastBuild[timestamp,inProgress,result],builds[inProgress,result,url,actions[parameters[*]],previousBuild[result]]]]`;
@@ -80,12 +92,14 @@ async function fetchDynamicReleases(setter) {
 
     const releases = Object.entries(components)
       .map(([name, component]) => {
-        const latestVersionJob = component[LATEST_RELEASE_NAME];
+        const latestReleaseName = getReleaseName(name);
+        const latestVersionJob = component[latestReleaseName];
         delete component[LATEST_RELEASE_NAME];
+        delete component[UNSTABLE_RELEASE_NAME];
         const jobs = Object.keys(component).sort(compareVersions).reverse().slice(0, AMOUNT_OF_DYNAMIC_RELEASES).map((key) => component[key]);
         const data = {}
         data[name] = [latestVersionJob, ...jobs].filter((job) => !!job && !!job.jobs).map((job) => {
-          const validateAndPromoteJob = (job.jobs || []).find((job) => job.name === 'validate-and-promote');
+          const validateAndPromoteJob = (job.jobs || []).find((job) => job.name === 'validate-and-promote') || {};
 
           const builds = validateAndPromoteJob["builds"] || [];
           const data = evaluateBuildData(builds, false);
