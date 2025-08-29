@@ -176,7 +176,7 @@ function Status({ board }) {
     const svgData = `data:image/svg+xml,${encodedData}`;
 
     return <a href={jobUrl} target='_blank' rel='nofollow noopener noreferrer'>
-        <img src={svgData} alt='' />
+        <img src={svgData} alt='' style={{height: '100%', alignContent: 'center', display: 'flex'}} />
     </a>;
 }
 
