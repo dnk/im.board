@@ -1,15 +1,15 @@
 function fix_url(url) {
-    url = url.replace(
+    const fixedUrl = url.replace(
         "https://jenkins.com.int.zone",
         "https://dashboard.cloudblue.online/jenkins",
     );
-    return url;
+    return fixedUrl;
 }
 
 async function xhr(url) {
-    url = fix_url(url);
+    const fixedUrl = fix_url(url.toString());
     try {
-        const response = await fetch(url, {
+        const response = await fetch(fixedUrl, {
             method: "GET",
             headers: {
                 "Accept": "application/json"

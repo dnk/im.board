@@ -47,7 +47,62 @@ async function fetchAndEvaluate(url, preferStableBuild) {
     return evaluateBuildData(builds, preferStableBuild);
 }
 
-function evaluateBuildData(builds, preferStableBuild) {
+async function evaluateBuildName(url, componentName) {
+    const json = await xhr(url + '/wfapi/describe');
+
+    const stages = json["stages"] || [];
+
+    const deployStage = stages.find((stage) => "deploy helm charts" === stage.name);
+
+    if (!deployStage) {
+        return null;
+    }
+
+    const deployStageStatus = deployStage["status"];
+
+    if (deployStageStatus !== 'SUCCESS') {
+        return null;
+    }
+
+    const deployStageHref = ((deployStage["_links"] || {})["self"] || {})["href"];
+
+    if (!deployStageHref) {
+        return null;
+    }
+
+    const deployStageUrl = new URL(deployStageHref, url);
+
+    const deployStageJson = await xhr(deployStageUrl);
+
+    const deployStages = deployStageJson["stageFlowNodes"] || [];
+
+    const setupProductStage = deployStages.find((stage) => (stage["parameterDescription"] || "").includes("setup-product.sh"))
+
+    if (!setupProductStage) {
+        return null;
+    }
+
+    const setupProductStageLogHref = ((setupProductStage["_links"] || {})["log"] || {})["href"];
+
+    if (!setupProductStageLogHref) {
+        return null;
+    }
+
+    const setupProductStageLogUrl = new URL(setupProductStageLogHref, url);
+
+    const setupProductStageLogJson = await xhr(setupProductStageLogUrl);
+
+    const log = setupProductStageLogJson["text"] || "";
+
+    const rows = [...log.match(`.*span> ${componentName}.*/.*`)];
+    const row = rows[0].split(' ').filter((item) => item !== '')
+    const repository = row[row.length - 2].split('/')[0];
+    const version = row[row.length - 1].trim();
+
+    return `${version}/${repository}`;
+}
+
+async function evaluateBuildData(builds, preferStableBuild) {
     const stableBuildData = {
         componentName: null,
         buildName: null,
@@ -116,9 +171,13 @@ function evaluateBuildData(builds, preferStableBuild) {
     const status = buildData.result || result || 'NOT_RUN';
     const stable = 'SUCCESS' === status;
 
+
+    const stableBuildName = (status !== 'NOT_RUN' && !buildData.buildName) ? await evaluateBuildName(buildData.jobUrl, buildData.componentName) : buildData.buildName;
+
     const data = {
         componentName: buildData.componentName,
-        buildName: buildData.buildName,
+        //buildName: buildData.buildName,
+        buildName: stableBuildName,
         running: buildData.running,
         stable: stable,
         status: status,
@@ -176,7 +235,7 @@ function Status({ board }) {
     const svgData = `data:image/svg+xml,${encodedData}`;
 
     return <a href={jobUrl} target='_blank' rel='nofollow noopener noreferrer'>
-        <img src={svgData} alt='' style={{height: '100%', alignContent: 'center', display: 'flex'}} />
+        <img src={svgData} alt='' style={{ height: '100%', alignContent: 'center', display: 'flex' }} />
     </a>;
 }
 

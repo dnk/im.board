@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -27,19 +27,20 @@ const DASHBOARDS = {
     "https://jenkins.com.int.zone/view/Tests/view/master/view/nnetesov/",
     //"https://jenkins.com.int.zone/view/Tests/view/master/view/vkopchenin/",
 
-    "https://jenkins.com.int.zone/job/idp-backend/job/master/job/tests/job/master/view/%20 All-launches",
-    "https://jenkins.com.int.zone/job/idp-backend/job/release-5.0/job/tests/job/master/view/%20 All-launches",
-    "https://jenkins.com.int.zone/job/idp-backend/job/release-4.2/job/tests/job/master/view/%20 All-launches",
+    "https://jenkins.com.int.zone/job/idp-backend/job/master/job/tests/job/master/view/%20%20All-launches",
+    "https://jenkins.com.int.zone/job/idp-backend/job/release-5.1/job/tests/job/master/view/%20%20All-launches",
+    "https://jenkins.com.int.zone/job/idp-backend/job/release-5.0/job/tests/job/master/view/%20%20All-launches",
+    "https://jenkins.com.int.zone/job/idp-backend/job/release-4.2/job/tests/job/master/view/%20%20All-launches",
 
-    "https://jenkins.com.int.zone/job/uam/job/master/job/tests/job/master/view/%20 All-launches",
-    "https://jenkins.com.int.zone/job/uam/job/release-3.0/job/tests/job/master/view/%20 All-launches",
-    "https://jenkins.com.int.zone/job/uam/job/release-2.1/job/tests/job/master/view/%20 All-launches",
+    "https://jenkins.com.int.zone/job/uam/job/master/job/tests/job/master/view/%20%20All-launches",
+    "https://jenkins.com.int.zone/job/uam/job/release-3.0/job/tests/job/master/view/%20%20All-launches",
+    "https://jenkins.com.int.zone/job/uam/job/release-2.1/job/tests/job/master/view/%20%20All-launches",
 
-    "https://jenkins.com.int.zone/job/gdpr-backend/job/master/job/tests/job/master/view/%20 All-launches",
+    "https://jenkins.com.int.zone/job/gdpr-backend/job/master/job/tests/job/master/view/%20%20All-launches",
 
-    // "https://jenkins.com.int.zone/job/inhouse-products/job/master/job/tests/job/master/view/%20 All-launches",
-    // "https://jenkins.com.int.zone/job/inhouse-products/job/3.0/job/tests/job/master/view/%20 All-launches",
-    // "https://jenkins.com.int.zone/job/inhouse-products/job/2.4/job/tests/job/master/view/%20 All-launches",
+    // "https://jenkins.com.int.zone/job/inhouse-products/job/master/job/tests/job/master/view/%20%20All-launches",
+    // "https://jenkins.com.int.zone/job/inhouse-products/job/3.0/job/tests/job/master/view/%20%20All-launches",
+    // "https://jenkins.com.int.zone/job/inhouse-products/job/2.4/job/tests/job/master/view/%20%20All-launches",
   ],
   "cb-21": [
     "https://jenkins.com.int.zone/view/Tests/view/21/view/abondarenko/",
@@ -48,19 +49,20 @@ const DASHBOARDS = {
     "https://jenkins.com.int.zone/view/Tests/view/21/view/nnetesov/",
     //"https://jenkins.com.int.zone/view/Tests/view/21/view/vkopchenin/",
 
-    "https://jenkins.com.int.zone/job/idp-backend/job/master/job/tests/job/21/view/%20 All-launches",
-    "https://jenkins.com.int.zone/job/idp-backend/job/release-5.0/job/tests/job/21/view/%20 All-launches",
-    "https://jenkins.com.int.zone/job/idp-backend/job/release-4.2/job/tests/job/21/view/%20 All-launches",
+    "https://jenkins.com.int.zone/job/idp-backend/job/master/job/tests/job/21/view/%20%20All-launches",
+    "https://jenkins.com.int.zone/job/idp-backend/job/release-5.1/job/tests/job/21/view/%20%20All-launches",
+    "https://jenkins.com.int.zone/job/idp-backend/job/release-5.0/job/tests/job/21/view/%20%20All-launches",
+    "https://jenkins.com.int.zone/job/idp-backend/job/release-4.2/job/tests/job/21/view/%20%20All-launches",
 
-    "https://jenkins.com.int.zone/job/uam/job/master/job/tests/job/21/view/%20 All-launches",
-    "https://jenkins.com.int.zone/job/uam/job/release-3.0/job/tests/job/21/view/%20 All-launches",
-    "https://jenkins.com.int.zone/job/uam/job/release-2.1/job/tests/job/21/view/%20 All-launches",
+    "https://jenkins.com.int.zone/job/uam/job/master/job/tests/job/21/view/%20%20All-launches",
+    "https://jenkins.com.int.zone/job/uam/job/release-3.0/job/tests/job/21/view/%20%20All-launches",
+    "https://jenkins.com.int.zone/job/uam/job/release-2.1/job/tests/job/21/view/%20%20All-launches",
 
-    "https://jenkins.com.int.zone/job/gdpr-backend/job/master/job/tests/job/21/view/%20 All-launches",
+    "https://jenkins.com.int.zone/job/gdpr-backend/job/master/job/tests/job/21/view/%20%20All-launches",
 
-    // "https://jenkins.com.int.zone/job/inhouse-products/job/master/job/tests/job/21/view/%20 All-launches",
-    // "https://jenkins.com.int.zone/job/inhouse-products/job/3.0/job/tests/job/21/view/%20 All-launches",
-    // "https://jenkins.com.int.zone/job/inhouse-products/job/2.4/job/tests/job/21/view/%20 All-launches",
+    // "https://jenkins.com.int.zone/job/inhouse-products/job/master/job/tests/job/21/view/%20%20All-launches",
+    // "https://jenkins.com.int.zone/job/inhouse-products/job/3.0/job/tests/job/21/view/%20%20All-launches",
+    // "https://jenkins.com.int.zone/job/inhouse-products/job/2.4/job/tests/job/21/view/%20%20All-launches",
   ],
 };
 
@@ -156,10 +158,10 @@ function toRows(tests) {
   return rows;
 }
 
-  // set the entire last column with Mui 5 Styled-Component
+// set the entire last column with Mui 5 Styled-Component
 const TableCell = styled(MuiTableCell)`
   :nth-child(1) {
-    max-width: 35em;
+    max-width: 25em;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -193,7 +195,7 @@ function Tests() {
             name = TEST_NAME_CORRECTIONS[name] || name;
 
             const builds = job["builds"] || [];
-            const data = evaluateBuildData(builds, preferStableBuild);
+            const data = await evaluateBuildData(builds, preferStableBuild);
             const svgText = buildSvgText(data)
 
             const status = { running: data.running, stable: data.stable };

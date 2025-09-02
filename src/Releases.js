@@ -92,34 +92,41 @@ async function fetchDynamicReleases(setter) {
     })
   });
 
-  Promise.all(promises).then((values) => {
+  Promise.all(promises).then(async (values) => {
     const components = values.reduce((acc, value) => {
       return { ...acc, ...value };
     }, {})
 
-    const releases = Object.entries(components)
-      .map(([name, component]) => {
+    const releases = await Object.entries(components)
+      .map(async ([name, component]) => {
         const latestReleaseName = getReleaseName(name);
         const latestVersionJob = component[latestReleaseName];
         delete component[LATEST_RELEASE_NAME];
         delete component[UNSTABLE_RELEASE_NAME];
         const jobs = Object.keys(component).sort(compareVersions).reverse().slice(0, AMOUNT_OF_DYNAMIC_RELEASES).map((key) => component[key]);
-        const data = {}
-        data[name] = [latestVersionJob, ...jobs].filter((job) => !!job && !!job.jobs).map((job) => {
-          const validateAndPromoteJob = (job.jobs || []).find((job) => job.name === 'validate-and-promote') || {};
 
-          const builds = validateAndPromoteJob["builds"] || [];
-          const data = evaluateBuildData(builds, false);
-          const svgText = buildSvgText(data)
-          return {
-            buildUrl: validateAndPromoteJob.url,
-            svgText: svgText
-          };
-        });
+        const values = [latestVersionJob, ...jobs]
+          .filter((job) => !!job && !!job.jobs)
+          .map(async (job) => {
+            const validateAndPromoteJob = (job.jobs || []).find((job) => job.name === 'validate-and-promote') || {};
+
+            const builds = validateAndPromoteJob["builds"] || [];
+            const data = await evaluateBuildData(builds, false);
+            const svgText = buildSvgText(data)
+            return {
+              buildUrl: validateAndPromoteJob.url,
+              svgText: svgText
+            };
+          });
+
+        const data = {};
+        data[name] = await Promise.all(values);
         return data;
       })
-      .reduce((acc, value) => {
-        return { ...acc, ...value };
+      .reduce(async (acc, value) => {
+        const revoledValues = await value;
+        const resolvedAcc = await acc;
+        return { ...resolvedAcc, ...revoledValues };
       }, {});
     setter(releases)
   });
