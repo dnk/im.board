@@ -1,6 +1,8 @@
 import { makeBadge } from 'badge-maker';
 import { useEffect, useState } from 'react'
 import { xhr } from './request';
+import { validateAndParse } from 'compare-versions/lib/esm/utils';
+import { validate } from 'compare-versions';
 
 const INACTIVE_COLOR = "inactive";
 
@@ -132,6 +134,19 @@ async function evaluateBuildData(builds, preferStableBuild) {
         }
 
         const buildName = params['BUILD_NAME'] || '';
+
+        if (!!buildName && !validate(buildName)) {
+            // skip incorrect semversions
+            continue;
+        }
+
+        if (!!buildName) {
+            const version = validateAndParse(buildName).filter((part) => !!part);
+            if (version.length > 3) {
+                continue;
+            }
+        }
+
         const componentName = params['COMPONENT_NAME'];
         const running = build.inProgress;
         const jobUrl = build.url;
@@ -176,7 +191,6 @@ async function evaluateBuildData(builds, preferStableBuild) {
 
     const data = {
         componentName: buildData.componentName,
-        //buildName: buildData.buildName,
         buildName: stableBuildName,
         running: buildData.running,
         stable: stable,
