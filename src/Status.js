@@ -78,7 +78,9 @@ async function evaluateBuildName(url, componentName) {
 
     const deployStages = deployStageJson["stageFlowNodes"] || [];
 
-    const setupProductStage = deployStages.find((stage) => (stage["parameterDescription"] || "").includes("setup-product.sh"))
+    const setupProductStage = deployStages
+        .filter((stage) => (stage["parameterDescription"] || "").includes("setup-product.sh"))
+        .find((state) => state["status"] === 'SUCCESS')
 
     if (!setupProductStage) {
         return null;
@@ -96,7 +98,17 @@ async function evaluateBuildName(url, componentName) {
 
     const log = setupProductStageLogJson["text"] || "";
 
-    const rows = [...log.match(`.*span> ${componentName}.*/.*`)];
+    if (!log) {
+        return null;
+    }
+
+    const matches = log.match(`.*span> ${componentName}.*/.*`);
+
+    if (!matches) {
+        return null;
+    }
+
+    const rows = [...matches];
     const row = rows[0].split(' ').filter((item) => item !== '')
     const repository = row[row.length - 2].split('/')[0];
     const version = row[row.length - 1].trim();
