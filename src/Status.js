@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { xhr } from './request';
 import { validateAndParse } from 'compare-versions/lib/esm/utils';
 import { validate } from 'compare-versions';
+import { getItemAsync, removeItemAsync, setItemAsync } from './asyncLocalStorage';
 
 const INACTIVE_COLOR = "inactive";
 
@@ -118,7 +119,7 @@ async function _evaluateBuildName(url, componentName) {
 
 function getLastJobKey(url) {
     let position = url.lastIndexOf('/');
-    if (position == url.length - 1) {
+    if (position === url.length - 1) {
         position = url.lastIndexOf('/', position - 1);
     }
     return url.substring(0, position);
@@ -132,21 +133,21 @@ async function evaluateBuildName(url, componentName) {
     const lastJobKey = getLastJobKey(url);
 
     if (!!lastJobKey) {
-        const lastJobUrl = localStorage.getItem(lastJobKey);
+        const lastJobUrl = await getItemAsync(lastJobKey);
 
         if (lastJobUrl === url) {
-            const storageValue = localStorage.getItem(lastJobUrl);
+            const storageValue = await getItemAsync(lastJobUrl);
             if (!!storageValue) {
                 return storageValue;
             }
         } else {
-            localStorage.removeItem(lastJobUrl);
+            removeItemAsync(lastJobUrl);
         }
     }
 
     const value = await _evaluateBuildName(url, componentName);
-    localStorage.setItem(lastJobKey, url);
-    localStorage.setItem(url, value);
+    setItemAsync(lastJobKey, url);
+    setItemAsync(url, value);
     return value;
 }
 
