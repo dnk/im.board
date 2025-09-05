@@ -41,15 +41,15 @@ function buildLabel(componentName, buildName) {
     return componentName && buildName ? `${shortComponentName}-${buildName}` : `${buildName || `${shortComponentName || ""}/stable`}`;
 }
 
-async function fetchAndEvaluate(url, preferStableBuild) {
+async function fetchAndEvaluate(url) {
     const json = await xhr(url);
 
     const builds = json["builds"] || [];
 
-    return evaluateBuildData(builds, preferStableBuild);
+    return evaluateBuildData(builds);
 }
 
-async function evaluateBuildName(url, componentName) {
+async function _evaluateBuildName(url, componentName) {
     const json = await xhr(url + '/wfapi/describe');
 
     const stages = json["stages"] || [];
@@ -96,7 +96,7 @@ async function evaluateBuildName(url, componentName) {
 
     const setupProductStageLogJson = await xhr(setupProductStageLogUrl);
 
-    const log = setupProductStageLogJson["text"] || "";
+    const log = setupProductStageLogJson["text"];
 
     if (!log) {
         return null;
@@ -116,26 +116,49 @@ async function evaluateBuildName(url, componentName) {
     return `${version}/${repository}`;
 }
 
-async function evaluateBuildData(builds, preferStableBuild) {
-    const stableBuildData = {
+function getLastJobKey(url) {
+    let position = url.lastIndexOf('/');
+    if (position == url.length - 1) {
+        position = url.lastIndexOf('/', position - 1);
+    }
+    return url.substring(0, position);
+}
+
+async function evaluateBuildName(url, componentName) {
+    if (!url) {
+        return null;
+    }
+
+    const lastJobKey = getLastJobKey(url);
+
+    if (!!lastJobKey) {
+        const lastJobUrl = localStorage.getItem(lastJobKey);
+
+        if (lastJobUrl === url) {
+            const storageValue = localStorage.getItem(lastJobUrl);
+            if (!!storageValue) {
+                return storageValue;
+            }
+        } else {
+            localStorage.removeItem(lastJobUrl);
+        }
+    }
+
+    const value = await _evaluateBuildName(url, componentName);
+    localStorage.setItem(lastJobKey, url);
+    localStorage.setItem(url, value);
+    return value;
+}
+
+async function evaluateBuildData(builds) {
+
+    const buildData = {
         componentName: null,
         buildName: null,
         running: null,
         jobUrl: null,
         result: null,
     }
-
-    const versionBuildData = {
-        componentName: null,
-        buildName: null,
-        running: null,
-        jobUrl: null,
-        result: null,
-    }
-
-    let result;
-
-    let buildNameFound = false;
 
     for (const build of builds) {
         const actions = build["actions"] || [];
@@ -162,40 +185,19 @@ async function evaluateBuildData(builds, preferStableBuild) {
         const componentName = params['COMPONENT_NAME'];
         const running = build.inProgress;
         const jobUrl = build.url;
-        result = build.result;
+        const currentBuildResult = build.result;
         const previousBuildResult = (build.previousBuild || {}).result;
 
-        if (buildName === '') {
-            // stable build have no "BUILD_NAME" parameter
-            if (stableBuildData.buildName === null) {
-                // fill data for first stable build job
-                stableBuildData.componentName = componentName;
-                stableBuildData.buildName = buildName;
-                stableBuildData.running = running;
-                stableBuildData.jobUrl = jobUrl;
-                stableBuildData.result = result || previousBuildResult;
-                buildNameFound = preferStableBuild;
-            }
-        } else {
-            if (versionBuildData.buildName === null) {
-                versionBuildData.componentName = componentName;
-                versionBuildData.buildName = buildName;
-                versionBuildData.running = running;
-                versionBuildData.jobUrl = jobUrl;
-                versionBuildData.result = result || previousBuildResult;
-                buildNameFound = !preferStableBuild;
-            }
-        }
+        buildData.componentName = componentName;
+        buildData.buildName = buildName;
+        buildData.running = running;
+        buildData.jobUrl = jobUrl;
+        buildData.result = currentBuildResult || previousBuildResult;
 
-        if (buildNameFound && !!result) {
-            break;
-        }
+        break;
     }
 
-    const chooseStableBuild = (preferStableBuild && !!stableBuildData.jobUrl) || !versionBuildData.buildName;
-    const buildData = chooseStableBuild ? stableBuildData : versionBuildData;
-
-    const status = buildData.result || result || 'NOT_RUN';
+    const status = buildData.result || 'NOT_RUN';
     const stable = 'SUCCESS' === status;
 
 
@@ -213,10 +215,10 @@ async function evaluateBuildData(builds, preferStableBuild) {
     return data;
 }
 
-async function fetchStatusData(baseUrl, tag, preferStableBuild = false) {
+async function fetchStatusData(baseUrl, tag) {
     const url = baseUrl + `/api/json?tag=${tag || "no-tag-" + Date.now()}&tree=builds[inProgress,result,url,actions[parameters[*]],previousBuild[result]]`;
 
-    const data = await fetchAndEvaluate(url, preferStableBuild);
+    const data = await fetchAndEvaluate(url);
     return data;
 }
 

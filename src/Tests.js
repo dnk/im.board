@@ -183,7 +183,6 @@ function Tests() {
   async function fetchTests() {
     const dashboardsPromises = Object.entries(DASHBOARDS).map(async (e) => {
       const [dashboardId, views] = e;
-      const preferStableBuild = dashboardId === "unstable";
 
       const viewPromises = views.map((viewUrl) => {
         const url = viewUrl + "/api/json?tree=jobs[name,url,inQueue,builds[timestamp,inProgress,result,url,actions[parameters[*]],previousBuild[result]]]";
@@ -195,7 +194,7 @@ function Tests() {
             name = TEST_NAME_CORRECTIONS[name] || name;
 
             const builds = job["builds"] || [];
-            const data = await evaluateBuildData(builds, preferStableBuild);
+            const data = await evaluateBuildData(builds);
             const svgText = buildSvgText(data)
 
             const status = { running: data.running, stable: data.stable };
