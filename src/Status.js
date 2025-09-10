@@ -39,7 +39,7 @@ async function fetchSvgText(buildUrl, tag) {
 
 function buildLabel(componentName, buildName) {
     const shortComponentName = componentName ? componentName.split("-")[0] : componentName;
-    return componentName && buildName ? `${shortComponentName} ${buildName}` : `${buildName || `${shortComponentName || ""}/stable`}`;
+    return componentName && buildName ? `${shortComponentName}-${buildName}` : `${buildName || `${shortComponentName || ""}/stable`}`;
 }
 
 async function fetchAndEvaluate(url) {
@@ -115,9 +115,9 @@ async function _evaluateBuildName(url, componentName) {
 
             const rows = [...matches];
             const row = rows[0].split(' ').filter((item) => item !== '')
-            const repository = row[row.length - 2].split('/')[0];
+            //const repository = row[row.length - 2].split('/')[0];
             const version = row[row.length - 1].trim();
-            return `${version}/${repository}`;
+            return `${version}`;
         });
 
     const versions = (await Promise.all(versionPromises)).filter((value) => !!value);
