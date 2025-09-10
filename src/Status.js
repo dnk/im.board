@@ -39,7 +39,7 @@ async function fetchSvgText(buildUrl, tag) {
 
 function buildLabel(componentName, buildName) {
     const shortComponentName = componentName ? componentName.split("-")[0] : componentName;
-    return componentName && buildName ? `${shortComponentName}-${buildName}` : `${buildName || `${shortComponentName || ""}/stable`}`;
+    return componentName && buildName ? `${shortComponentName} ${buildName}` : `${buildName || `${shortComponentName || ""}/stable`}`;
 }
 
 async function fetchAndEvaluate(url) {
@@ -55,66 +55,74 @@ async function _evaluateBuildName(url, componentName) {
 
     const stages = json["stages"] || [];
 
-    const deployStage = stages.find((stage) => "deploy helm charts" === stage.name);
+    const stageHrefs = stages
+        .filter((stage) => ['deploy helm charts', 'upgrade stack'].includes(stage.name))
+        .filter((stage) => 'SUCCESS' === stage["status"])
+        .map((stage) => ((stage["_links"] || {})["self"] || {})["href"]);
 
-    if (!deployStage) {
+    if (!stageHrefs) {
         return null;
     }
 
-    const deployStageStatus = deployStage["status"];
 
-    if (deployStageStatus !== 'SUCCESS') {
-        return null;
-    }
+    const productFlowNodesPromises = stageHrefs
+        .map(async (stageHref) => {
+            const stageUrl = new URL(stageHref, url);
+            const stageJson = await xhr(stageUrl);
 
-    const deployStageHref = ((deployStage["_links"] || {})["self"] || {})["href"];
+            const stageFlowNodes = stageJson["stageFlowNodes"] || [];
 
-    if (!deployStageHref) {
-        return null;
-    }
+            const productFlowNodes = stageFlowNodes
+                .filter((stage) => {
+                    const parameterDescription = (stage["parameterDescription"] || "");
+                    return parameterDescription.includes("setup-product.sh") && parameterDescription.includes('--namespace');
+                })
+                .filter((state) => state["status"] === 'SUCCESS')
 
-    const deployStageUrl = new URL(deployStageHref, url);
+            if (!productFlowNodes) {
+                return null;
+            }
 
-    const deployStageJson = await xhr(deployStageUrl);
+            return productFlowNodes;
+        });
 
-    const deployStages = deployStageJson["stageFlowNodes"] || [];
+    const productFlowNodes = await Promise.all(productFlowNodesPromises);
 
-    const setupProductStage = deployStages
-        .filter((stage) => (stage["parameterDescription"] || "").includes("setup-product.sh"))
-        .find((state) => state["status"] === 'SUCCESS')
+    const versionPromises = productFlowNodes
+        .filter((productFlowNode) => !!productFlowNode && productFlowNode.length !== 0)
+        .map((productFlowNode) => productFlowNode[0])
+        .map((productFlowNode) => {
+            console.log(productFlowNode);
+            const href = ((productFlowNode["_links"] || {})["log"] || {})["href"];
+            return href;
+        })
+        .map(async (productFlowNodeLogHref) => {
+            const setupProductStageLogUrl = new URL(productFlowNodeLogHref, url);
 
-    if (!setupProductStage) {
-        return null;
-    }
+            const setupProductStageLogJson = await xhr(setupProductStageLogUrl);
 
-    const setupProductStageLogHref = ((setupProductStage["_links"] || {})["log"] || {})["href"];
+            const log = setupProductStageLogJson["text"];
 
-    if (!setupProductStageLogHref) {
-        return null;
-    }
+            if (!log) {
+                return null;
+            }
 
-    const setupProductStageLogUrl = new URL(setupProductStageLogHref, url);
+            const matches = log.match(`.*span> ${componentName}.*/.*`);
 
-    const setupProductStageLogJson = await xhr(setupProductStageLogUrl);
+            if (!matches) {
+                return null;
+            }
 
-    const log = setupProductStageLogJson["text"];
+            const rows = [...matches];
+            const row = rows[0].split(' ').filter((item) => item !== '')
+            const repository = row[row.length - 2].split('/')[0];
+            const version = row[row.length - 1].trim();
+            return `${version}/${repository}`;
+        });
 
-    if (!log) {
-        return null;
-    }
+    const versions = (await Promise.all(versionPromises)).filter((value) => !!value);
 
-    const matches = log.match(`.*span> ${componentName}.*/.*`);
-
-    if (!matches) {
-        return null;
-    }
-
-    const rows = [...matches];
-    const row = rows[0].split(' ').filter((item) => item !== '')
-    const repository = row[row.length - 2].split('/')[0];
-    const version = row[row.length - 1].trim();
-
-    return `${version}/${repository}`;
+    return versions.join('->');
 }
 
 function getLastJobKey(url) {
