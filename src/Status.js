@@ -50,8 +50,10 @@ async function fetchAndEvaluate(url) {
     return evaluateBuildData(builds);
 }
 
-async function _evaluateBuildName(url, componentName) {
+async function _evaluateVersions(url, componentName) {
     const json = await xhr(url + '/wfapi/describe');
+
+    const inProgress = json['status'] === 'IN_PROGRESS';
 
     const stages = json["stages"] || [];
 
@@ -122,7 +124,10 @@ async function _evaluateBuildName(url, componentName) {
 
     const versions = (await Promise.all(versionPromises)).filter((value) => !!value);
 
-    return versions.join('->');
+    return {
+        versions: versions,
+        inProgress: inProgress,
+    };
 }
 
 function getLastJobKey(url) {
@@ -133,7 +138,7 @@ function getLastJobKey(url) {
     return url.substring(0, position);
 }
 
-async function evaluateBuildName(url, componentName) {
+async function evaluateBuildName(url, componentName, isUpgrade = false) {
     if (!url) {
         return null;
     }
@@ -153,9 +158,20 @@ async function evaluateBuildName(url, componentName) {
         }
     }
 
-    const value = await _evaluateBuildName(url, componentName);
-    setItemAsync(lastJobKey, url);
-    setItemAsync(url, value);
+    const versionsData = await _evaluateVersions(url, componentName);
+    const versions = versionsData.versions;
+    const inProgress = versionsData.inProgress;
+
+    const putToCache = (!isUpgrade && versions.length > 0) || (isUpgrade && versions.length > 1) || !inProgress;
+
+    const value = versions.join(' -> ');
+
+    if (putToCache) {
+        setItemAsync(lastJobKey, url);
+        setItemAsync(url, value);
+    } else {
+        console.log(`not cached result for ${url}: ${value}`);
+    }
     return value;
 }
 
@@ -167,6 +183,7 @@ async function evaluateBuildData(builds) {
         running: null,
         jobUrl: null,
         result: null,
+        isUpgrade: null,
     }
 
     for (const build of builds) {
@@ -202,6 +219,7 @@ async function evaluateBuildData(builds) {
         buildData.running = running;
         buildData.jobUrl = jobUrl;
         buildData.result = currentBuildResult || previousBuildResult;
+        buildData.isUpgrade = params.hasOwnProperty("UPGRADE_COMPONENTS");
 
         break;
     }
@@ -210,7 +228,7 @@ async function evaluateBuildData(builds) {
     const stable = 'SUCCESS' === status;
 
 
-    const stableBuildName = (status !== 'NOT_RUN' && !buildData.buildName) ? await evaluateBuildName(buildData.jobUrl, buildData.componentName) : buildData.buildName;
+    const stableBuildName = (status !== 'NOT_RUN' && !buildData.buildName) ? await evaluateBuildName(buildData.jobUrl, buildData.componentName, buildData.isUpgrade) : buildData.buildName;
 
     const data = {
         componentName: buildData.componentName,
