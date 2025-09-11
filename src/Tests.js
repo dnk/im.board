@@ -38,9 +38,9 @@ const DASHBOARDS = {
 
     "https://jenkins.com.int.zone/job/gdpr-backend/job/master/job/tests/job/master/view/%20%20All-launches",
 
-    // "https://jenkins.com.int.zone/job/inhouse-products/job/master/job/tests/job/master/view/%20%20All-launches",
-    // "https://jenkins.com.int.zone/job/inhouse-products/job/3.0/job/tests/job/master/view/%20%20All-launches",
-    // "https://jenkins.com.int.zone/job/inhouse-products/job/2.4/job/tests/job/master/view/%20%20All-launches",
+    "https://jenkins.com.int.zone/job/inhouse-products/job/master/job/tests/job/master/view/%20%20All-launches",
+    "https://jenkins.com.int.zone/job/inhouse-products/job/3.3/job/tests/job/master/view/%20%20All-launches",
+    "https://jenkins.com.int.zone/job/inhouse-products/job/3.2/job/tests/job/master/view/%20%20All-launches",
   ],
   "cb-21": [
     "https://jenkins.com.int.zone/view/Tests/view/21/view/abondarenko/",
@@ -60,9 +60,9 @@ const DASHBOARDS = {
 
     "https://jenkins.com.int.zone/job/gdpr-backend/job/master/job/tests/job/21/view/%20%20All-launches",
 
-    // "https://jenkins.com.int.zone/job/inhouse-products/job/master/job/tests/job/21/view/%20%20All-launches",
-    // "https://jenkins.com.int.zone/job/inhouse-products/job/3.0/job/tests/job/21/view/%20%20All-launches",
-    // "https://jenkins.com.int.zone/job/inhouse-products/job/2.4/job/tests/job/21/view/%20%20All-launches",
+    "https://jenkins.com.int.zone/job/inhouse-products/job/master/job/tests/job/21/view/%20%20All-launches",
+    "https://jenkins.com.int.zone/job/inhouse-products/job/3.3/job/tests/job/21/view/%20%20All-launches",
+    "https://jenkins.com.int.zone/job/inhouse-products/job/3.2/job/tests/job/21/view/%20%20All-launches",
   ],
 };
 
