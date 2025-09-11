@@ -225,7 +225,7 @@ async function evaluateBuildData(builds) {
     }
 
     const status = buildData.result || 'NOT_RUN';
-    const stable = 'SUCCESS' === status;
+    const stable = ['SUCCESS', 'NOT_RUN'].includes(status);
 
 
     const stableBuildName = (status !== 'NOT_RUN' && !buildData.buildName) ? await evaluateBuildName(buildData.jobUrl, buildData.componentName, buildData.isUpgrade) : buildData.buildName;
