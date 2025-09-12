@@ -8,138 +8,60 @@ import { buildSvgText, evaluateBuildData, Status } from "./Status";
 import { TableBody } from "@mui/material";
 import { useEffect, useState } from "react";
 
-import { compareVersions } from 'compare-versions';
-import { xhr } from "./request";
+import { DYNAMIC_COMPONENTS, fetchComponentValidateAndPromodeJobs } from "./dynamicComponents";
 
-const AMOUNT_OF_DYNAMIC_RELEASES = 2;
 const DYNAMIC_RELEASES = {
   OSS: ['https://jenkins.com.int.zone/job/oss', 'https://jenkins.com.int.zone/job/oss/job/release'],
   BSS: ['https://jenkins.com.int.zone/job/bss', 'https://jenkins.com.int.zone/job/bss/job/release'],
   "Branding UI": ['https://jenkins.com.int.zone/job/branding-ui-cluster', 'https://jenkins.com.int.zone/job/branding-ui-cluster/job/release'],
-  IDP: ['https://jenkins.com.int.zone/job/idp-backend'],
-  UAM: ['https://jenkins.com.int.zone/job/uam'],
-  GDPR: ['https://jenkins.com.int.zone/job/gdpr-backend'],
-  INHOUSE: ['https://jenkins.com.int.zone/job/inhouse-products'],
   E2E: ['https://jenkins.com.int.zone/job/e2e-tests-v2', 'https://jenkins.com.int.zone/job/e2e-tests-v2/job/release']
 };
 
-const LATEST_RELEASE_NAME = 'master';
-const UNSTABLE_RELEASE_NAME = 'unstable';
-const UNSTABLE_JOB_NAMES = [LATEST_RELEASE_NAME, UNSTABLE_RELEASE_NAME];
-
-function getReleaseName(componentName) {
-  switch (componentName) {
-    case 'OSS': case 'BSS': case 'Branding UI': case 'E2E': {
-      return UNSTABLE_RELEASE_NAME;
-    }
-
-    default: {
-      return LATEST_RELEASE_NAME;
-    }
-  }
-}
-
-async function fetchJobs(name, baseUrl) {
-  const url = `${baseUrl}/api/json?tree=jobs[name,jobs[name,url,lastBuild[timestamp,inProgress,result],builds[inProgress,result,url,actions[parameters[*]],previousBuild[result]]]]`;
-
-  return xhr(url).then((response) => {
-    const jobs = (response["jobs"] || [])
-      .filter((job) => {
-        const isFolder = job["_class"] === 'com.cloudbees.hudson.plugins.folder.Folder';
-        const isVersion = job.name.includes(".");
-        const isUnableOrMaster = UNSTABLE_JOB_NAMES.includes(job.name);
-        return isFolder && (isVersion || isUnableOrMaster)
-      })
-      .sort((a, b) => a.name.localeCompare(b.name)) // sort by name to enusre that "master" job comes before "unstable" job
-      .reduce((acc, job) => {
-        if (UNSTABLE_JOB_NAMES.includes(job.name)) {
-          UNSTABLE_JOB_NAMES.forEach(value => {
-            delete acc[value];
-          });
-          acc[job.name] = job;
-        } else {
-          acc[`1.0.0-${job.name}`] = job;
-        }
-
-        return acc;
-      }, {});
-
-    const release = {};
-    release[name] = jobs;
-    return release;
-  });
-}
-
-async function fetchDynamicReleases(setter) {
-
-  const promises = Object.entries(DYNAMIC_RELEASES).map(async ([name, baseUrls]) => {
-    const promises = baseUrls.map((baseUrl) => {
-      return fetchJobs(name, baseUrl);
-    });
-
-    return Promise.all(promises).then((values) => {
-      return values.reduce((acc, value) => [...acc, ...Object.entries(value)], [])
-        .reduce((acc, [key, value]) => {
-          if (acc.hasOwnProperty(key)) {
-            Object.assign(acc[key], value);
-          } else {
-            acc[key] = { ...value }
-          }
-
-          return acc;
-        },
-          {});
-    })
-  });
-
-  Promise.all(promises).then(async (values) => {
-    const components = values.reduce((acc, value) => {
-      return { ...acc, ...value };
-    }, {})
-
-    const releases = await Object.entries(components)
-      .map(async ([name, component]) => {
-        const latestReleaseName = getReleaseName(name);
-        const latestVersionJob = component[latestReleaseName];
-        delete component[LATEST_RELEASE_NAME];
-        delete component[UNSTABLE_RELEASE_NAME];
-        const jobs = Object.keys(component).sort(compareVersions).reverse().slice(0, AMOUNT_OF_DYNAMIC_RELEASES).map((key) => component[key]);
-
-        const values = [latestVersionJob, ...jobs]
-          .filter((job) => !!job && !!job.jobs)
-          .map(async (job) => {
-            const validateAndPromoteJob = (job.jobs || []).find((job) => job.name === 'validate-and-promote') || {};
-
-            const builds = validateAndPromoteJob["builds"] || [];
-            const data = await evaluateBuildData(builds, false);
-            const svgText = buildSvgText(data)
-            return {
-              buildUrl: validateAndPromoteJob.url,
-              svgText: svgText
-            };
-          });
-
-        const data = {};
-        data[name] = await Promise.all(values);
-        return data;
-      })
-      .reduce(async (acc, value) => {
-        const revoledValues = await value;
-        const resolvedAcc = await acc;
-        return { ...resolvedAcc, ...revoledValues };
-      }, {});
-    setter(releases)
-  });
-}
 
 function Releases() {
 
   const [dynamicReleases, setDynamicReleases] = useState({});
 
   useEffect(() => {
-    if (Object.keys(dynamicReleases).length === 0) {
-      fetchDynamicReleases(setDynamicReleases);
+    if (Object.keys(dynamicReleases).length !== 0) {
+      return;
     }
+
+    async function wrapper() {
+      const validateAndPromodeJobs = await fetchComponentValidateAndPromodeJobs({ ...DYNAMIC_RELEASES, ...DYNAMIC_COMPONENTS })
+
+      const releasesPromises = Object.entries(validateAndPromodeJobs)
+        .map(async ([name, validateAndPromoteJobs]) => {
+          const buildsDataPromises = validateAndPromoteJobs
+            .map(async (validateAndPromoteJob) => {
+              const builds = validateAndPromoteJob["builds"] || [];
+              const data = await evaluateBuildData(builds, false);
+              const svgText = buildSvgText(data)
+              return {
+                buildUrl: validateAndPromoteJob.url,
+                svgText: svgText,
+              };
+            });
+
+          const data = await Promise.all(buildsDataPromises);
+          const result = {};
+          result[name] = data;
+
+          return result;
+        })
+        .reduce(async (acc, value) => {
+          const resolvedAcc = await acc;
+          const resoledValue = await value;
+          return { ...resolvedAcc, ...resoledValue };
+        });
+
+
+      const releases = await releasesPromises;
+
+      setDynamicReleases(releases);
+    }
+
+    wrapper();
   }, [dynamicReleases]);
 
 

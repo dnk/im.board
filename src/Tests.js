@@ -18,51 +18,14 @@ import {
 import { buildSvgText, evaluateBuildData, Status } from "./Status";
 import MaterialUISwitch from "./MaterialUISwitch";
 import { xhr } from "./request";
+import { DYNAMIC_COMPONENTS, fetchComponentValidateAndPromodeJobs } from "./dynamicComponents";
 
 const DASHBOARDS = {
   unstable: [
-    //"https://jenkins.com.int.zone/view/Tests/view/master/view/abondarenko/",
-    //"https://jenkins.com.int.zone/view/Tests/view/master/view/eoktyabrskiy/",
-    //    "https://jenkins.com.int.zone/view/Tests/view/master/view/rbesolov/",
     "https://jenkins.com.int.zone/view/Tests/view/master/view/nnetesov/",
-    //"https://jenkins.com.int.zone/view/Tests/view/master/view/vkopchenin/",
-
-    "https://jenkins.com.int.zone/job/idp-backend/job/master/job/tests/job/master/view/%20%20All-launches",
-    "https://jenkins.com.int.zone/job/idp-backend/job/release-5.1/job/tests/job/master/view/%20%20All-launches",
-    "https://jenkins.com.int.zone/job/idp-backend/job/release-5.0/job/tests/job/master/view/%20%20All-launches",
-    "https://jenkins.com.int.zone/job/idp-backend/job/release-4.2/job/tests/job/master/view/%20%20All-launches",
-
-    "https://jenkins.com.int.zone/job/uam/job/master/job/tests/job/master/view/%20%20All-launches",
-    "https://jenkins.com.int.zone/job/uam/job/release-3.0/job/tests/job/master/view/%20%20All-launches",
-    "https://jenkins.com.int.zone/job/uam/job/release-2.1/job/tests/job/master/view/%20%20All-launches",
-
-    "https://jenkins.com.int.zone/job/gdpr-backend/job/master/job/tests/job/master/view/%20%20All-launches",
-
-    "https://jenkins.com.int.zone/job/inhouse-products/job/master/job/tests/job/master/view/%20%20All-launches",
-    "https://jenkins.com.int.zone/job/inhouse-products/job/3.3/job/tests/job/master/view/%20%20All-launches",
-    "https://jenkins.com.int.zone/job/inhouse-products/job/3.2/job/tests/job/master/view/%20%20All-launches",
   ],
   "cb-21": [
-    "https://jenkins.com.int.zone/view/Tests/view/21/view/abondarenko/",
-    "https://jenkins.com.int.zone/view/Tests/view/21/view/eoktyabrskiy/",
-    //    "https://jenkins.com.int.zone/view/Tests/view/21/view/rbesolov/",
     "https://jenkins.com.int.zone/view/Tests/view/21/view/nnetesov/",
-    //"https://jenkins.com.int.zone/view/Tests/view/21/view/vkopchenin/",
-
-    "https://jenkins.com.int.zone/job/idp-backend/job/master/job/tests/job/21/view/%20%20All-launches",
-    "https://jenkins.com.int.zone/job/idp-backend/job/release-5.1/job/tests/job/21/view/%20%20All-launches",
-    "https://jenkins.com.int.zone/job/idp-backend/job/release-5.0/job/tests/job/21/view/%20%20All-launches",
-    "https://jenkins.com.int.zone/job/idp-backend/job/release-4.2/job/tests/job/21/view/%20%20All-launches",
-
-    "https://jenkins.com.int.zone/job/uam/job/master/job/tests/job/21/view/%20%20All-launches",
-    "https://jenkins.com.int.zone/job/uam/job/release-3.0/job/tests/job/21/view/%20%20All-launches",
-    "https://jenkins.com.int.zone/job/uam/job/release-2.1/job/tests/job/21/view/%20%20All-launches",
-
-    "https://jenkins.com.int.zone/job/gdpr-backend/job/master/job/tests/job/21/view/%20%20All-launches",
-
-    "https://jenkins.com.int.zone/job/inhouse-products/job/master/job/tests/job/21/view/%20%20All-launches",
-    "https://jenkins.com.int.zone/job/inhouse-products/job/3.3/job/tests/job/21/view/%20%20All-launches",
-    "https://jenkins.com.int.zone/job/inhouse-products/job/3.2/job/tests/job/21/view/%20%20All-launches",
   ],
 };
 
@@ -181,6 +144,23 @@ function Tests() {
   const [rowsPerPage, setRowsPerPage] = useState(0);
 
   async function fetchTests() {
+
+    const componentValidateAndPromodeJobs = await fetchComponentValidateAndPromodeJobs(DYNAMIC_COMPONENTS);
+
+    Object.entries(componentValidateAndPromodeJobs)
+      .forEach(([_, validateAndPromodeJobs]) => {
+        validateAndPromodeJobs.forEach((validateAndPromodeJob) => {
+          const cb21TestsViewUrl = validateAndPromodeJob.url.replace('validate-and-promote', 'tests/job/21/view/%20%20All-launches');
+          const cbUnstableTestsViewUrl = validateAndPromodeJob.url.replace('validate-and-promote', 'tests/job/master/view/%20%20All-launches');
+          if (!DASHBOARDS['cb-21'].includes(cb21TestsViewUrl)) {
+            DASHBOARDS['cb-21'].push(cb21TestsViewUrl);
+          }
+          if (!DASHBOARDS['unstable'].includes(cbUnstableTestsViewUrl)) {
+            DASHBOARDS['unstable'].push(cbUnstableTestsViewUrl);
+          }
+        })
+      });
+
     const dashboardsPromises = Object.entries(DASHBOARDS).map(async (e) => {
       const [dashboardId, views] = e;
 
