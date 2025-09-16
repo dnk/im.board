@@ -94,26 +94,31 @@ function toRows(tests) {
       weight: -1,
     };
 
-    const statuses = Object.entries(boards).map(([dashboardId, data]) => {
-      const rowKeyTemplate = testName + "-" + dashboardId;
+    const status = Object.entries(boards)
+      .map(([dashboardId, data]) => {
+        const rowKeyTemplate = testName + "-" + dashboardId;
 
-      if (data) {
-        const weight = (!data.status.stable || data.status.running ? 10 : 0);
-        weightHolder.weight = Math.max(weightHolder.weight, weight);
-        const board = {
-          buildUrl: data.baseUrl,
-          svgText: data.svgText,
-          jobUrl: data.jobUrl
-        };
-        return <Status key={rowKeyTemplate + "-status"} board={board} />;
-      } else {
-        return "";
-      }
-    });
+        if (data) {
+          const weight = (!data.status.stable || data.status.running ? 10 : 0);
+          weightHolder.weight = Math.max(weightHolder.weight, weight);
+          const board = {
+            buildUrl: data.baseUrl,
+            svgText: data.svgText,
+            jobUrl: data.jobUrl
+          };
+          return [dashboardId, <Status key={rowKeyTemplate + "-status"} board={board} />];
+        } else {
+          return [dashboardId, ""];
+        }
+      })
+      .reduce((acc, [dashboardId, status]) => {
+        acc[dashboardId] = status;
+        return acc;
+      }, {})
 
     return {
       testName: testName,
-      status: statuses,
+      status: status,
       weightHolder: weightHolder,
     };
   });
@@ -258,9 +263,6 @@ function Tests() {
     () =>
       rows
         .toSorted(sortComporator)
-        .map((row) => {
-          return [row.testName, ...row.status];
-        })
         .slice(0, rowsPerPage),
     [rows, rowsPerPage, sortComporator],
   );
@@ -312,20 +314,20 @@ function Tests() {
                 </Stack>
               </TableSortLabel>
             </TableCell>
-            {dashboards.map((key) => {
+            {dashboards.map((dashboardId) => {
               return (
-                <TableCell key={key}>
-                  <TableSortLabel
-                    active={sort.field === key}
-                    direction={sort.field === key ? sort.order : "asc"}
+                <TableCell key={dashboardId}>
+                  <TableSortLabel key={`${dashboardId}-sort-label`}
+                    active={sort.field === dashboardId}
+                    direction={sort.field === dashboardId ? sort.order : "asc"}
                     onClick={() => {
-                      const currentDirection = sort.field === key ? sort.order : "desc";
+                      const currentDirection = sort.field === dashboardId ? sort.order : "desc";
                       const order = currentDirection === "desc" ? "asc" : "desc";
                       setRowsPerPage(rows.length);
-                      setSort({ field: key, order: order });
+                      setSort({ field: dashboardId, order: order });
                     }}
                   >
-                    {key}
+                    {dashboardId}
                   </TableSortLabel>
                 </TableCell>
               );
@@ -335,9 +337,11 @@ function Tests() {
         <TableBody key="tests-body">
           {visibleRows.map((row) => {
             return (
-              <TableRow>
-                {row.map((column) => {
-                  return <TableCell>{column}</TableCell>;
+              <TableRow key={row.testName}>
+                <TableCell>{row.testName}</TableCell>
+                {dashboards.map((dashboardId) => {
+                  const status = row.status[dashboardId] || "";
+                  return <TableCell key={`${row.testName}-${dashboardId}`}>{status}</TableCell>;
                 })}
               </TableRow>
             );
