@@ -65,8 +65,6 @@ function Releases() {
   }, [dynamicReleases]);
 
 
-  console.log(dynamicReleases);
-
   return (
     <TableContainer component={Paper} key="releases-table-container">
       <Table

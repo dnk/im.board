@@ -19,7 +19,7 @@ function App() {
         <CardContent sx={{ padding: '8px', flexGrow: 0 }} key='card-releases'>
           <Releases key="releases" />
         </CardContent>
-        <CardContent sx={{ padding: '8px', flexGrow: 1 }} key='card-tests'>
+        <CardContent sx={{ padding: '8px', flexGrow: 0 }} key='card-tests'>
           <Tests key="tests" />
         </CardContent>
       </Card>

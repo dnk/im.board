@@ -94,7 +94,6 @@ async function _evaluateVersions(url, componentName) {
         .filter((productFlowNode) => !!productFlowNode && productFlowNode.length !== 0)
         .map((productFlowNode) => productFlowNode[0])
         .map((productFlowNode) => {
-            console.log(productFlowNode);
             const href = ((productFlowNode["_links"] || {})["log"] || {})["href"];
             return href;
         })

@@ -2,11 +2,11 @@ import { useState, useEffect, useMemo } from "react";
 
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
-import TableContainer from "@mui/material/TableContainer";
-import Paper from "@mui/material/Paper";
 
 import { styled } from "@mui/material/styles";
-import MuiTableCell from "@mui/material/TableCell";
+import TableCell from "@mui/material/TableCell";
+
+import { TreeItem } from '@mui/x-tree-view/TreeItem';
 
 import {
   Stack,
@@ -19,6 +19,7 @@ import { buildSvgText, evaluateBuildData, Status } from "./Status";
 import MaterialUISwitch from "./MaterialUISwitch";
 import { xhr } from "./request";
 import { DYNAMIC_COMPONENTS, fetchComponentValidateAndPromodeJobs } from "./dynamicComponents";
+import { SimpleTreeView } from "@mui/x-tree-view";
 
 const DASHBOARDS = {
   unstable: [
@@ -30,7 +31,7 @@ const DASHBOARDS = {
 };
 
 const TEST_NAME_CORRECTIONS = {
-  //'IDP : upgrade-idp-backend': 'IDP : idp-upgrade'
+  'UAM/master : upgrade-uam': 'UAM/master : upgrade-uam-customers-onboarding'
 };
 
 function comporator(field, order) {
@@ -74,6 +75,7 @@ function comporator(field, order) {
 }
 
 const CORE_COMPONENTS = ["OSS", "BSS", "BRANDING"];
+
 function jobName(name, url) {
   const parts = url.split("/job/");
   const branch = parts[2];
@@ -126,15 +128,23 @@ function toRows(tests) {
   return rows;
 }
 
-// set the entire last column with Mui 5 Styled-Component
-const TableCell = styled(MuiTableCell)`
-  :nth-child(1) {
-    max-width: 25em;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-`;
+const TestNameCell = styled(TableCell)(({ theme }) => ({
+  whiteSpace: "nowrap",
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+
+  maxWidth: '15em',
+  width: "40%"
+}));
+
+const TestStatusCell = styled(TableCell)(({ theme }) => ({
+  whiteSpace: "nowrap",
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+
+  width: "30%"
+}));
+
 
 function Tests() {
   const [loaded, setLoaded] = useState(false);
@@ -273,8 +283,19 @@ function Tests() {
 
   const dashboards = Object.keys(DASHBOARDS);
 
+  const grouppedRows = visibleRows.reduce((acc, row) => {
+    const testGroup = row.testName.split(":")[0].trim();
+    const testName = row.testName.split(":")[1].trim();
+    if (acc[testGroup]) {
+      acc[testGroup].push({ name: testName, row: row });
+    } else {
+      acc[testGroup] = [{ name: testName, row: row }];
+    }
+    return acc;
+  }, {});
+
   return (
-    <TableContainer component={Paper} key="tests-TableContainer">
+    <div>
       <Table
         size="small"
         sx={{
@@ -286,37 +307,28 @@ function Tests() {
       >
         <TableHead key="tests-head">
           <TableRow>
-            <TableCell key="tests-name">
-              <TableSortLabel
-                active={sort.field === "name"}
-                direction={sort.field === "name" ? sort.order : "asc"}
-                onClick={() => {
-                  const currentDirection = sort.field === "name" ? sort.order : "desc";
-                  const order = currentDirection === "desc" ? "asc" : "desc";
-                  setRowsPerPage(rows.length);
-                  setSort({ field: "name", order: order });
-                }}
-              >
-                <Stack direction="row" spacing={1} alignItems="center">
-                  <MaterialUISwitch
-                    size="small"
-                    onChange={() => {
-                      if (rowsPerPage === amountOfFailedOrRunningTests) {
-                        setRowsPerPage(rows.length);
-                      } else {
-                        setSort(defaultSort);
-                        setRowsPerPage(amountOfFailedOrRunningTests);
-                      }
-                    }}
-                    disabled={amountOfFailedOrRunningTests === 0}
-                    checked={rowsPerPage !== amountOfFailedOrRunningTests}
-                  />
-                </Stack>
-              </TableSortLabel>
-            </TableCell>
+            <TestNameCell key="tests-name">
+              <Stack direction="row" spacing={1} alignItems="center">
+                <span>Failed Tests Only</span>
+                <MaterialUISwitch
+                  size="small"
+                  onChange={() => {
+                    if (rowsPerPage === amountOfFailedOrRunningTests) {
+                      setRowsPerPage(rows.length);
+                    } else {
+                      setSort(defaultSort);
+                      setRowsPerPage(amountOfFailedOrRunningTests);
+                    }
+                  }}
+                  disabled={amountOfFailedOrRunningTests === 0}
+                  checked={rowsPerPage !== amountOfFailedOrRunningTests}
+                />
+                <span>All Tests</span>
+              </Stack>
+            </TestNameCell>
             {dashboards.map((dashboardId) => {
               return (
-                <TableCell key={dashboardId}>
+                <TestStatusCell key={dashboardId}>
                   <TableSortLabel key={`${dashboardId}-sort-label`}
                     active={sort.field === dashboardId}
                     direction={sort.field === dashboardId ? sort.order : "asc"}
@@ -329,26 +341,80 @@ function Tests() {
                   >
                     {dashboardId}
                   </TableSortLabel>
-                </TableCell>
+                </TestStatusCell>
               );
             })}
           </TableRow>
         </TableHead>
-        <TableBody key="tests-body">
-          {visibleRows.map((row) => {
-            return (
-              <TableRow key={row.testName}>
-                <TableCell>{row.testName}</TableCell>
-                {dashboards.map((dashboardId) => {
-                  const status = row.status[dashboardId] || "";
-                  return <TableCell key={`${row.testName}-${dashboardId}`}>{status}</TableCell>;
-                })}
-              </TableRow>
-            );
-          })}
-        </TableBody>
       </Table>
-    </TableContainer>
+
+
+      <SimpleTreeView disableSelection="true" defaultExpandedItems={Object.keys(grouppedRows)}>
+        {
+          Object.entries(grouppedRows).map(([groupName, tests]) => {
+
+            function CustomLabel() {
+              return (
+                <Table
+                  size="small"
+                  sx={{
+                    [`& .${tableCellClasses.root}`]: {
+                      border: "none",
+                    },
+                  }}
+                >
+                  <TableHead>
+                    <TestNameCell>{groupName}</TestNameCell>
+                    {
+                      dashboards.map((dashboardId) => {
+                        return <TableCell>
+                          {/* <LinearProgress value={100*1/2} variant="determinate"  color="warning" /> */}
+                        </TableCell>;
+                      })
+                    }
+                  </TableHead>
+                </Table>
+              );
+            }
+
+            return (
+              <TreeItem itemId={groupName} slots={{ label: CustomLabel }}>
+                <Table
+                  size="small"
+                  sx={{
+                    tableLayout: "fixed",
+                    maxWidth: '62.5em', // = 25em /.4
+                    [`& .${tableCellClasses.root}`]: {
+                      border: "none"
+                    },
+                  }}
+                >
+                  <TableBody>
+                    {
+                      tests.map((test) => {
+                        const testName = test.name;
+                        const row = test.row;
+                        return (
+                          <TableRow key={`${groupName}-${testName}-row`}>
+                            <TestNameCell key={`${groupName}-${testName}-testname`}>{testName}</TestNameCell>
+                            {
+                              dashboards.map((dashboardId) => {
+                                const status = row.status[dashboardId] || "";
+                                return <TestStatusCell key={`${groupName}-${testName}-${dashboardId}-status`}>{status}</TestStatusCell>;
+                              })
+                            }
+                          </TableRow>
+                        );
+                      })
+                    }
+                  </TableBody>
+                </Table>
+              </TreeItem>
+            );
+          })
+        }
+      </SimpleTreeView>
+    </div>
   );
 }
 export default Tests;

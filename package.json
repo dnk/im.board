@@ -8,7 +8,7 @@
     "@emotion/styled": "^11.14.0",
     "@mui/icons-material": "^7.0.2",
     "@mui/material": "^7.0.2",
-    "@mui/x-data-grid": "^8.1.0",
+    "@mui/x-tree-view": "^8.15.0",
     "badge-maker": "./modules/badge-maker/",
     "char-width-table-consumer": "./modules/char-width-table-consumer/",
     "compare-versions": "^6.1.1",
