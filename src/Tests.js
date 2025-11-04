@@ -9,7 +9,9 @@ import TableCell from "@mui/material/TableCell";
 import { TreeItem } from '@mui/x-tree-view/TreeItem';
 
 import {
+  Paper,
   Stack,
+  TableContainer,
   TableHead,
   TableRow,
   TableSortLabel,
@@ -131,10 +133,10 @@ function toRows(tests) {
 const TestNameCell = styled(TableCell)(({ theme }) => ({
   whiteSpace: "nowrap",
   overflow: "hidden",
-  textOverflow: "ellipsis",
+  textOverflow: "ellipsis"
 
-  maxWidth: '15em',
-  width: "40%"
+  //maxWidth: '20em'
+  //width: "40%"
 }));
 
 const TestStatusCell = styled(TableCell)(({ theme }) => ({
@@ -142,7 +144,7 @@ const TestStatusCell = styled(TableCell)(({ theme }) => ({
   overflow: "hidden",
   textOverflow: "ellipsis",
 
-  width: "30%"
+  width: "33%"
 }));
 
 
@@ -295,7 +297,7 @@ function Tests() {
   }, {});
 
   return (
-    <div>
+    <TableContainer component={Paper}>
       <Table
         size="small"
         sx={{
@@ -383,7 +385,7 @@ function Tests() {
                   size="small"
                   sx={{
                     tableLayout: "fixed",
-                    maxWidth: '62.5em', // = 25em /.4
+                    maxWidth: '52em',
                     [`& .${tableCellClasses.root}`]: {
                       border: "none"
                     },
@@ -414,7 +416,7 @@ function Tests() {
           })
         }
       </SimpleTreeView>
-    </div>
+    </TableContainer>
   );
 }
 export default Tests;
