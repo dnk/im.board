@@ -329,7 +329,7 @@ function Tests() {
     return acc;
   }, {});
 
-  const defaultExpandedItems = Object.entries(grouppedRows).reduce((acc, [key, value]) => {
+  const expandedItems = Object.entries(grouppedRows).reduce((acc, [key, value]) => {
     if (!value.collapse) {
       acc.push(key);
     }
@@ -392,7 +392,7 @@ function Tests() {
       </Table>
 
 
-      <SimpleTreeView disableSelection="true" defaultExpandedItems={defaultExpandedItems}>
+      <SimpleTreeView disableSelection="true" expandedItems={expandedItems}>
         {
           Object.entries(grouppedRows).map(([groupName, groupedRow]) => {
 
