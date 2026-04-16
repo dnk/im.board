@@ -25,10 +25,14 @@ import { SimpleTreeView } from "@mui/x-tree-view";
 
 const DASHBOARDS = {
   unstable: [
-    "https://jenkins.com.int.zone/view/Tests/view/master/view/nnetesov/",
+    {
+      "url": "https://jenkins.com.int.zone/view/Tests/view/master/view/nnetesov/",
+    }
   ],
   "cb-21": [
-    "https://jenkins.com.int.zone/view/Tests/view/21/view/nnetesov/",
+    {
+      "url": "https://jenkins.com.int.zone/view/Tests/view/21/view/nnetesov/",
+    }
   ],
 };
 
@@ -93,7 +97,9 @@ function jobName(name, url) {
 }
 
 function toRows(tests) {
-  const rows = Object.entries(tests).map(([testName, boards]) => {
+  const rows = Object.entries(tests).map(([testName, data]) => {
+    const boards = data["boardData"];
+    const isLast = data["isLast"];
     const weightHolder = {
       weight: -1,
     };
@@ -124,6 +130,7 @@ function toRows(tests) {
       testName: testName,
       status: status,
       weightHolder: weightHolder,
+      isLast: isLast
     };
   });
 
@@ -166,14 +173,28 @@ function Tests() {
 
     Object.entries(componentValidateAndPromodeJobs)
       .forEach(([_, validateAndPromodeJobs]) => {
-        validateAndPromodeJobs.forEach((validateAndPromodeJob) => {
+        validateAndPromodeJobs.forEach((validateAndPromodeJob, index) => {
           const cb21TestsViewUrl = validateAndPromodeJob.url.replace('validate-and-promote', 'tests/job/21/view/%20%20All-launches');
           const cbUnstableTestsViewUrl = validateAndPromodeJob.url.replace('validate-and-promote', 'tests/job/master/view/%20%20All-launches');
-          if (!DASHBOARDS['cb-21'].includes(cb21TestsViewUrl)) {
-            DASHBOARDS['cb-21'].push(cb21TestsViewUrl);
+
+          const isLast = validateAndPromodeJobs.length > 1 && index === (validateAndPromodeJobs.length - 1);
+
+          const cb21Data = {
+            "url": cb21TestsViewUrl,
+            "isLast": isLast
+          };
+
+          const cbUnstableData = {
+            "url": cbUnstableTestsViewUrl,
+            "isLast": isLast
+          };
+
+          if (!DASHBOARDS['cb-21'].includes(cb21Data)) {
+            DASHBOARDS['cb-21'].push(cb21Data);
           }
-          if (!DASHBOARDS['unstable'].includes(cbUnstableTestsViewUrl)) {
-            DASHBOARDS['unstable'].push(cbUnstableTestsViewUrl);
+
+          if (!DASHBOARDS['unstable'].includes(cbUnstableData)) {
+            DASHBOARDS['unstable'].push(cbUnstableData);
           }
         })
       });
@@ -181,7 +202,9 @@ function Tests() {
     const dashboardsPromises = Object.entries(DASHBOARDS).map(async (e) => {
       const [dashboardId, views] = e;
 
-      const viewPromises = views.map((viewUrl) => {
+      const viewPromises = views.map((viewData) => {
+        const viewUrl = viewData["url"];
+        const isLast = viewData["isLast"];
         const url = viewUrl + "/api/json?tree=jobs[name,url,inQueue,builds[timestamp,inProgress,result,url,actions[parameters[*]],previousBuild[result]]]";
 
         return xhr(url).then((response) => {
@@ -198,7 +221,7 @@ function Tests() {
 
             const baseUrl = job.url;
             const jobUrl = data.jobUrl;
-            return [name, url, baseUrl, jobUrl, svgText, status];
+            return [name, url, baseUrl, jobUrl, svgText, status, isLast];
           });
           return Promise.all(promises);
         });
@@ -209,13 +232,14 @@ function Tests() {
       const boardTests = viewTests.reduce((acc, value) => {
         acc = acc || {};
         value.forEach((item) => {
-          const [name, url, baseUrl, jobUrl, svgText, status] = item;
+          const [name, url, baseUrl, jobUrl, svgText, status, isLast] = item;
           acc[name] = {
             url: url,
             jobUrl: jobUrl,
             baseUrl: baseUrl,
             svgText: svgText,
             status: status,
+            isLast: isLast,
           };
         });
 
@@ -231,9 +255,12 @@ function Tests() {
       const [dashboardId, tests] = value;
       Object.entries(tests).reduce((acc, e) => {
         const [testName, data] = e;
-        let boards = acc[testName] || {};
+        let boards = (acc[testName] || {})["boardData"] || {};
         boards[dashboardId] = data;
-        acc[testName] = boards;
+        acc[testName] = {
+          boardData: boards,
+          isLast: data.isLast
+        };
         return acc;
       }, acc);
 
@@ -241,7 +268,8 @@ function Tests() {
     }, {});
 
     const amountOfFailedOrRunningTests = Object.entries(dashboardTests).reduce(
-      (acc, [name, tests]) => {
+      (acc, [name, data]) => {
+        const tests = data["boardData"]
         const amount = Object.entries(tests).reduce((acc, [_, data]) => {
           if (acc !== 0) {
             return acc;
@@ -288,13 +316,26 @@ function Tests() {
   const grouppedRows = visibleRows.reduce((acc, row) => {
     const testGroup = row.testName.split(":")[0].trim();
     const testName = row.testName.split(":")[1].trim();
-    if (acc[testGroup]) {
-      acc[testGroup].push({ name: testName, row: row });
-    } else {
-      acc[testGroup] = [{ name: testName, row: row }];
-    }
+
+    acc[testGroup] = acc[testGroup] || {};
+    acc[testGroup].collapse = acc[testGroup].collapse || row.isLast;
+    acc[testGroup].tests = acc[testGroup].tests || [];
+
+    acc[testGroup].tests.push({
+      name: testName,
+      row: row
+    });
+
     return acc;
   }, {});
+
+  const defaultExpandedItems = Object.entries(grouppedRows).reduce((acc, [key, value]) => {
+    if (!value.collapse) {
+      acc.push(key);
+    }
+
+    return acc;
+  }, []);
 
   return (
     <TableContainer component={Paper}>
@@ -351,9 +392,11 @@ function Tests() {
       </Table>
 
 
-      <SimpleTreeView disableSelection="true" defaultExpandedItems={Object.keys(grouppedRows)}>
+      <SimpleTreeView disableSelection="true" defaultExpandedItems={defaultExpandedItems}>
         {
-          Object.entries(grouppedRows).map(([groupName, tests]) => {
+          Object.entries(grouppedRows).map(([groupName, groupedRow]) => {
+
+            const tests = groupedRow.tests;
 
             function CustomLabel() {
               return (
