@@ -1,7 +1,7 @@
 function fix_url(url) {
     const fixedUrl = url.replace(
         "https://jenkins.com.int.zone",
-        "https://dashboard.cloudblue.online/jenkins",
+        "https://dashboard.aks.int.zone/jenkins",
     );
     return fixedUrl;
 }
