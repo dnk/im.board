@@ -160,6 +160,7 @@ function Tests() {
   const [rows, setRows] = useState([]);
   const defaultSort = { field: "weight", order: "asc" };
   const [sort, setSort] = useState(defaultSort);
+  const [changedItems, setChangedItems] = useState({});
   const sortComporator = useMemo(
     () => comporator(sort.field, sort.order),
     [sort],
@@ -299,12 +300,67 @@ function Tests() {
     }
   }, [loaded]);
 
-  const visibleRows = useMemo(
-    () =>
-      rows
+  const grouppedRows = useMemo(
+    () => {
+      const visibleRows = rows
         .toSorted(sortComporator)
-        .slice(0, rowsPerPage),
-    [rows, rowsPerPage, sortComporator],
+        .slice(0, rowsPerPage);
+
+      return visibleRows.reduce((acc, row) => {
+        const testGroup = row.testName.split(":")[0].trim();
+        const testName = row.testName.split(":")[1].trim();
+
+        acc[testGroup] = acc[testGroup] || {};
+        acc[testGroup].collapse = acc[testGroup].collapse || row.isLast;
+        acc[testGroup].tests = acc[testGroup].tests || [];
+
+        acc[testGroup].tests.push({
+          name: testName,
+          row: row
+        });
+
+        return acc;
+      }, {})
+    },
+    [rows, rowsPerPage, sortComporator]
+  );
+
+  const expandedItems = useMemo(
+    () => {
+
+      const changes = Object.entries(changedItems).reduce((acc, entry) => {
+        const [itemId, isExpanded] = entry;
+
+        acc[isExpanded] = acc[isExpanded] || new Set();
+        acc[isExpanded].add(itemId);
+
+        return acc;
+      }, {});
+
+      const collapsItems = changes[false] || new Set();
+      const expandItems = changes[true] || new Set();
+
+      const expandedItems = Object.entries(grouppedRows).reduce((acc, [key, value]) => {
+
+        if (collapsItems.has(key)) {
+          return acc;
+        }
+
+        if (expandItems.has(key)) {
+          acc.push(key);
+          return acc;
+        }
+
+        if (!value.collapse) {
+          acc.push(key);
+        }
+
+        return acc;
+      }, []);
+
+      return expandedItems;
+    },
+    [grouppedRows, changedItems]
   );
 
   if (!loaded || rows.length === 0) {
@@ -312,30 +368,6 @@ function Tests() {
   }
 
   const dashboards = Object.keys(DASHBOARDS);
-
-  const grouppedRows = visibleRows.reduce((acc, row) => {
-    const testGroup = row.testName.split(":")[0].trim();
-    const testName = row.testName.split(":")[1].trim();
-
-    acc[testGroup] = acc[testGroup] || {};
-    acc[testGroup].collapse = acc[testGroup].collapse || row.isLast;
-    acc[testGroup].tests = acc[testGroup].tests || [];
-
-    acc[testGroup].tests.push({
-      name: testName,
-      row: row
-    });
-
-    return acc;
-  }, {});
-
-  const defaultExpandedItems = Object.entries(grouppedRows).reduce((acc, [key, value]) => {
-    if (!value.collapse) {
-      acc.push(key);
-    }
-
-    return acc;
-  }, []);
 
   return (
     <TableContainer component={Paper}>
@@ -392,7 +424,14 @@ function Tests() {
       </Table>
 
 
-      <SimpleTreeView disableSelection="true" defaultExpandedItems={defaultExpandedItems}>
+      <SimpleTreeView disableSelection="true" expandedItems={expandedItems}
+        onItemExpansionToggle={(event, itemId, isExpanded) => {
+          const change = {};
+          change[itemId] = isExpanded;
+
+          setChangedItems({ ...changedItems, ...change });
+
+        }}>
         {
           Object.entries(grouppedRows).map(([groupName, groupedRow]) => {
 
@@ -423,7 +462,7 @@ function Tests() {
             }
 
             return (
-              <TreeItem itemId={groupName} slots={{ label: CustomLabel }}>
+              <TreeItem itemId={groupName} slots={{ label: CustomLabel }} key={`tree-item-${groupName}`}>
                 <Table
                   size="small"
                   sx={{
